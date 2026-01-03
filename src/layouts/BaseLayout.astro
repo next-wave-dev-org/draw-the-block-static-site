@@ -1,0 +1,37 @@
+---
+const { title = "DRAW THE BLOCK" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/events">Events</a>
+        <a href="/vendors">Vendors</a>
+        <a href="/sponsor">Sponsor</a>
+        <a href="/donate">Donate</a>
+      </nav>
+    </header>
+
+    <slot />
+
+    <footer>
+      <div>
+        <a href="/faq">FAQ</a>
+        <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+        <a href="https://discord.com" target="_blank" rel="noreferrer">Discord</a>
+        <a href="#" target="_blank" rel="noreferrer">Newsletter</a>
+      </div>
+      <small>© {new Date().getFullYear()} DRAW THE BLOCK</small>
+    </footer>
+  </body>
+</html>
