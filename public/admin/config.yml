@@ -1,0 +1,47 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "events"
+    label: "Events"
+    folder: "src/content/events"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
+      - { label: "End Date/Time", name: "endDate", widget: "datetime", required: false }
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Summary", name: "summary", widget: "text" }
+      - { label: "Featured Image", name: "image", widget: "image", required: false }
+      - { label: "RSVP Link", name: "rsvpUrl", widget: "string", required: false }
+      - { label: "Cosplay Signup Link", name: "cosplayUrl", widget: "string", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "vendors"
+    label: "Vendors"
+    folder: "src/content/vendors"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Category", name: "category", widget: "string", required: false }
+      - { label: "Website", name: "websiteUrl", widget: "string", required: false }
+      - { label: "Instagram", name: "instagramUrl", widget: "string", required: false }
+      - { label: "Logo/Image", name: "image", widget: "image", required: false }
+      - { label: "Blurb", name: "blurb", widget: "text", required: false }
+      - { label: "Body", name: "body", widget: "markdown", required: false }
+
+  - name: "faq"
+    label: "FAQ"
+    folder: "src/content/faq"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Question", name: "question", widget: "string" }
+      - { label: "Answer", name: "answer", widget: "markdown" }
+      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 1 }

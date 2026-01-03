@@ -1,10 +1,35 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+const events = await getCollection("events");
+
+type EventEntry = CollectionEntry<"events">;
+
+const sortedEvents = (events as EventEntry[]).toSorted(
+    (a: EventEntry, b: EventEntry) => a.data.startDate.getTime() - b.data.startDate.getTime()
+);
 ---
 
-<BaseLayout title="Page Title">
+<BaseLayout title="Events">
   <main>
-    <h1>Page Title</h1>
-    <p>Placeholder content.</p>
+    <h1>Events</h1>
+
+    <ul>
+      {sortedEvents.map((event: EventEntry) => (
+          <li>
+            <h2>
+              <a href={`/events/${event.slug}`}>{event.data.title}</a>
+            </h2>
+            <p>{event.data.summary}</p>
+            <p>
+              <small>
+                {event.data.startDate.toLocaleString()}
+                {event.data.location ? ` — ${event.data.location}` : ""}
+              </small>
+            </p>
+          </li>
+      ))}
+    </ul>
   </main>
 </BaseLayout>

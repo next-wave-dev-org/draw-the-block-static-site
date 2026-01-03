@@ -1,0 +1,34 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+type FaqEntry = CollectionEntry<"faq">;
+
+const faqs = (await getCollection("faq")) as FaqEntry[];
+
+const sortedFaqs = faqs
+    .slice()
+    .sort((a: FaqEntry, b: FaqEntry) => (a.data.order ?? 0) - (b.data.order ?? 0));
+
+const renderedFaqs = await Promise.all(
+    sortedFaqs.map(async (item: FaqEntry) => {
+        const { Content } = await item.render();
+        return { item, Content };
+    })
+);
+---
+
+<BaseLayout title="FAQ">
+    <main>
+        <h1>FAQ</h1>
+
+        {renderedFaqs.map(({ item, Content }) => (
+                <details>
+                    <summary>{item.data.question}</summary>
+                    <div style="margin-top: 8px;">
+                        <Content />
+                    </div>
+                </details>
+        ))}
+    </main>
+</BaseLayout>

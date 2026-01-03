@@ -1,10 +1,51 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+type EventEntry = CollectionEntry<"events">;
+
+export async function getStaticPaths() {
+  const events = (await getCollection("events")) as EventEntry[];
+  return events.map((event: EventEntry) => ({
+    params: { slug: event.slug },
+    props: { event },
+  }));
+}
+
+const { event } = Astro.props as { event: EventEntry };
+const { Content } = await event.render();
 ---
 
-<BaseLayout title="Page Title">
+<BaseLayout title={event.data.title}>
   <main>
-    <h1>Page Title</h1>
-    <p>Placeholder content.</p>
+    <a href="/events">Back to Events</a>
+
+    <h1>{event.data.title}</h1>
+    <p>
+      <small>
+        {event.data.startDate.toLocaleString()}
+        {event.data.location ? ` — ${event.data.location}` : ""}
+      </small>
+    </p>
+
+    {event.data.rsvpUrl && (
+        <p>
+          <a href={event.data.rsvpUrl} target="_blank" rel="noreferrer">
+            RSVP
+          </a>
+        </p>
+    )}
+
+    {event.data.cosplayUrl && (
+        <p>
+          <a href={event.data.cosplayUrl} target="_blank" rel="noreferrer">
+            Cosplay Sign-Up
+          </a>
+        </p>
+    )}
+
+    <hr />
+
+    <Content />
   </main>
 </BaseLayout>

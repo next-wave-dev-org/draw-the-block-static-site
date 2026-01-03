@@ -1,10 +1,47 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+type VendorEntry = CollectionEntry<"vendors">;
+
+const vendors = (await getCollection("vendors")) as VendorEntry[];
+
+const sortedVendors = vendors
+    .slice()
+    .sort((a: VendorEntry, b: VendorEntry) => a.data.name.localeCompare(b.data.name));
 ---
 
-<BaseLayout title="Page Title">
+<BaseLayout title="Vendors">
   <main>
-    <h1>Page Title</h1>
-    <p>Placeholder content.</p>
+    <h1>Vendors</h1>
+
+    <ul>
+      {sortedVendors.map((vendor: VendorEntry) => (
+          <li>
+            <h2>{vendor.data.name}</h2>
+
+            {vendor.data.category && <p>{vendor.data.category}</p>}
+            {vendor.data.blurb && <p>{vendor.data.blurb}</p>}
+
+            {(vendor.data.websiteUrl || vendor.data.instagramUrl) && (
+                <p>
+                  {vendor.data.websiteUrl && (
+                      <a href={vendor.data.websiteUrl} target="_blank" rel="noreferrer">
+                        Website
+                      </a>
+                  )}
+
+                  {vendor.data.websiteUrl && vendor.data.instagramUrl && " · "}
+
+                  {vendor.data.instagramUrl && (
+                      <a href={vendor.data.instagramUrl} target="_blank" rel="noreferrer">
+                        Instagram
+                      </a>
+                  )}
+                </p>
+            )}
+          </li>
+      ))}
+    </ul>
   </main>
 </BaseLayout>
