@@ -1,5 +1,15 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Countdown from "../components/Countdown.astro";
+import { getCollection } from "astro:content";
+
+const events = await getCollection("events");
+const featured = events.find((e) => e.data.featured) ?? events[0];
+
+const targetIso = featured?.data?.startDate
+    ? featured.data.startDate.toISOString()
+    : new Date("2026-01-31T10:00:00-08:00").toISOString();
+const locationText = featured?.data?.location ?? "";
 ---
 
 <BaseLayout title="DRAW THE BLOCK — HOME" current="home">
@@ -19,18 +29,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
     <!-- Countdown -->
     <section class="home__countdown" aria-label="Countdown to event">
-      <div class="countdown">
-        <div class="countdown__time">00:00</div>
-        <div class="countdown__labels">
-          <span>WEEKS</span>
-          <span>DAYS</span>
-        </div>
-      </div>
+      <Countdown targetIso={targetIso} />
 
-      <div class="address">
-        <span class="address__icon" aria-hidden="true">◯</span>
-        <span>1512 11th Ave Seattle, WA 98122</span>
-      </div>
+      {locationText && (
+          <div class="address">
+            <span class="address__icon" aria-hidden="true">◯</span>
+            <span>{locationText}</span>
+          </div>
+      )}
     </section>
 
     <!-- Mascot -->
