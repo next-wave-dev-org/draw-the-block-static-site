@@ -1,7 +1,53 @@
-@font-face {
-    font-family: "Neue Helvetica Condensed";
-    src: url("public/fonts/HelveticaNeue-CondensedBold.woff2") format("woff2");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
+/* src/styles/tokens.css */
+:root {
+    /* =========================
+       Colors
+       ========================= */
+    --color-bg: #287feb;
+    --color-strip: #000000;
+    --color-text: #ffffff;
+    --color-white-10: rgba(255, 255, 255, 0.1);
+    --color-white-20: rgba(255, 255, 255, 0.2);
+
+    /* =========================
+       Typography
+       ========================= */
+    --font-display: "Neue Helvetica Condensed", "Helvetica Neue Condensed",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --fw-display: 700;
+    --fw-body: 400;
+    --ls-display: -0.01em;
+
+    /* =========================
+       Layout
+       ========================= */
+    --content-max: 520px;
+    --content-fluid: min(92vw, var(--content-max));
+    --text-max: 38ch;
+
+    /* =========================
+       Spacing
+       ========================= */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+    --space-8: 64px;
+
+    --pad-x: 24px;
+    --pad-y: 32px;
+    --stack: var(--space-6);
+
+
+    /* =========================
+       Type scale (tune after first pass)
+       ========================= */
+    --fs-nav: 12px;
+    --fs-body: 12px;
+    --fs-countdown: 40px;
+    --lh-body: 1.35;
 }
