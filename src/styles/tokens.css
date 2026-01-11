@@ -22,7 +22,7 @@
     /* =========================
        Layout
        ========================= */
-    --content-max: 520px;
+    --content-max: min(92vw, 600px);
     --content-fluid: min(92vw, var(--content-max));
     --text-max: 38ch;
 
@@ -46,8 +46,8 @@
     /* =========================
        Type scale (tune after first pass)
        ========================= */
-    --fs-nav: 12px;
-    --fs-body: 12px;
-    --fs-countdown: 40px;
+    --fs-nav: 15px;
+    --fs-body: 15px;
+    --fs-countdown: 48px;
     --lh-body: 1.35;
 }
