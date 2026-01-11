@@ -1,40 +1,131 @@
 ---
-const { title = "DRAW THE BLOCK" } = Astro.props;
+// src/layouts/BaseLayout.astro
+type NavKey = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq";
+
+const {
+  title = "DRAW THE BLOCK",
+  current,
+} = Astro.props as {
+  title?: string;
+  current?: NavKey;
+};
+
+function navLabel(key: NavKey, label: string) {
+  return current === key ? `[${label}]` : label;
+}
 ---
 
 <!doctype html>
 <html lang="en">
-  <head>
-    <link rel="stylesheet" href="/src/styles/global.css" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
 
-    <link rel="stylesheet" href="/src/styles/tokens.css" />
-    <link rel="stylesheet" href="/src/styles/base.css" />
-  </head>
-  <body>
-    <header>
-      <nav>
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/events">Events</a>
-        <a href="/vendors">Vendors</a>
-        <a href="/sponsor">Sponsor</a>
-        <a href="/donate">Donate</a>
-      </nav>
-    </header>
+  <!-- Keep if you already use it -->
+  <link rel="stylesheet" href="/src/styles/global.css" />
 
-    <slot />
+  <!-- Design tokens + base rules -->
+  <link rel="stylesheet" href="/src/styles/tokens.css" />
+  <link rel="stylesheet" href="/src/styles/base.css" />
+</head>
 
-    <footer>
-      <div>
-        <a href="/faq">FAQ</a>
-        <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
-        <a href="https://discord.com" target="_blank" rel="noreferrer">Discord</a>
-        <a href="#" target="_blank" rel="noreferrer">Newsletter</a>
-      </div>
-      <small>© {new Date().getFullYear()} DRAW THE BLOCK</small>
-    </footer>
-  </body>
+<body>
+<header class="site-header" aria-label="Site header">
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class:list={["site-nav__link", current === "home" && "is-active"]} href="/">
+      {navLabel("home", "HOME")}
+    </a>
+    <a class:list={["site-nav__link", current === "about" && "is-active"]} href="/about">
+      {navLabel("about", "ABOUT")}
+    </a>
+    <a class:list={["site-nav__link", current === "events" && "is-active"]} href="/events">
+      {navLabel("events", "EVENTS")}
+    </a>
+    <a class:list={["site-nav__link", current === "vendors" && "is-active"]} href="/vendors">
+      {navLabel("vendors", "VENDORS")}
+    </a>
+    <a class:list={["site-nav__link", current === "sponsor" && "is-active"]} href="/sponsor">
+      {navLabel("sponsor", "SPONSOR")}
+    </a>
+    <a class:list={["site-nav__link", current === "donate" && "is-active"]} href="/donate">
+      {navLabel("donate", "DONATE")}
+    </a>
+  </nav>
+</header>
+
+<main class="site-strip" aria-label="Main content">
+  <slot />
+</main>
+
+<footer class="site-footer" aria-label="Site footer">
+  <nav class="site-footer__links" aria-label="Footer links">
+    <a class:list={["site-footer__link", current === "faq" && "is-active"]} href="/faq">
+      {navLabel("faq", "faq")}
+    </a>
+    <a class="site-footer__link" href="#" target="_blank" rel="noreferrer">discord</a>
+    <a class="site-footer__link" href="#" target="_blank" rel="noreferrer">instagram</a>
+    <a class="site-footer__link" href="#" target="_blank" rel="noreferrer">newsletter</a>
+  </nav>
+
+  <small class="site-footer__copy">
+    © {new Date().getFullYear()} DRAW THE BLOCK
+  </small>
+</footer>
+
+<style>
+  /* Header/Footer live OUTSIDE the strip, matching the blue background */
+  .site-header,
+  .site-footer {
+    width: min(92vw, var(--content-max));
+    margin-inline: auto;
+    padding: var(--space-4) var(--pad-x);
+    color: var(--color-text);
+  }
+
+  .site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+    font-size: var(--fs-nav);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .site-nav__link.is-active {
+    text-decoration: underline;
+  }
+
+  .site-footer {
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    opacity: 0.95;
+  }
+
+  .site-footer__link.is-active {
+    text-decoration: underline;
+  }
+
+  .site-footer__copy {
+    opacity: 0.85;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+</style>
+</body>
 </html>
