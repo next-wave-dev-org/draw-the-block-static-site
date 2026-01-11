@@ -19,6 +19,7 @@ Make sure you have the following installed:
 src/
 ├── pages/          # Route-based pages (Astro routing)
 │   ├── index.astro
+│   ├── landing.astro
 │   ├── about.astro
 │   ├── donate.astro
 │   ├── faq.astro
