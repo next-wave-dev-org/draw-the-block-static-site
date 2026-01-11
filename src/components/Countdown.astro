@@ -31,8 +31,7 @@ const { targetIso } = Astro.props as { targetIso: string };
 </style>
 
 <script is:inline>
-    // Moving the script below the style block often resolves "Unexpected Token"
-    // errors because the compiler has already finished the CSS pass.
+
     (function() {
         const scriptEl = document.currentScript;
         const root = scriptEl?.previousElementSibling;
