@@ -3,14 +3,15 @@ import { defineCollection, z } from "astro:content";
 const events = defineCollection({
     type: "content",
     schema: z.object({
+        kind: z.enum(["main", "sub"]).default("sub"),   // Identify the role of this entry
         title: z.string(),
-        startDate: z.coerce.date(),
+        startDate: z.coerce.date(),                         // Use dates for sorting, display, and countdown
         endDate: z.coerce.date().optional(),
-        location: z.string().optional(),
-        summary: z.string(),
-        image: z.string().optional(),
-        rsvpUrl: z.string().url().optional(),
-        cosplayUrl: z.string().url().optional(),
+        location: z.string().optional(),                    // The main event should have location; sub events can inherit or specify their own
+        description: z.string().optional(),                 // Used on: events list card + event detail page
+        rsvpUrl: z.string().url().optional(),               // Used on: event detail page (optional)
+        image: z.string().optional(),                       // Optional hero/card image
+        featured: z.boolean().default(false),           // Drives homepage countdown (normally set true only on the main event)
     }),
 });
 

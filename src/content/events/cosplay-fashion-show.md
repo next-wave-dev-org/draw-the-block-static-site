@@ -1,9 +1,13 @@
 ---
+kind: "sub"
 title: "Cosplay Fashion Show"
-startDate: "2026-01-31T18:00:00.000Z"
+startDate: 2026-01-31T18:00:00-08:00
 location: "Seattle, WA"
-summary: "Showcase your cosplay on stage and celebrate creativity."
+
+description: "Showcase your cosplay on stage and celebrate creativity."
 rsvpUrl: "https://example.com/rsvp"
-cosplayUrl: "https://example.com/cosplay"
+image: "/images/events/cosplay-fashion-show.jpg"
 ---
+
 Full description goes here. This is the event detail page content.
+
