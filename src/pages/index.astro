@@ -2,9 +2,124 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="Page Title">
-  <main>
-    <h1>Page Title</h1>
-    <p>Placeholder content.</p>
-  </main>
+<BaseLayout title="DRAW THE BLOCK — HOME" current="home">
+  <div class="home">
+    <!-- Intro -->
+    <section class="home__intro">
+      <div class="kicker">[ Manga and Comic Market ]</div>
+
+      <p class="prose">
+        Welcome to DRAW THE BLOCK, an anime and manga-inspired art market infused
+        with hip-hop and cultural creativity! We're gathering interest from
+        artists and vendors who want to be part of this vibrant event in Seattle
+        on January 31st - February 01. If you like anime, manga, and hip-hop
+        culture, come have fun and support the block!
+      </p>
+    </section>
+
+    <!-- Countdown -->
+    <section class="home__countdown" aria-label="Countdown to event">
+      <div class="countdown">
+        <div class="countdown__time">00:00</div>
+        <div class="countdown__labels">
+          <span>WEEKS</span>
+          <span>DAYS</span>
+        </div>
+      </div>
+
+      <div class="address">
+        <span class="address__icon" aria-hidden="true">◯</span>
+        <span>1512 11th Ave Seattle, WA 98122</span>
+      </div>
+    </section>
+
+    <!-- Mascot -->
+    <section class="home__art" aria-label="Mascot">
+      <img
+          src="/images/mascot_flower.png"
+          alt="Draw The Block mascot"
+          class="home__mascot"
+          loading="eager"
+      />
+    </section>
+  </div>
+
+  <style>
+    .home {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      /* Slightly tighter than global stack for the home column */
+      gap: var(--space-6);
+    }
+
+    .home__intro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .kicker {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.9;
+      margin-top: var(--space-3);
+    }
+
+    /* Countdown */
+    .home__countdown {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
+    }
+
+    .countdown__time {
+      font-family: var(--font-display);
+      font-weight: var(--fw-display);
+      font-size: var(--fs-countdown);
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .countdown__labels {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-4);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-top: var(--space-2);
+    }
+
+    .address {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      opacity: 0.95;
+    }
+
+    /* Mascot */
+    .home__art {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: var(--space-6);
+    }
+
+    .home__mascot {
+      width: 100%;
+      max-width: 520px;
+      height: auto;
+      display: block;
+    }
+  </style>
 </BaseLayout>

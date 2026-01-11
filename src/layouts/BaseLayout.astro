@@ -22,68 +22,71 @@ function navLabel(key: NavKey, label: string) {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
 
-  <!-- Keep if you already use it -->
   <link rel="stylesheet" href="/src/styles/global.css" />
-
-  <!-- Design tokens + base rules -->
   <link rel="stylesheet" href="/src/styles/tokens.css" />
   <link rel="stylesheet" href="/src/styles/base.css" />
 </head>
 
 <body>
-<header class="site-header" aria-label="Site header">
-  <nav class="site-nav" aria-label="Primary navigation">
-    <a class:list={["site-nav__link", current === "home" && "is-active"]} href="/">
-      {navLabel("home", "HOME")}
-    </a>
-    <a class:list={["site-nav__link", current === "about" && "is-active"]} href="/about">
-      {navLabel("about", "ABOUT")}
-    </a>
-    <a class:list={["site-nav__link", current === "events" && "is-active"]} href="/events">
-      {navLabel("events", "EVENTS")}
-    </a>
-    <a class:list={["site-nav__link", current === "vendors" && "is-active"]} href="/vendors">
-      {navLabel("vendors", "VENDORS")}
-    </a>
-    <a class:list={["site-nav__link", current === "sponsor" && "is-active"]} href="/sponsor">
-      {navLabel("sponsor", "SPONSOR")}
-    </a>
-    <a class:list={["site-nav__link", current === "donate" && "is-active"]} href="/donate">
-      {navLabel("donate", "DONATE")}
-    </a>
-  </nav>
-</header>
-
+<!-- Everything lives INSIDE the black strip -->
 <main class="site-strip" aria-label="Main content">
-  <slot />
+  <header class="strip-header" aria-label="Site header">
+    <img class="strip-logo" src="/images/logo.png" alt="Draw The Block logo" />
+
+    <nav class="strip-nav" aria-label="Primary navigation">
+      <a class:list={["strip-nav__link", current === "home" && "is-active"]} href="/">
+        {navLabel("home", "HOME")}
+      </a>
+      <a class:list={["strip-nav__link", current === "about" && "is-active"]} href="/about">
+        {navLabel("about", "ABOUT")}
+      </a>
+      <a class:list={["strip-nav__link", current === "events" && "is-active"]} href="/events">
+        {navLabel("events", "EVENTS")}
+      </a>
+      <a class:list={["strip-nav__link", current === "vendors" && "is-active"]} href="/vendors">
+        {navLabel("vendors", "VENDORS")}
+      </a>
+      <a class:list={["strip-nav__link", current === "sponsor" && "is-active"]} href="/sponsor">
+        {navLabel("sponsor", "SPONSOR")}
+      </a>
+      <a class:list={["strip-nav__link", current === "donate" && "is-active"]} href="/donate">
+        {navLabel("donate", "DONATE")}
+      </a>
+    </nav>
+  </header>
+
+  <section class="strip-content">
+    <slot />
+  </section>
+
+  <footer class="strip-footer" aria-label="Site footer">
+    <nav class="strip-footer__links" aria-label="Footer links">
+      <a class:list={["strip-footer__link", current === "faq" && "is-active"]} href="/faq">
+        {navLabel("faq", "faq")}
+      </a>
+      <a class="strip-footer__link" href="#" target="_blank" rel="noreferrer">discord</a>
+      <a class="strip-footer__link" href="#" target="_blank" rel="noreferrer">instagram</a>
+      <a class="strip-footer__link" href="#" target="_blank" rel="noreferrer">newsletter</a>
+    </nav>
+  </footer>
 </main>
 
-<footer class="site-footer" aria-label="Site footer">
-  <nav class="site-footer__links" aria-label="Footer links">
-    <a class:list={["site-footer__link", current === "faq" && "is-active"]} href="/faq">
-      {navLabel("faq", "faq")}
-    </a>
-    <a class="site-footer__link" href="#" target="_blank" rel="noreferrer">discord</a>
-    <a class="site-footer__link" href="#" target="_blank" rel="noreferrer">instagram</a>
-    <a class="site-footer__link" href="#" target="_blank" rel="noreferrer">newsletter</a>
-  </nav>
-
-  <small class="site-footer__copy">
-    © {new Date().getFullYear()} DRAW THE BLOCK
-  </small>
-</footer>
-
 <style>
-  /* Header/Footer live OUTSIDE the strip, matching the blue background */
-  .site-header,
-  .site-footer {
-    width: min(92vw, var(--content-max));
-    margin-inline: auto;
-    padding: var(--space-4) var(--pad-x);
-    color: var(--color-text);
+  .strip-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-5);
   }
 
-  .site-nav {
+  .strip-logo {
+    width: 180px;
+    height: auto;
+    display: block;
+    margin-top: var(--space-2);
+  }
+
+  .strip-nav {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -93,20 +96,34 @@ function navLabel(key: NavKey, label: string) {
     text-transform: uppercase;
   }
 
-  .site-nav__link.is-active {
-    text-decoration: underline;
+  .strip-nav__link {
+    text-decoration: none;
   }
 
-  .site-footer {
-    padding-top: var(--space-5);
-    padding-bottom: var(--space-6);
+  /* 3) Active page should NOT underline */
+  .strip-nav__link.is-active {
+    text-decoration: none;
+  }
+
+  .strip-content {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-3);
+    text-align: center;
+    margin-top: var(--space-6);
   }
 
-  .site-footer__links {
+  /*  Footer inside strip and pinned to bottom */
+  .strip-footer {
+    margin-top: auto;
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-4);
+    display: flex;
+    justify-content: center;
+  }
+
+  .strip-footer__links {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -117,14 +134,12 @@ function navLabel(key: NavKey, label: string) {
     opacity: 0.95;
   }
 
-  .site-footer__link.is-active {
-    text-decoration: underline;
+  .strip-footer__link {
+    text-decoration: none;
   }
 
-  .site-footer__copy {
-    opacity: 0.85;
-    font-size: 10px;
-    letter-spacing: 0.08em;
+  .strip-footer__link.is-active {
+    text-decoration: none;
   }
 </style>
 </body>
