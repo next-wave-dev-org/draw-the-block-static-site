@@ -7,7 +7,7 @@ body {
     margin: 0;
     background: var(--color-bg);
     color: var(--color-text);
-    font-family: var(--font-body), sans-serif;
+    font-family: var(--font-display);
     font-weight: var(--fw-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

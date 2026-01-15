@@ -1,4 +1,11 @@
-/* src/styles/tokens.css */
+@font-face {
+    font-family: "Neue Helvetica Condensed";
+    src: url("/fonts/HelveticaNeue-CondensedBold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     /* =========================
        Colors
@@ -12,9 +19,9 @@
     /* =========================
        Typography
        ========================= */
-    --font-display: "Neue Helvetica Condensed", "Helvetica Neue Condensed",
-    "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-display: "Neue Helvetica Condensed", "Helvetica Neue Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
     --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
     --fw-display: 700;
     --fw-body: 400;
     --ls-display: -0.01em;
@@ -24,7 +31,7 @@
        ========================= */
     --content-max: min(92vw, 600px);
     --content-fluid: min(92vw, var(--content-max));
-    --text-max: 38ch;
+    --text-max: clamp(40ch, 80%, 52ch);
 
     /* =========================
        Spacing

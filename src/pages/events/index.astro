@@ -21,7 +21,7 @@ const sortedEvents = (events as EventEntry[]).toSorted(
             <h2>
               <a href={`/events/${event.slug}`}>{event.data.title}</a>
             </h2>
-            <p>{event.data.summary}</p>
+            <p>{event.data.description}</p>
             <p>
               <small>
                 {event.data.startDate.toLocaleString()}
