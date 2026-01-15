@@ -1,5 +1,9 @@
 ---
-// src/layouts/BaseLayout.astro
+
+import "../styles/global.css";
+import "../styles/tokens.css";
+import "../styles/base.css";
+
 type NavKey = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq";
 
 const {
@@ -22,9 +26,7 @@ function navLabel(key: NavKey, label: string) {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
 
-  <link rel="stylesheet" href="/src/styles/global.css" />
-  <link rel="stylesheet" href="/src/styles/tokens.css" />
-  <link rel="stylesheet" href="/src/styles/base.css" />
+
 </head>
 
 <body>
@@ -93,6 +95,7 @@ function navLabel(key: NavKey, label: string) {
     font-size: var(--fs-nav);
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    font-family: var(--font-display)
   }
 
   .strip-nav__link {
@@ -120,6 +123,7 @@ function navLabel(key: NavKey, label: string) {
     padding-bottom: var(--space-4);
     display: flex;
     justify-content: center;
+    font-family: var(--font-display);
   }
 
   .strip-footer__links {
