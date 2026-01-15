@@ -31,7 +31,7 @@
        ========================= */
     --content-max: min(92vw, 600px);
     --content-fluid: min(92vw, var(--content-max));
-    --text-max: 38ch;
+    --text-max: clamp(40ch, 80%, 52ch);
 
     /* =========================
        Spacing
