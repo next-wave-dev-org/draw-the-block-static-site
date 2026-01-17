@@ -20,7 +20,7 @@ const team = defineCollection({
     schema: z.object({
         name: z.string(),
         role: z.string(),
-        image: z.string(), // store a path like "/images/team/kenji.jpg"
+        image: z.string(),
         displayOrder: z.number().int().nonnegative(),
         website: z.string().url().optional(),
     }),
@@ -46,4 +46,4 @@ const faq = defineCollection({
     }),
 });
 
-export const collections = { events, vendors, faq };
+export const collections = { events, team, vendors, faq };
