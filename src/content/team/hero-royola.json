@@ -1,6 +1,7 @@
 {
   "name": "Hero Royola",
   "role": "Inhouse Graphics",
-  "image": "/images/team/placeholder.jpg",
-  "displayOrder": 4
+  "image": "/images/team/hero.png",
+  "displayOrder": 4,
+  "website": "https://orehcol.carrd.co/"
 }
