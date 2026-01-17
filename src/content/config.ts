@@ -15,6 +15,17 @@ const events = defineCollection({
     }),
 });
 
+const team = defineCollection({
+    type: "data",
+    schema: z.object({
+        name: z.string(),
+        role: z.string(),
+        image: z.string(), // store a path like "/images/team/kenji.jpg"
+        displayOrder: z.number().int().nonnegative(),
+        website: z.string().url().optional(),
+    }),
+});
+
 const vendors = defineCollection({
     type: "content",
     schema: z.object({
