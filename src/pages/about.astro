@@ -1,10 +1,178 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const team = (await getCollection("team"))
+    .map((entry) => entry.data)
+    .sort((a, b) => a.displayOrder - b.displayOrder);
+
+const aboutCopy =
+    "DRAW THE BLOCK was started to give people who love making manga and comics a place to bring their full selves. We explore and wants to bring all dimensions and their culture. As we grow we want to keep our values and morals consistent as well, artist come first and we will continue to strive to make this market by artist for artist. - Kenji";
 ---
 
-<BaseLayout title="DRAW THE BLOCK — ABOUT" current="about">
-  <main>
-    <h1>Page Title</h1>
-    <p>Placeholder content.</p>
-  </main>
+<BaseLayout title="ABOUT — DRAW THE BLOCK" current="about">
+  <section class="about">
+    <p class="about__copy">{aboutCopy}</p>
+
+    <a class="about__meetBtn" href="#team">[Meet the Team]</a>
+
+    <div id="team" class="about__teamGrid" aria-label="Team members">
+      {team.map((member) => {
+        const Card = (
+            <article class="teamCard">
+              <div class="teamCard__photoFrame">
+                <img
+                    class="teamCard__photo"
+                    src={member.image}
+                    alt={member.name}
+                    loading="lazy"
+                />
+              </div>
+
+              <div class="teamCard__meta">
+                <div class="teamCard__name">{member.name}</div>
+                <div class="teamCard__role">{member.role}</div>
+              </div>
+            </article>
+        );
+
+        return member.website ? (
+            <a
+                class="teamCard__link"
+                href={member.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${member.name} website`}
+            >
+              {Card}
+            </a>
+        ) : (
+            Card
+        );
+      })}
+    </div>
+  </section>
+
+  <style>
+    :global(:root) {
+      --team-img-w: 211px;
+      --team-img-h: 280px;
+    }
+    .about {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-5);
+      padding-top: var(--space-3);
+    }
+
+    .about__copy {
+      max-width: 430px;
+      font-size: 12px;
+      line-height: 1.45;
+      opacity: 0.95;
+    }
+
+    .about__meetBtn {
+      font-size: var(--fs-nav);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: var(--font-display);
+      text-decoration: none;
+    }
+
+    .about__teamGrid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-5);
+      justify-items: center;
+      margin-top: var(--space-4);
+    }
+
+    /* clickable wrapper */
+    .teamCard__link {
+      color: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      width: var(--team-img-w);
+
+    }
+
+    /* card becomes a simple vertical stack */
+    .teamCard {
+      width: var(--team-img-w);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      max-width: var(--team-img-w);
+      min-width: var(--team-img-w);
+    }
+
+    /* remove the yellow frame entirely */
+    .teamCard__photoFrame {
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      display: block;
+    }
+
+    /* show the image at its true dimensions */
+    .teamCard__photo {
+      width: var(--team-img-w);
+      height: var(--team-img-h);
+      object-fit: cover;
+      display: block;
+    }
+
+    /* white box aligned to image width */
+    .teamCard__meta {
+      width: var(--team-img-w);
+      max-width: var(--team-img-w);
+      min-width: var(--team-img-w);
+      box-sizing: border-box;
+      background: #fff;
+      padding: 6px 14px 6px;
+      margin: 0;
+      border: 0;            /* remove divider/border */
+      box-shadow: none;     /* in case a shadow is being used */
+      position: relative;
+      text-align: left;
+    }
+
+    /* hard kill any divider pseudo-elements */
+    .teamCard__meta::before,
+    .teamCard__meta::after,
+    .teamCard::before,
+    .teamCard::after {
+      content: none !important;
+      display: none !important;
+    }
+
+    .teamCard__name {
+      font-weight: 800;
+      font-size: 22px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #000;
+    }
+
+    .teamCard__role {
+      margin-top: 2px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.85;
+      color: #f7152b;
+    }
+
+    /* Optional: keep it from looking cramped on very small screens */
+    @media (max-width: 520px) {
+      .about__teamGrid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </BaseLayout>

@@ -15,6 +15,17 @@ const events = defineCollection({
     }),
 });
 
+const team = defineCollection({
+    type: "data",
+    schema: z.object({
+        name: z.string(),
+        role: z.string(),
+        image: z.string(),
+        displayOrder: z.number().int().nonnegative(),
+        website: z.string().url().optional(),
+    }),
+});
+
 const vendors = defineCollection({
     type: "content",
     schema: z.object({
@@ -35,4 +46,4 @@ const faq = defineCollection({
     }),
 });
 
-export const collections = { events, vendors, faq };
+export const collections = { events, team, vendors, faq };
