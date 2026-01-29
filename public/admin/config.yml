@@ -23,6 +23,18 @@ collections:
       - { label: "Cosplay Signup Link", name: "cosplayUrl", widget: "string", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
+  - name: "team"
+    label: "Team"
+    folder: "src/content/team"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Role", name: "role", widget: "string" }
+      - { label: "Image", name: "image", widget: "image" }
+      - { label: "Display Order", name: "displayOrder", widget: "number", value_type: "int", min: 0 }
+      - { label: "Website", name: "website", widget: "string", required: false }
+
   - name: "vendors"
     label: "Vendors"
     folder: "src/content/vendors"
