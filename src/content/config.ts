@@ -46,4 +46,12 @@ const faq = defineCollection({
     }),
 });
 
-export const collections = { events, team, vendors, faq };
+const sponsor = defineCollection({
+  type: "content",
+  schema: z.object({
+    stripeUrl: z.string().url(),  // Stripe button link
+    poster: z.string().optional(), // Image for the sponsor poster
+  }),
+});
+
+export const collections = { events, team, vendors, faq, sponsor };

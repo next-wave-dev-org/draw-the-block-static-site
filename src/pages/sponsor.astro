@@ -1,10 +1,32 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const sponsorEntries = await getCollection("sponsor");
+const sponsor = sponsorEntries[0]?.data;
 ---
 
 <BaseLayout title="DRAW THE BLOCK — SPONSOR" current="sponsor">
   <main>
-    <h1>Page Title</h1>
-    <p>Placeholder content.</p>
+    <h1>Sponsor</h1>
+
+    {sponsor?.stripeUrl && (
+      <a
+        href={sponsor.stripeUrl}
+        target="_blank"
+        style="display:inline-block; width:250px; padding:20px; background-color:white; color:black; text-align:center; font-weight:600; box-shadow:0 4px 6px rgba(0,0,0,0.1); text-decoration:none;"
+      >
+        STRIPE
+      </a>
+    )}
+
+    {sponsor?.poster && (
+      <img src={sponsor.poster} alt="Sponsor Poster" style="margin-top:24px; max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 6px rgba(0,0,0,0.1);" />
+    )}
+
   </main>
 </BaseLayout>
+
+
+
+
