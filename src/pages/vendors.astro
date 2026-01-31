@@ -1,47 +1,140 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
 
 type VendorEntry = CollectionEntry<"vendors">;
 
 const vendors = (await getCollection("vendors")) as VendorEntry[];
 
 const sortedVendors = vendors
-    .slice()
-    .sort((a: VendorEntry, b: VendorEntry) => a.data.name.localeCompare(b.data.name));
+  .slice()
+  .sort((a: VendorEntry, b: VendorEntry) => a.data.name.localeCompare(b.data.name));
 ---
 
 <BaseLayout title="DRAW THE BLOCK — VENDORS" current="vendors">
   <main>
-    <h1>Vendors</h1>
 
-    <ul>
+    <div class="vendor-grid">
       {sortedVendors.map((vendor: VendorEntry) => (
-          <li>
-            <h2>{vendor.data.name}</h2>
-
-            {vendor.data.category && <p>{vendor.data.category}</p>}
-            {vendor.data.blurb && <p>{vendor.data.blurb}</p>}
-
-            {(vendor.data.websiteUrl || vendor.data.instagramUrl) && (
-                <p>
-                  {vendor.data.websiteUrl && (
-                      <a href={vendor.data.websiteUrl} target="_blank" rel="noreferrer">
-                        Website
-                      </a>
-                  )}
-
-                  {vendor.data.websiteUrl && vendor.data.instagramUrl && " · "}
-
-                  {vendor.data.instagramUrl && (
-                      <a href={vendor.data.instagramUrl} target="_blank" rel="noreferrer">
-                        Instagram
-                      </a>
-                  )}
-                </p>
+        <article class="vendor-card">
+          <div class="image-frame">
+            {vendor.data.image ? (
+              <Image 
+                src={vendor.data.image} 
+                alt={vendor.data.name} 
+                width={400} 
+                height={400}
+                class="vendor-portrait"
+              />
+            ) : (
+              <div class="placeholder" />
             )}
-          </li>
+          </div>
+          
+          <h2 class="vendor-name">[{vendor.data.name}]</h2>
+
+          <div class="social-links">
+            {/* Using icons from public/images/ */}
+            {vendor.data.websiteUrl && (
+              <a href={vendor.data.websiteUrl} target="_blank" rel="noopener noreferrer">
+                <img src="/images/bluesky.png" alt="Bluesky" class="social-icon" />
+              </a>
+            )}
+
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              <img src="/images/x.png" alt="X" class="social-icon x-logo" />
+            </a>
+
+            {vendor.data.instagramUrl && (
+              <a href={vendor.data.instagramUrl} target="_blank" rel="noopener noreferrer">
+                <img src="/images/instagram.png" alt="Instagram" class="social-icon" />
+              </a>
+            )}
+          </div>
+        </article>
       ))}
-    </ul>
+    </div>
   </main>
 </BaseLayout>
+
+<style>
+
+  /* 3x3 Dynamic Grid */
+  .vendor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px 30px;
+    justify-items: center;
+  }
+
+  .vendor-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .image-frame {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border: 1.5px solid #fff;
+    background: #111;
+    margin-bottom: 15px;
+    overflow: hidden;
+    /* Ensures the frame itself is a square */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .vendor-portrait {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .placeholder {
+    width: 100%;
+    height: 100%;
+    background: #222;
+  }
+
+  .vendor-name {
+    font-size: 1rem;
+    font-family: serif;
+    margin: 0 0 12px 0;
+    font-weight: normal;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .social-icon {
+    width: 24px;
+    height: 24px;
+    display: block;
+    transition: opacity 0.2s;
+  }
+
+  .x-logo {
+    width: 20px; /* Slight adjustment for visual balance */
+  }
+
+  .social-icon:hover {
+    opacity: 0.6;
+  }
+
+  /* Responsive breakpoints */
+  @media (max-width: 768px) {
+    .vendor-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .vendor-grid { grid-template-columns: 1fr; }
+  }
+</style>
