@@ -58,3 +58,13 @@ collections:
       - { label: "Question", name: "question", widget: "string" }
       - { label: "Answer", name: "answer", widget: "markdown" }
       - { label: "Order", name: "order", widget: "number", value_type: "int", default: 1 }
+
+  - name: "sponsor"
+    label: "Sponsor"
+    folder: "src/content/sponsor"
+    create: false
+    slug: "sponsor"
+    fields:
+      - { label: "Stripe URL", name: "stripeUrl", widget: "string" }
+      - { label: "Poster Image", name: "poster", widget: "image", required: false }
+
