@@ -1,47 +1,192 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
 
-type VendorEntry = CollectionEntry<"vendors">;
+const vendors = await getCollection("vendors");
 
-const vendors = (await getCollection("vendors")) as VendorEntry[];
-
-const sortedVendors = vendors
-    .slice()
-    .sort((a: VendorEntry, b: VendorEntry) => a.data.name.localeCompare(b.data.name));
+const sortedVendors = vendors.sort((a, b) => 
+  a.data.name.localeCompare(b.data.name)
+);
 ---
 
 <BaseLayout title="DRAW THE BLOCK — VENDORS" current="vendors">
   <main>
-    <h1>Vendors</h1>
-
-    <ul>
-      {sortedVendors.map((vendor: VendorEntry) => (
-          <li>
-            <h2>{vendor.data.name}</h2>
-
-            {vendor.data.category && <p>{vendor.data.category}</p>}
-            {vendor.data.blurb && <p>{vendor.data.blurb}</p>}
-
-            {(vendor.data.websiteUrl || vendor.data.instagramUrl) && (
-                <p>
-                  {vendor.data.websiteUrl && (
-                      <a href={vendor.data.websiteUrl} target="_blank" rel="noreferrer">
-                        Website
-                      </a>
-                  )}
-
-                  {vendor.data.websiteUrl && vendor.data.instagramUrl && " · "}
-
-                  {vendor.data.instagramUrl && (
-                      <a href={vendor.data.instagramUrl} target="_blank" rel="noreferrer">
-                        Instagram
-                      </a>
-                  )}
-                </p>
+    <div class="vendor-grid">
+      {sortedVendors.map((vendor) => (
+        <article class="vendor-card">
+          <div class="image-frame">
+            {vendor.data.image ? (
+              <Image 
+                src={vendor.data.image} 
+                alt={vendor.data.name} 
+                width={400} 
+                height={400}
+                format="webp"
+                class="vendor-portrait"
+              />
+            ) : (
+              <div class="placeholder" />
             )}
-          </li>
+          </div>
+          
+          <h2 class="vendor-name">[{vendor.data.name}]</h2>
+
+          <div class="social-links">
+            {vendor.data.websiteUrl && (
+              <a href={vendor.data.websiteUrl} target="_blank" rel="noopener noreferrer">
+                <img src="/images/bluesky.png" alt="Bluesky" class="social-icon" />
+              </a>
+            )}
+
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              <img src="/images/x.png" alt="X" class="social-icon x-logo" />
+            </a>
+
+            {vendor.data.instagramUrl && (
+              <a href={vendor.data.instagramUrl} target="_blank" rel="noopener noreferrer">
+                <img src="/images/instagram.png" alt="Instagram" class="social-icon" />
+              </a>
+            )}
+          </div>
+        </article>
       ))}
-    </ul>
+    </div>
+
+    <section class="application-section">
+      <hr class="divider" />
+      <p class="app-status-title">[Vendor Applications]</p>
+      <p class="app-status-main">VENDOR APPLICATIONS CURRENTLY CLOSED</p>
+      <p class="app-info">
+        information on how to become an approved vendor, submissions, due date
+      </p>
+      
+      <div class="button-container">
+        <button class="placeholder-button" disabled>BUTTON LINK</button>
+      </div>
+    </section>
   </main>
 </BaseLayout>
+
+<style>
+  .vendor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px 30px;
+    justify-items: center;
+    padding: 2rem 0;
+  }
+
+  .vendor-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .image-frame {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border: 1.5px solid #fff;
+    background: #111;
+    margin-bottom: 15px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .vendor-portrait {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .placeholder {
+    width: 100%;
+    height: 100%;
+    background: #222;
+  }
+
+  .vendor-name {
+    font-size: 1rem;
+    font-family: serif;
+    margin-bottom: 12px;
+    font-weight: normal;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .social-icon {
+    width: 24px;
+    height: 24px;
+    transition: opacity 0.2s;
+  }
+
+  .x-logo {
+    width: 20px;
+  }
+
+  .social-icon:hover {
+    opacity: 0.6;
+  }
+
+  .application-section {
+    margin-top: 100px;
+    padding-bottom: 60px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #333;
+    width: 60%;
+    margin: 0 auto 40px auto;
+  }
+
+  .app-status-title {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    letter-spacing: 0.1rem;
+  }
+
+  .app-status-main {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+  }
+
+  .app-info {
+    font-size: 0.8rem;
+    color: #aaa;
+    max-width: 500px;
+    margin: 0 auto 30px auto;
+    text-transform: lowercase;
+    line-height: 1.4;
+  }
+
+  .placeholder-button {
+    background-color: #ccc;
+    color: #000;
+    border: none;
+    padding: 12px 40px;
+    font-weight: bold;
+    cursor: not-allowed;
+    letter-spacing: 0.1rem;
+  }
+
+  @media (max-width: 768px) {
+    .vendor-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 480px) {
+    .vendor-grid { grid-template-columns: 1fr; }
+    .divider { width: 80%; }
+  }
+</style>
