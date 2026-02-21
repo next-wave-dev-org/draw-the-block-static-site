@@ -14,6 +14,7 @@ collections:
     slug: "{{slug}}"
     fields:
       - { label: "Title", name: "title", widget: "string" }
+      - { label: "Show on Front Page", name: "featured", widget: "boolean", default: false }
       - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
       - { label: "End Date/Time", name: "endDate", widget: "datetime", required: false }
       - { label: "Location", name: "location", widget: "string", required: false }
