@@ -18,10 +18,10 @@ collections:
       - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
       - { label: "End Date/Time", name: "endDate", widget: "datetime", required: false }
       - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Summary", name: "summary", widget: "text" }
+      - { label: "Description", name: "description", widget: "text" }
       - { label: "Featured Image", name: "image", widget: "image", required: false }
       - { label: "RSVP Link", name: "rsvpUrl", widget: "string", required: false }
-      - { label: "Cosplay Signup Link", name: "cosplayUrl", widget: "string", required: false }
+      - { label: "Event Link", name: "eventUrl", widget: "string", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "team"

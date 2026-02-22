@@ -1,6 +1,7 @@
 ---
 kind: "sub"
 title: "Cosplay Fashion Show"
+featured: false
 startDate: 2026-01-31T18:00:00-08:00
 location: "Seattle, WA"
 

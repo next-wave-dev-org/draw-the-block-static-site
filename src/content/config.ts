@@ -10,6 +10,7 @@ const events = defineCollection({
         location: z.string().optional(),                    // The main event should have location; sub events can inherit or specify their own
         description: z.string().optional(),                 // Used on: events list card + event detail page
         rsvpUrl: z.string().url().optional(),               // Used on: event detail page (optional)
+        eventUrl: z.string().url().optional(),              // Used on: event has unique URL (hosted elsewhere)
         image: z.string().optional(),                       // Optional hero/card image
         featured: z.boolean().default(false),           // Drives homepage countdown (normally set true only on the main event)
     }),
