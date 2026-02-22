@@ -9,12 +9,19 @@ const events = (await getCollection("events")) as EventEntry[];
 
 const sorted = events
   .slice()
-  .sort((a: EventEntry, b: EventEntry) => a.data.startDate.getTime() - b.data.startDate.getTime());
+  .sort(
+    (a: EventEntry, b: EventEntry) =>
+      a.data.startDate.getTime() - b.data.startDate.getTime()
+  );
 
 const now = new Date();
 
-const upcoming = sorted.filter((e: EventEntry) => e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now);
-const past = sorted.filter((e: EventEntry) => e.data.endDate ? e.data.endDate < now : e.data.startDate < now);
+const upcoming = sorted.filter((e: EventEntry) =>
+  e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now
+);
+const past = sorted.filter((e: EventEntry) =>
+  e.data.endDate ? e.data.endDate < now : e.data.startDate < now
+);
 ---
 
 <BaseLayout title="DRAW THE BLOCK — EVENTS" current="events">
@@ -30,12 +37,14 @@ const past = sorted.filter((e: EventEntry) => e.data.endDate ? e.data.endDate < 
             <article class="eventCard">
               <a class="eventLink" href={`/events/${event.slug}`}>
                 {event.data.image && (
-                  <img
-                    class="eventImg"
-                    src={event.data.image}
-                    alt={event.data.title}
-                    loading="lazy"
-                  />
+                  <div class="eventImgFrame">
+                    <img
+                      class="cardImg"
+                      src={event.data.image}
+                      alt={event.data.title}
+                      loading="lazy"
+                    />
+                  </div>
                 )}
 
                 <div class="eventPoster">
@@ -43,7 +52,9 @@ const past = sorted.filter((e: EventEntry) => e.data.endDate ? e.data.endDate < 
                 </div>
               </a>
 
-              {event.data.description && <p class="eventMeta">{event.data.description}</p>}
+              {event.data.description && (
+                <p class="eventMeta">{event.data.description}</p>
+              )}
 
               <p class="eventMeta">
                 <small>
@@ -72,12 +83,14 @@ const past = sorted.filter((e: EventEntry) => e.data.endDate ? e.data.endDate < 
               <article class="eventCard">
                 <a class="eventLink" href={`/events/${event.slug}`}>
                   {event.data.image && (
-                    <img
-                      class="eventImg"
-                      src={event.data.image}
-                      alt={event.data.title}
-                      loading="lazy"
-                    />
+                    <div class="eventImgFrame">
+                      <img
+                        class="cardImg"
+                        src={event.data.image}
+                        alt={event.data.title}
+                        loading="lazy"
+                      />
+                    </div>
                   )}
 
                   <div class="eventPoster">
@@ -85,7 +98,9 @@ const past = sorted.filter((e: EventEntry) => e.data.endDate ? e.data.endDate < 
                   </div>
                 </a>
 
-                {event.data.description && <p class="eventMeta">{event.data.description}</p>}
+                {event.data.description && (
+                  <p class="eventMeta">{event.data.description}</p>
+                )}
 
                 <p class="eventMeta">
                   <small>
@@ -118,35 +133,55 @@ const past = sorted.filter((e: EventEntry) => e.data.endDate ? e.data.endDate < 
     }
 
     .eventsList {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr;
       gap: var(--space-4);
+    }
+
+    @media (min-width: 720px) {
+      .eventsList {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+      }
     }
 
     .eventCard {
       display: flex;
       flex-direction: column;
       gap: var(--space-2);
+      width: 100%;
     }
 
     .eventLink {
       display: block;
+      width: 100%;
       text-decoration: none;
     }
 
-    .eventImg {
+    .eventImgFrame {
       width: 100%;
-      height: auto;
-      display: block;
+      aspect-ratio: 16 / 9; /* try 4/3 if you want a taller crop */
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.06);
       margin-bottom: var(--space-2);
+    }
+
+    .cardImg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
     }
 
     .eventPoster {
       background: #fff;
       color: #000;
       padding: 12px 14px;
-      display: inline-block;
+      display: block;
+      width: 100%;
       max-width: 100%;
+      box-sizing: border-box;
     }
 
     .eventTitle {
