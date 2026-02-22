@@ -9,14 +9,12 @@ type EventEntry = CollectionEntry<"events">;
 const events = (await getCollection("events")) as EventEntry[];
 
 // Prefer the first featured event; fallback to first event if none are featured.
-const featured = events.find((e) => e.data.featured) ?? events[0];
+const featured = events.find((e) => e.data.featured) ?? null;
 
 // Countdown target should always reflect the featured event start date.
-const targetIso = featured?.data?.startDate
-  ? featured.data.startDate.toISOString()
-  : new Date("2026-01-31T10:00:00-08:00").toISOString();
+// If no featured event exists, render the "No events planned" state.
+const targetIso = featured ? featured.data.startDate.toISOString() : null;
 
-const locationText = featured?.data?.location ?? "";
 const featuredTitle = featured?.data?.title ?? "";
 const featuredSlug = featured?.slug ?? "";
 ---
@@ -50,7 +48,6 @@ const featuredSlug = featured?.slug ?? "";
           <div class="featured__meta">
             {featured.data.startDate.toLocaleString()}
             {featured.data.endDate ? ` – ${featured.data.endDate.toLocaleString()}` : ""}
-            {locationText ? ` — ${locationText}` : ""}
           </div>
         </div>
       )}
@@ -58,14 +55,16 @@ const featuredSlug = featured?.slug ?? "";
 
     <!-- Countdown -->
     <section class="home__countdown" aria-label="Countdown to event">
-      <Countdown targetIso={targetIso} />
-
-      <!-- {locationText && (
-        <div class="address">
-          <span class="address__icon" aria-hidden="true">◯</span>
-          <span>{locationText}</span>
+      {targetIso ? (
+        <>
+          <Countdown targetIso={targetIso} />
+        </>
+      ) : (
+        <div class="eventNone">
+          <div class="kicker">[ NO EVENTS PLANNED ]</div>
+          <p class="prose">Check back soon!</p>
         </div>
-      )} -->
+      )}
     </section>
 
     <!-- Mascot -->
