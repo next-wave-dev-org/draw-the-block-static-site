@@ -87,8 +87,12 @@ const end = event.data.endDate;
 
       <p class="eventMeta">
         <small>
-          {formatDateTime(start)}
-          {end ? ` – ${formatDateTime(start)}` : ""}
+          {formatDateTime(event.data.startDate)}
+          {event.data.endDate
+            ? ` – ${formatDateTime(event.data.endDate)}`
+            : event.data.endTime
+              ? ` – ${event.data.endTime}`
+              : ""}
           {event.data.location && <br />}
           {event.data.location && <span>{event.data.location}</span>}
         </small>
@@ -137,8 +141,12 @@ const end = event.data.endDate;
 
                   <p class="eventMeta">
                     <small>
-                      {s.data.startDate.toLocaleString()}
-                      {s.data.endDate ? ` – ${s.data.endDate.toLocaleString()}` : ""}
+                      {formatDateTime(event.data.startDate)}
+                      {event.data.endDate
+                        ? ` – ${formatDateTime(event.data.endDate)}`
+                        : event.data.endTime
+                          ? ` – ${event.data.endTime}`
+                          : ""}
                       {event.data.location && <br />}
                       {event.data.location && <span>{event.data.location}</span>}
                     </small>

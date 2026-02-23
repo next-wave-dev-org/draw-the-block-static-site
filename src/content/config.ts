@@ -5,13 +5,14 @@ const events = defineCollection({
     schema: z.object({
         title: z.string(),
         startDate: z.coerce.date(),                         // Use dates for sorting, display, and countdown
-        endDate: z.coerce.date().optional(),
+        endDate: z.coerce.date().optional(),                // multi-day (full datetime)
+        endTime: z.string().optional(),                     // same-day (HH:mm)
         location: z.string().optional(),                    // The main event should have location; sub events can inherit or specify their own
         description: z.string().optional(),                 // Used on: events list card + event detail page
         eventUrl: z.string().url().optional(),              // Used on: event detail page (rsvp or hosted elsewhere)
         image: z.string().optional(),                       // Optional hero/card image
-        featured: z.boolean().default(false),           // Drives homepage countdown (normally set true only on the main event)
-    }),
+        featured: z.boolean().default(false),               // Drives homepage countdown (normally set true only on the main event)
+    })
 });
 
 const subevents = defineCollection({
@@ -24,6 +25,7 @@ const subevents = defineCollection({
         title: z.string(),
         startDate: z.coerce.date(),
         endDate: z.coerce.date().optional(),
+        endTime: z.string().optional(),                     // same-day (HH:mm)
         location: z.string().optional(),
         description: z.string().optional(),
         eventUrl: z.string().url().optional(),
