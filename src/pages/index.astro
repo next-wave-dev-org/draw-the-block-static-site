@@ -72,6 +72,8 @@ const formatDateTime = (d: Date) =>
             {featured.data.endDate
               ? ` – ${formatDateTime(featured.data.endDate)}`
               : ""}
+            {featured.data.location && <br />}
+            {featured.data.location && <span>{featured.data.location}</span>}
           </div>
         </div>
       )}

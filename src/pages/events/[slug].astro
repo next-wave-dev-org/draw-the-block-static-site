@@ -89,7 +89,8 @@ const end = event.data.endDate;
         <small>
           {formatDateTime(start)}
           {end ? ` – ${formatDateTime(start)}` : ""}
-          {event.data.location ? ` — ${event.data.location}` : ""}
+          {event.data.location && <br />}
+          {event.data.location && <span>{event.data.location}</span>}
         </small>
       </p>
 
@@ -138,7 +139,8 @@ const end = event.data.endDate;
                     <small>
                       {s.data.startDate.toLocaleString()}
                       {s.data.endDate ? ` – ${s.data.endDate.toLocaleString()}` : ""}
-                      {s.data.location ? ` — ${s.data.location}` : ""}
+                      {event.data.location && <br />}
+                      {event.data.location && <span>{event.data.location}</span>}
                     </small>
                   </p>
                 </article>

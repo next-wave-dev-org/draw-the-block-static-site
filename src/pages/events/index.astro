@@ -69,7 +69,8 @@ const formatDateTime = (d: Date) =>
                 <small>
                   {formatDateTime(event.data.startDate)}
                   {event.data.endDate ? ` – ${formatDateTime(event.data.endDate)}` : ""}
-                  {event.data.location ? ` — ${event.data.location}` : ""}
+                  {event.data.location && <br />}
+                  {event.data.location && <span>{event.data.location}</span>}
                 </small>
               </p>
             </article>
@@ -115,7 +116,8 @@ const formatDateTime = (d: Date) =>
                   <small>
                     {formatDateTime(event.data.startDate)}
                     {event.data.endDate ? ` – ${formatDateTime(event.data.endDate)}` : ""}
-                    {event.data.location ? ` — ${event.data.location}` : ""}
+                    {event.data.location && <br />}
+                    {event.data.location && <span>{event.data.location}</span>}
                   </small>
                 </p>
               </article>
