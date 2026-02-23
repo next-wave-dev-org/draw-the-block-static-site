@@ -47,14 +47,16 @@ const formatDateTime = (d: Date) =>
           <div class="kicker featured__kicker">[ FEATURED EVENT ]</div>
 
           {featured.data.image && (
-            <div class="eventImgFrame">
-              <img
-                class="cardImg"
-                src={featured.data.image}
-                alt={featured.data.title}
-                loading="lazy"
-              />
-            </div>
+            <a class="featured__imgLink" href={`/events/${featuredSlug}`}>
+              <div class="eventImgFrame">
+                <img
+                  class="cardImg"
+                  src={featured.data.image}
+                  alt={featured.data.title}
+                  loading="lazy"
+                />
+              </div>
+            </a>
           )}
 
           {featuredSlug ? (
@@ -222,5 +224,13 @@ const formatDateTime = (d: Date) =>
       object-fit: cover;
       object-position: center;
     }
+
+    .featured__imgLink {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+      color: inherit;
+    }
+
   </style>
 </BaseLayout>
