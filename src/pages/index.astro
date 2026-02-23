@@ -17,6 +17,15 @@ const targetIso = featured ? featured.data.startDate.toISOString() : null;
 
 const featuredTitle = featured?.data?.title ?? "";
 const featuredSlug = featured?.slug ?? "";
+
+const formatDateTime = (d: Date) =>
+  d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 ---
 
 <BaseLayout title="DRAW THE BLOCK — HOME" current="home">
@@ -37,6 +46,17 @@ const featuredSlug = featured?.slug ?? "";
         <div class="featured">
           <div class="kicker featured__kicker">[ FEATURED EVENT ]</div>
 
+          {featured.data.image && (
+            <div class="eventImgFrame">
+              <img
+                class="cardImg"
+                src={featured.data.image}
+                alt={featured.data.title}
+                loading="lazy"
+              />
+            </div>
+          )}
+
           {featuredSlug ? (
             <a class="featured__title" href={`/events/${featuredSlug}`}>
               {featuredTitle}
@@ -46,8 +66,10 @@ const featuredSlug = featured?.slug ?? "";
           )}
 
           <div class="featured__meta">
-            {featured.data.startDate.toLocaleString()}
-            {featured.data.endDate ? ` – ${featured.data.endDate.toLocaleString()}` : ""}
+            {formatDateTime(featured.data.startDate)}
+            {featured.data.endDate
+              ? ` – ${formatDateTime(featured.data.endDate)}`
+              : ""}
           </div>
         </div>
       )}
@@ -183,6 +205,22 @@ const featuredSlug = featured?.slug ?? "";
       max-width: 520px;
       height: auto;
       display: block;
+    }
+
+    .eventImgFrame {
+      width: 100%;
+      aspect-ratio: 16 / 9; /* or 4/3 if you prefer taller */
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.06);
+      margin-bottom: var(--space-2);
+    }
+
+    .cardImg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
     }
   </style>
 </BaseLayout>

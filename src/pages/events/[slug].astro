@@ -49,6 +49,15 @@ const sections: Array<{
   },
 ].filter((section) => section.items.length > 0);
 
+const formatDateTime = (d: Date) =>
+  d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
 const start = event.data.startDate;
 const end = event.data.endDate;
 ---
@@ -78,8 +87,8 @@ const end = event.data.endDate;
 
       <p class="eventMeta">
         <small>
-          {start.toLocaleString()}
-          {end ? ` – ${end.toLocaleString()}` : ""}
+          {formatDateTime(start)}
+          {end ? ` – ${formatDateTime(start)}` : ""}
           {event.data.location ? ` — ${event.data.location}` : ""}
         </small>
       </p>

@@ -22,6 +22,15 @@ const upcoming = sorted.filter((e: EventEntry) =>
 const past = sorted.filter((e: EventEntry) =>
   e.data.endDate ? e.data.endDate < now : e.data.startDate < now
 );
+
+const formatDateTime = (d: Date) =>
+  d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 ---
 
 <BaseLayout title="DRAW THE BLOCK — EVENTS" current="events">
@@ -58,8 +67,8 @@ const past = sorted.filter((e: EventEntry) =>
 
               <p class="eventMeta">
                 <small>
-                  {event.data.startDate.toLocaleString()}
-                  {event.data.endDate ? ` – ${event.data.endDate.toLocaleString()}` : ""}
+                  {formatDateTime(event.data.startDate)}
+                  {event.data.endDate ? ` – ${formatDateTime(event.data.endDate)}` : ""}
                   {event.data.location ? ` — ${event.data.location}` : ""}
                 </small>
               </p>
@@ -104,8 +113,8 @@ const past = sorted.filter((e: EventEntry) =>
 
                 <p class="eventMeta">
                   <small>
-                    {event.data.startDate.toLocaleString()}
-                    {event.data.endDate ? ` – ${event.data.endDate.toLocaleString()}` : ""}
+                    {formatDateTime(event.data.startDate)}
+                    {event.data.endDate ? ` – ${formatDateTime(event.data.endDate)}` : ""}
                     {event.data.location ? ` — ${event.data.location}` : ""}
                   </small>
                 </p>

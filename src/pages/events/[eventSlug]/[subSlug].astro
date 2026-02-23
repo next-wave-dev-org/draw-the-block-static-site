@@ -22,6 +22,15 @@ export async function getStaticPaths() {
 
 const { subevent } = Astro.props as { subevent: SubEventEntry };
 const { Content } = await subevent.render();
+
+const formatDateTime = (d: Date) =>
+  d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 ---
 
 <BaseLayout title={subevent.data.title} current="events">
@@ -42,8 +51,8 @@ const { Content } = await subevent.render();
 
     <p class="eventMeta">
       <small>
-        {subevent.data.startDate.toLocaleString()}
-        {subevent.data.endDate ? ` – ${subevent.data.endDate.toLocaleString()}` : ""}
+        {formatDateTime(subevent.data.startDate)}
+        {subevent.data.endDate ? ` – ${formatDateTime(subevent.data.endDate)}` : ""}
         {subevent.data.location ? ` — ${subevent.data.location}` : ""}
       </small>
     </p>
