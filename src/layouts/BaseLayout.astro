@@ -1,10 +1,10 @@
 ---
-
 import "../styles/global.css";
 import "../styles/tokens.css";
 import "../styles/base.css";
+import { getEntry } from "astro:content";
 
-type NavKey = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq";
+type NavKey = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq" | "newsletter";
 
 const {
   title = "DRAW THE BLOCK",
@@ -17,6 +17,9 @@ const {
 function navLabel(key: NavKey, label: string) {
   return current === key ? `[${label}]` : label;
 }
+
+const socialSettings = await getEntry("settings", "social");
+const { discordUrl, instagramUrl, newsletterUrl } = socialSettings?.data || {};
 ---
 
 <!doctype html>
@@ -65,9 +68,11 @@ function navLabel(key: NavKey, label: string) {
       <a class:list={["strip-footer__link", current === "faq" && "is-active"]} href="/faq">
         {navLabel("faq", "faq")}
       </a>
-      <a class="strip-footer__link" href="#" target="_blank" rel="noreferrer">discord</a>
-      <a class="strip-footer__link" href="#" target="_blank" rel="noreferrer">instagram</a>
-      <a class="strip-footer__link" href="#" target="_blank" rel="noreferrer">newsletter</a>
+      <a class="strip-footer__link" href={discordUrl || "#"} target="_blank" rel="noreferrer">discord</a>
+      <a class="strip-footer__link" href={instagramUrl || "#"} target="_blank" rel="noreferrer">instagram</a>
+      <a class:list={["strip-footer__link", current === "newsletter" && "is-active"]} href="/newsletter">
+        {navLabel("newsletter", "newsletter")}
+      </a>
     </nav>
   </footer>
 </main>

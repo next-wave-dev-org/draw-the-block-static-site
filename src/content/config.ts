@@ -54,4 +54,13 @@ const sponsor = defineCollection({
   }),
 });
 
-export const collections = { events, team, vendors, faq, sponsor };
+const settings = defineCollection({
+    type: "data",
+    schema: z.object({
+        discordUrl: z.string().url().optional(),
+        instagramUrl: z.string().url().optional(),
+        newsletterUrl: z.string().url().optional(),
+    }),
+});
+
+export const collections = { events, team, vendors, faq, sponsor, settings };
