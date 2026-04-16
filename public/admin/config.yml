@@ -103,4 +103,9 @@ collections:
         fields:
           - { label: "Discord URL", name: "discordUrl", widget: "string", required: false }
           - { label: "Instagram URL", name: "instagramUrl", widget: "string", required: false }
-          - { label: "Vendor Application URL", name: "vendorApplicationUrl", widget: "string", required: false }
+      - label: "Vendor Applications"
+        name: "vendors"
+        file: "src/content/vendorSettings/vendors.json"
+        fields:
+          - { label: "Application URL", name: "vendorApplicationUrl", widget: "string", required: false }
+          - { label: "Application Info", name: "vendorAppInfo", widget: "text", required: false }

@@ -90,10 +90,17 @@ const sponsor = defineCollection({
 const settings = defineCollection({
     type: "data",
     schema: z.object({
-        discordUrl: requiredUrlField,
-        instagramUrl: requiredUrlField,
-        vendorApplicationUrl: optionalUrlField,
+        discordUrl: optionalUrlField,
+        instagramUrl: optionalUrlField,
     }),
 });
 
-export const collections = { events, subevents, team, vendors, faq, sponsor, settings };
+const vendorSettings = defineCollection({
+    type: "data",
+    schema: z.object({
+        vendorApplicationUrl: optionalUrlField,
+        vendorAppInfo: z.string().optional(),
+    }),
+});
+
+export const collections = { events, subevents, team, vendors, faq, sponsor, settings, vendorSettings };
