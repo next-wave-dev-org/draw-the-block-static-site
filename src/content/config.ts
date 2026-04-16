@@ -92,6 +92,7 @@ const settings = defineCollection({
     schema: z.object({
         discordUrl: requiredUrlField,
         instagramUrl: requiredUrlField,
+        vendorApplicationUrl: optionalUrlField,
     }),
 });
 

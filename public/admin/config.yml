@@ -103,3 +103,4 @@ collections:
         fields:
           - { label: "Discord URL", name: "discordUrl", widget: "string", required: false }
           - { label: "Instagram URL", name: "instagramUrl", widget: "string", required: false }
+          - { label: "Vendor Application URL", name: "vendorApplicationUrl", widget: "string", required: false }
