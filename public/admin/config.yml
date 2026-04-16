@@ -52,7 +52,7 @@ collections:
     label: "Team"
     folder: "src/content/team"
     create: true
-    slug: "{{slug}}"
+    slug: "{{name | slug}}"
     extension: "yaml"
     format: "yaml"
     fields:
