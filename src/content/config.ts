@@ -76,7 +76,7 @@ const faq = defineCollection({
 const sponsor = defineCollection({
   type: "content",
   schema: z.object({
-    stripeUrl: urlField,  // Stripe button link
+    stripeUrl: urlField,            // Stripe button link
     poster: z.string().optional(), // Image for the sponsor poster
   }),
 });
@@ -86,7 +86,6 @@ const settings = defineCollection({
     schema: z.object({
         discordUrl: urlField,
         instagramUrl: urlField,
-        newsletterUrl: urlField,
     }),
 });
 
