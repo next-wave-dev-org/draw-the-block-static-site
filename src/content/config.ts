@@ -1,5 +1,14 @@
 import { defineCollection, z } from "astro:content";
 
+const urlField = z.union([z.string(), z.literal("")])
+    .optional()
+    .transform(val => {
+        if (!val) return undefined;
+        if (!/^https?:\/\//i.test(val)) return `https://${val}`;
+        return val;
+    })
+    .pipe(z.string().url().optional());
+
 const events = defineCollection({
     type: "content",
     schema: z.object({
@@ -9,7 +18,7 @@ const events = defineCollection({
         endTime: z.string().optional(),                     // same-day (HH:mm)
         location: z.string().optional(),                    // The main event should have location; sub events can inherit or specify their own
         description: z.string().optional(),                 // Used on: events list card + event detail page
-        eventUrl: z.string().url().optional(),              // Used on: event detail page (rsvp or hosted elsewhere)
+        eventUrl: urlField,                                 // Used on: event detail page (rsvp or hosted elsewhere)
         image: z.string().optional(),                       // Optional hero/card image
         featured: z.boolean().default(false),               // Drives homepage countdown (normally set true only on the main event)
     })
@@ -28,7 +37,7 @@ const subevents = defineCollection({
         endTime: z.string().optional(),                     // same-day (HH:mm)
         location: z.string().optional(),
         description: z.string().optional(),
-        eventUrl: z.string().url().optional(),
+        eventUrl: urlField,
         image: z.string().optional(),
     }),
 });
@@ -40,14 +49,7 @@ const team = defineCollection({
         role: z.string(),
         image: z.string(),
         displayOrder: z.number().int().nonnegative(),
-        website: z.union([z.string(), z.literal("")])
-            .optional()
-            .transform(val => {
-                if (!val) return undefined;
-                if (!/^https?:\/\//i.test(val)) return `https://${val}`;
-                return val;
-            })
-            .pipe(z.string().url().optional()),
+        website: urlField,
     }),
 });
 
@@ -56,8 +58,8 @@ const vendors = defineCollection({
     schema: z.object({
         name: z.string(),
         category: z.string().optional(),
-        websiteUrl: z.string().url().optional(),
-        instagramUrl: z.string().url().optional(),
+        websiteUrl: urlField,
+        instagramUrl: urlField,
         image: z.string().optional(),
         blurb: z.string().optional(),
     }),
@@ -74,7 +76,7 @@ const faq = defineCollection({
 const sponsor = defineCollection({
   type: "content",
   schema: z.object({
-    stripeUrl: z.string().url(),  // Stripe button link
+    stripeUrl: urlField,  // Stripe button link
     poster: z.string().optional(), // Image for the sponsor poster
   }),
 });
@@ -82,9 +84,9 @@ const sponsor = defineCollection({
 const settings = defineCollection({
     type: "data",
     schema: z.object({
-        discordUrl: z.string().url().optional(),
-        instagramUrl: z.string().url().optional(),
-        newsletterUrl: z.string().url().optional(),
+        discordUrl: urlField,
+        instagramUrl: urlField,
+        newsletterUrl: urlField,
     }),
 });
 
