@@ -40,7 +40,14 @@ const team = defineCollection({
         role: z.string(),
         image: z.string(),
         displayOrder: z.number().int().nonnegative(),
-        website: z.string().url().optional(),
+        website: z.union([z.string(), z.literal("")])
+            .optional()
+            .transform(val => {
+                if (!val) return undefined;
+                if (!/^https?:\/\//i.test(val)) return `https://${val}`;
+                return val;
+            })
+            .pipe(z.string().url().optional()),
     }),
 });
 

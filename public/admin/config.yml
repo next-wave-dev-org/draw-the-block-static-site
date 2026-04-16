@@ -53,6 +53,8 @@ collections:
     folder: "src/content/team"
     create: true
     slug: "{{slug}}"
+    extension: "yaml"
+    format: "yaml"
     fields:
       - { label: "Name", name: "name", widget: "string" }
       - { label: "Role", name: "role", widget: "string" }
