@@ -69,7 +69,6 @@ const vendors = defineCollection({
         twitterUrl: optionalUrlField,
         bskyUrl: optionalUrlField,
         image: z.string().optional(),
-        blurb: z.string().optional(),
     }),
 });
 

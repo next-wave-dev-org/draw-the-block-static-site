@@ -63,20 +63,18 @@ collections:
       - { label: "Website", name: "website", widget: "string", required: false }
 
   - name: "vendors"
-      label: "Vendors"
-      folder: "src/content/vendors"
-      create: true
-      slug: "{{name | slug}}"
-      fields:
-        - { label: "Name", name: "name", widget: "string" }
-        - { label: "Category", name: "category", widget: "string", required: false }
-        - { label: "Website", name: "websiteUrl", widget: "string", required: false }
-        - { label: "Instagram", name: "instagramUrl", widget: "string", required: false }
-        - { label: "Twitter / X", name: "twitterUrl", widget: "string", required: false }
-        - { label: "Bluesky", name: "bskyUrl", widget: "string", required: false }
-        - { label: "Logo/Image", name: "image", widget: "image", required: false }
-        - { label: "Blurb", name: "blurb", widget: "text", required: false }
-        - { label: "Body", name: "body", widget: "markdown", required: false }
+    label: "Vendors"
+    folder: "src/content/vendors"
+    create: true
+    slug: "{{name | slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Category", name: "category", widget: "string", required: false }
+      - { label: "Website", name: "websiteUrl", widget: "string", required: false }
+      - { label: "Instagram", name: "instagramUrl", widget: "string", required: false }
+      - { label: "Twitter / X", name: "twitterUrl", widget: "string", required: false }
+      - { label: "Bluesky", name: "bskyUrl", widget: "string", required: false }
+      - { label: "Logo/Image", name: "image", widget: "image", required: false }
 
   - name: "faq"
     label: "FAQ"
