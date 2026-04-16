@@ -14,13 +14,38 @@ collections:
     slug: "{{slug}}"
     fields:
       - { label: "Title", name: "title", widget: "string" }
+      - { label: "Show on Front Page", name: "featured", widget: "boolean", default: false }
       - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
-      - { label: "End Date/Time", name: "endDate", widget: "datetime", required: false }
+      - { label: "End Time (same-day)", name: "endTime", widget: "string", required: false, hint: "Use for same-day end time. If event ends on a different day, use End Date/Time instead." }
+      - { label: "End Date/Time (multi-day)", name: "endDate", widget: "datetime", required: false }
       - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Summary", name: "summary", widget: "text" }
+      - { label: "Description", name: "description", widget: "text" }
       - { label: "Featured Image", name: "image", widget: "image", required: false }
-      - { label: "RSVP Link", name: "rsvpUrl", widget: "string", required: false }
-      - { label: "Cosplay Signup Link", name: "cosplayUrl", widget: "string", required: false }
+      - { label: "Event Link", name: "eventUrl", widget: "string", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "subevents"
+    label: "Sub Events"
+    folder: "src/content/subevents"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - label: "Parent Event"
+        name: "parentEvent"
+        widget: "relation"
+        collection: "events"
+        search_fields: ["title"]
+        value_field: "{{slug}}"
+        display_fields: ["title"]
+      - { label: "Category", name: "category", widget: "select", options: ["liveShowcases", "gamesAndActivities", "contests", "other"], default: "other" }
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
+      - { label: "End Time (same-day)", name: "endTime", widget: "string", required: false, hint: "Use for same-day end time. If event ends on a different day, use End Date/Time instead." }
+      - { label: "End Date/Time (multi-day)", name: "endDate", widget: "datetime", required: false }
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Link", name: "eventUrl", widget: "string", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "team"

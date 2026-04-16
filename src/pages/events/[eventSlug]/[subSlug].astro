@@ -1,0 +1,126 @@
+---
+// src/pages/events/[eventSlug]/[subSlug].astro
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+type EventEntry = CollectionEntry<"events">;
+type SubEventEntry = CollectionEntry<"subevents">;
+
+export async function getStaticPaths() {
+  const events = (await getCollection("events")) as EventEntry[];
+  const subs = (await getCollection("subevents")) as SubEventEntry[];
+
+  const validSubs = subs.filter((s) =>
+    events.some((e) => e.slug === s.data.parentEvent)
+  );
+
+  return validSubs.map((s) => ({
+    params: { eventSlug: s.data.parentEvent, subSlug: s.slug },
+    props: { subevent: s },
+  }));
+}
+
+const { subevent } = Astro.props as { subevent: SubEventEntry };
+const { Content } = await subevent.render();
+
+const formatDateTime = (d: Date) =>
+  d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+---
+
+<BaseLayout title={subevent.data.title} current="events">
+  <main class="events stack">
+    <a class="backLink" href={`/events/${subevent.data.parentEvent}`}>Back to Event</a>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    {subevent.data.image && (
+      <img class="eventImg" src={subevent.data.image} alt={subevent.data.title} />
+    )}
+
+    <div class="eventPoster">
+      <h1 class="eventTitle">{subevent.data.title}</h1>
+    </div>
+
+    {subevent.data.description && <p class="eventMeta">{subevent.data.description}</p>}
+
+    <p class="eventMeta">
+      <small>
+        {formatDateTime(subevent.data.startDate)}
+        {subevent.data.endDate
+          ? ` – ${formatDateTime(subevent.data.endDate)}`
+          : subevent.data.endTime
+            ? ` – ${subevent.data.endTime}`
+            : ""}
+        {subevent.data.location && <br />}
+        {subevent.data.location && <span>{subevent.data.location}</span>}
+      </small>
+    </p>
+
+    {subevent.data.eventUrl && (
+      <p class="eventMeta">
+        <a href={subevent.data.eventUrl} target="_blank" rel="noreferrer">Link</a>
+      </p>
+    )}
+
+    <hr />
+
+    <Content />
+  </main>
+
+  <style>
+    .events {
+      width: 100%;
+      max-width: 520px;
+      text-align: left;
+    }
+
+    .backLink {
+      text-decoration: none;
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .divider {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      margin-top: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .eventImg {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: var(--space-2);
+    }
+
+    .eventPoster {
+      background: #fff;
+      color: #000;
+      padding: 12px 14px;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .eventTitle {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .eventMeta {
+      margin: 0;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      opacity: 0.95;
+    }
+  </style>
+</BaseLayout>

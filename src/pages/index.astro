@@ -1,15 +1,42 @@
 ---
+// src/pages/index.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Countdown from "../components/Countdown.astro";
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 
-const events = await getCollection("events");
-const featured = events.find((e) => e.data.featured) ?? events[0];
+type EventEntry = CollectionEntry<"events">;
 
-const targetIso = featured?.data?.startDate
-    ? featured.data.startDate.toISOString()
-    : new Date("2026-01-31T10:00:00-08:00").toISOString();
-const locationText = featured?.data?.location ?? "";
+const formatDateTime = (d: Date) =>
+  d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+const events = (await getCollection("events")) as EventEntry[];
+const now = new Date();
+
+// All featured events, sorted
+const featuredAll = events
+  .filter((e) => e.data.featured)
+  .slice()
+  .sort((a, b) => a.data.startDate.getTime() - b.data.startDate.getTime());
+
+// Cap display at 2
+const featuredDisplay = featuredAll.slice(0, 2);
+
+// Countdown targets earliest upcoming featured (from all featured, not just the first 2)
+const countdownEvent =
+  featuredAll.find((e) =>
+    e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now
+  ) ?? null;
+
+const targetIso = countdownEvent ? countdownEvent.data.startDate.toISOString() : null;
+
+// Convenience for the single-featured layout
+const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
 ---
 
 <BaseLayout title="DRAW THE BLOCK — HOME" current="home">
@@ -25,27 +52,110 @@ const locationText = featured?.data?.location ?? "";
         on January 31st - February 1st. If you like anime, manga, and hip-hop
         culture, come have fun and support the block!
       </p>
+
+      {/* SINGLE FEATURED (original style) */}
+      {singleFeatured && (
+        <div class="featuredSingle">
+          <div class="kicker featured__kicker">[ FEATURED EVENT ]</div>
+
+          {singleFeatured.data.image && (
+            <a class="featured__imgLink" href={`/events/${singleFeatured.slug}`}>
+              <div class="eventImgFrame">
+                <img
+                  class="cardImg"
+                  src={singleFeatured.data.image}
+                  alt={singleFeatured.data.title}
+                  loading="lazy"
+                />
+              </div>
+            </a>
+          )}
+
+          <a class="featured__title" href={`/events/${singleFeatured.slug}`}>
+            {singleFeatured.data.title}
+          </a>
+
+          <div class="featured__meta">
+            {formatDateTime(singleFeatured.data.startDate)}
+            {singleFeatured.data.endDate
+              ? ` – ${formatDateTime(singleFeatured.data.endDate)}`
+              : ""}
+            {singleFeatured.data.location && <br />}
+            {singleFeatured.data.location && <span>{singleFeatured.data.location}</span>}
+          </div>
+        </div>
+      )}
+
+      {/* MULTI FEATURED (Events card style), capped at 2 */}
+      {!singleFeatured && featuredDisplay.length > 0 && (
+        <div class="featuredMulti stack">
+          <div class="kicker featured__kicker">[ FEATURED EVENTS ]</div>
+
+          <div class="eventsList">
+            {featuredDisplay.map((event) => (
+              <article class="eventCard">
+                <a class="eventLink" href={`/events/${event.slug}`}>
+                  {event.data.image && (
+                    <div class="eventImgFrame">
+                      <img
+                        class="cardImg"
+                        src={event.data.image}
+                        alt={event.data.title}
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+
+                  <div class="eventPoster">
+                    <h2 class="eventTitle">{event.data.title}</h2>
+                  </div>
+                </a>
+
+                {event.data.description && (
+                  <p class="eventMeta">{event.data.description}</p>
+                )}
+
+                <p class="eventMeta">
+                  <small>
+                    {formatDateTime(event.data.startDate)}
+                    {event.data.endDate
+                      ? ` – ${formatDateTime(event.data.endDate)}`
+                      : event.data.endTime
+                        ? ` – ${event.data.endTime}`
+                        : ""}
+                    {event.data.location && <br />}
+                    {event.data.location && <span>{event.data.location}</span>}
+                  </small>
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
 
     <!-- Countdown -->
-    <section class="home__countdown" aria-label="Countdown to event">
-      <Countdown targetIso={targetIso} />
-
-      {locationText && (
-          <div class="address">
-            <span class="address__icon" aria-hidden="true">◯</span>
-            <span>{locationText}</span>
-          </div>
+    <section class="home__countdown" aria-label="Countdown to featured event">
+      {targetIso ? (
+        
+        <div class="kicker">[ COUNTDOWN ]</div>
+        <Countdown targetIso={targetIso} />
+        
+      ) : (
+        <div class="eventNone">
+          <div class="kicker">[ NO UPCOMING FEATURED EVENTS ]</div>
+          <p class="prose">Check back soon!</p>
+        </div>
       )}
     </section>
 
     <!-- Mascot -->
     <section class="home__art" aria-label="Mascot">
       <img
-          src="/images/mascot_flower.png"
-          alt="Draw The Block mascot"
-          class="home__mascot"
-          loading="eager"
+        src="/images/mascot_flower.png"
+        alt="Draw The Block mascot"
+        class="home__mascot"
+        loading="eager"
       />
     </section>
   </div>
@@ -57,16 +167,11 @@ const locationText = featured?.data?.location ?? "";
       flex-direction: column;
       align-items: center;
       text-align: center;
-
-      /* Slightly tighter than global stack for the home column */
       gap: var(--space-6);
     }
 
-    //.home .prose {
-    //  max-width: clamp(40ch, 80%, 52ch);
-    //}
-
     .home__intro {
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -81,6 +186,121 @@ const locationText = featured?.data?.location ?? "";
       margin-top: var(--space-3);
     }
 
+    .featured__kicker {
+      margin-top: 0;
+    }
+
+    /* Shared image crop used by both layouts */
+    .eventImgFrame {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.06);
+      margin-bottom: var(--space-2);
+    }
+
+    .cardImg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .featured__imgLink {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* SINGLE FEATURED (original feel) */
+    .featuredSingle {
+      width: 100%;
+      max-width: 520px;
+      margin-top: var(--space-3);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      align-items: center;
+    }
+
+    .featured__title {
+      font-family: var(--font-display);
+      font-weight: var(--fw-display);
+      font-size: 20px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .featured__meta {
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      opacity: 0.95;
+    }
+
+    /* MULTI FEATURED (Events card style) */
+    .featuredMulti {
+      width: 100%;
+      max-width: 520px;
+      margin-top: var(--space-3);
+      text-align: left;
+    }
+
+    .eventsList {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+      margin-top: var(--space-2);
+    }
+
+    @media (min-width: 720px) {
+      .eventsList {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+      }
+    }
+
+    .eventCard {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .eventLink {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .eventPoster {
+      background: #fff;
+      color: #000;
+      padding: 12px 14px;
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .eventTitle {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .eventMeta {
+      margin: 0;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      opacity: 0.95;
+      text-align: left;
+    }
+
     /* Countdown */
     .home__countdown {
       display: flex;
@@ -88,33 +308,17 @@ const locationText = featured?.data?.location ?? "";
       align-items: center;
       gap: var(--space-3);
       margin-top: var(--space-2);
+      width: 100%;
     }
 
-    .countdown__time {
-      font-family: var(--font-display);
-      font-weight: var(--fw-display);
-      font-size: var(--fs-countdown);
-      line-height: 1;
-      letter-spacing: 0.02em;
-    }
-
-    .countdown__labels {
-      display: flex;
-      justify-content: center;
-      gap: var(--space-4);
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      margin-top: var(--space-2);
-    }
-
-    .address {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
+    .countdownMeta {
       font-size: 11px;
       letter-spacing: 0.02em;
       opacity: 0.95;
+    }
+
+    .countdownLink {
+      text-decoration: none;
     }
 
     /* Mascot */
@@ -122,7 +326,6 @@ const locationText = featured?.data?.location ?? "";
       width: 100%;
       display: flex;
       justify-content: center;
-      margin-top: var(--space-6);
     }
 
     .home__mascot {

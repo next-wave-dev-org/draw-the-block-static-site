@@ -1,35 +1,226 @@
 ---
+// src/pages/events/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
-const events = await getCollection("events");
-
 type EventEntry = CollectionEntry<"events">;
 
-const sortedEvents = (events as EventEntry[]).toSorted(
-    (a: EventEntry, b: EventEntry) => a.data.startDate.getTime() - b.data.startDate.getTime()
+const events = (await getCollection("events")) as EventEntry[];
+
+const sorted = events
+  .slice()
+  .sort(
+    (a: EventEntry, b: EventEntry) =>
+      a.data.startDate.getTime() - b.data.startDate.getTime()
+  );
+
+const now = new Date();
+
+const upcoming = sorted.filter((e: EventEntry) =>
+  e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now
 );
+const past = sorted.filter((e: EventEntry) =>
+  e.data.endDate ? e.data.endDate < now : e.data.startDate < now
+);
+
+const formatDateTime = (d: Date) =>
+  d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 ---
 
 <BaseLayout title="DRAW THE BLOCK — EVENTS" current="events">
-  <main>
-    <h1>Events</h1>
+  <main class="events stack">
+    <div class="divider" aria-hidden="true"></div>
 
-    <ul>
-      {sortedEvents.map((event: EventEntry) => (
-          <li>
-            <h2>
-              <a href={`/events/${event.slug}`}>{event.data.title}</a>
-            </h2>
-            <p>{event.data.description}</p>
-            <p>
-              <small>
-                {event.data.startDate.toLocaleString()}
-                {event.data.location ? ` — ${event.data.location}` : ""}
-              </small>
-            </p>
-          </li>
-      ))}
-    </ul>
+    <section class="stack">
+      <div class="kicker">[ UPCOMING EVENTS ]</div>
+
+      {upcoming.length > 0 ? (
+        <div class="eventsList">
+          {upcoming.map((event: EventEntry) => (
+            <article class="eventCard">
+              <a class="eventLink" href={`/events/${event.slug}`}>
+                {event.data.image && (
+                  <div class="eventImgFrame">
+                    <img
+                      class="cardImg"
+                      src={event.data.image}
+                      alt={event.data.title}
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+
+                <div class="eventPoster">
+                  <h2 class="eventTitle">{event.data.title}</h2>
+                </div>
+              </a>
+
+              {event.data.description && (
+                <p class="eventMeta">{event.data.description}</p>
+              )}
+
+              <p class="eventMeta">
+                <small>
+                  {formatDateTime(event.data.startDate)}
+                  {event.data.endDate
+                    ? ` – ${formatDateTime(event.data.endDate)}`
+                    : event.data.endTime
+                      ? ` – ${event.data.endTime}`
+                      : ""}
+                  {event.data.location && <br />}
+                  {event.data.location && <span>{event.data.location}</span>}
+                </small>
+              </p>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p class="eventMeta">No upcoming events yet.</p>
+      )}
+    </section>
+
+    <section class="stack">
+      <div class="kicker">[ PAST EVENTS ]</div>
+
+      {past.length > 0 ? (
+        <div class="eventsList">
+          {past
+            .slice()
+            .reverse()
+            .map((event: EventEntry) => (
+              <article class="eventCard">
+                <a class="eventLink" href={`/events/${event.slug}`}>
+                  {event.data.image && (
+                    <div class="eventImgFrame">
+                      <img
+                        class="cardImg"
+                        src={event.data.image}
+                        alt={event.data.title}
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+
+                  <div class="eventPoster">
+                    <h2 class="eventTitle">{event.data.title}</h2>
+                  </div>
+                </a>
+
+                {event.data.description && (
+                  <p class="eventMeta">{event.data.description}</p>
+                )}
+
+                <p class="eventMeta">
+                  <small>
+                    {formatDateTime(event.data.startDate)}
+                    {event.data.endDate
+                      ? ` – ${formatDateTime(event.data.endDate)}`
+                      : event.data.endTime
+                        ? ` – ${event.data.endTime}`
+                        : ""}
+                    {event.data.location && <br />}
+                    {event.data.location && <span>{event.data.location}</span>}
+                  </small>
+                </p>
+              </article>
+            ))}
+        </div>
+      ) : (
+        <p class="eventMeta">No past events yet.</p>
+      )}
+    </section>
   </main>
+
+  <style>
+    .events {
+      width: 100%;
+      max-width: 520px;
+      text-align: left;
+    }
+
+    .divider {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      margin-top: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .eventsList {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+
+    @media (min-width: 720px) {
+      .eventsList {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+      }
+    }
+
+    .eventCard {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      width: 100%;
+    }
+
+    .eventLink {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+    }
+
+    .eventImgFrame {
+      width: 100%;
+      aspect-ratio: 16 / 9; /* try 4/3 if you want a taller crop */
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.06);
+      margin-bottom: var(--space-2);
+    }
+
+    .cardImg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .eventPoster {
+      background: #fff;
+      color: #000;
+      padding: 12px 14px;
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .eventTitle {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .eventMeta {
+      margin: 0;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      opacity: 0.95;
+    }
+
+    .kicker {
+      text-align: left;
+      margin-top: 0;
+    }
+  </style>
 </BaseLayout>

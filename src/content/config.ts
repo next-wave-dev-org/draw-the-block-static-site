@@ -3,15 +3,33 @@ import { defineCollection, z } from "astro:content";
 const events = defineCollection({
     type: "content",
     schema: z.object({
-        kind: z.enum(["main", "sub"]).default("sub"),   // Identify the role of this entry
         title: z.string(),
         startDate: z.coerce.date(),                         // Use dates for sorting, display, and countdown
-        endDate: z.coerce.date().optional(),
+        endDate: z.coerce.date().optional(),                // multi-day (full datetime)
+        endTime: z.string().optional(),                     // same-day (HH:mm)
         location: z.string().optional(),                    // The main event should have location; sub events can inherit or specify their own
         description: z.string().optional(),                 // Used on: events list card + event detail page
-        rsvpUrl: z.string().url().optional(),               // Used on: event detail page (optional)
+        eventUrl: z.string().url().optional(),              // Used on: event detail page (rsvp or hosted elsewhere)
         image: z.string().optional(),                       // Optional hero/card image
-        featured: z.boolean().default(false),           // Drives homepage countdown (normally set true only on the main event)
+        featured: z.boolean().default(false),               // Drives homepage countdown (normally set true only on the main event)
+    })
+});
+
+const subevents = defineCollection({
+    type: "content",
+    schema: z.object({
+        parentEvent: z.string(), // main event slug
+        category: z
+            .enum(["liveShowcases", "gamesAndActivities", "contests", "other"])
+            .default("other"),
+        title: z.string(),
+        startDate: z.coerce.date(),
+        endDate: z.coerce.date().optional(),
+        endTime: z.string().optional(),                     // same-day (HH:mm)
+        location: z.string().optional(),
+        description: z.string().optional(),
+        eventUrl: z.string().url().optional(),
+        image: z.string().optional(),
     }),
 });
 
@@ -54,4 +72,4 @@ const sponsor = defineCollection({
   }),
 });
 
-export const collections = { events, team, vendors, faq, sponsor };
+export const collections = { events, subevents, team, vendors, faq, sponsor };
