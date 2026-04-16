@@ -93,3 +93,12 @@ collections:
       - { label: "Stripe URL", name: "stripeUrl", widget: "string" }
       - { label: "Poster Image", name: "poster", widget: "image", required: false }
 
+  - name: "settings"
+    label: "Settings"
+    files:
+      - label: "Social Links"
+        name: "social"
+        file: "src/content/settings/social.json"
+        fields:
+          - { label: "Discord URL", name: "discordUrl", widget: "string", required: false }
+          - { label: "Instagram URL", name: "instagramUrl", widget: "string", required: false }
