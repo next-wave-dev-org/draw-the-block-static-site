@@ -63,7 +63,6 @@ const vendors = defineCollection({
     type: "content",
     schema: z.object({
         name: z.string(),
-        category: z.string().optional(),
         websiteUrl: optionalUrlField,
         instagramUrl: optionalUrlField,
         twitterUrl: optionalUrlField,
