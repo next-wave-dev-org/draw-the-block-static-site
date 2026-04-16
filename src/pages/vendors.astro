@@ -34,19 +34,24 @@ const sortedVendors = vendors.sort((a, b) =>
 
           <div class="social-links">
             {vendor.data.websiteUrl && (
-              <a href={vendor.data.websiteUrl} target="_blank" rel="noopener noreferrer">
-                <img src="/images/bluesky.png" alt="Bluesky" class="social-icon" />
-              </a>
+                <a href={vendor.data.websiteUrl} target="_blank" rel="noopener noreferrer">
+                  <img src="/images/website.png" alt="Website" class="social-icon" />
+                </a>
             )}
-
-            <a href="#" target="_blank" rel="noopener noreferrer">
-              <img src="/images/x.png" alt="X" class="social-icon x-logo" />
-            </a>
-
             {vendor.data.instagramUrl && (
-              <a href={vendor.data.instagramUrl} target="_blank" rel="noopener noreferrer">
-                <img src="/images/instagram.png" alt="Instagram" class="social-icon" />
-              </a>
+                <a href={vendor.data.instagramUrl} target="_blank" rel="noopener noreferrer">
+                  <img src="/images/instagram.png" alt="Instagram" class="social-icon" />
+                </a>
+            )}
+            {vendor.data.twitterUrl && (
+                <a href={vendor.data.twitterUrl} target="_blank" rel="noopener noreferrer">
+                  <img src="/images/x.png" alt="X" class="social-icon x-logo" />
+                </a>
+            )}
+            {vendor.data.bskyUrl && (
+                <a href={vendor.data.bskyUrl} target="_blank" rel="noopener noreferrer">
+                  <img src="/images/bluesky.png" alt="Bluesky" class="social-icon" />
+                </a>
             )}
           </div>
         </article>
