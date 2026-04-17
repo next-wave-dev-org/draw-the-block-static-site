@@ -58,7 +58,7 @@ collections:
     fields:
       - { label: "Name", name: "name", widget: "string" }
       - { label: "Role", name: "role", widget: "string" }
-      - { label: "Image", name: "image", widget: "image" }
+      - { label: "Image (portrait, 3:4 ratio, min 300x400px)", name: "image", widget: "image" }
       - { label: "Display Order", name: "displayOrder", widget: "number", value_type: "int", min: 0 }
       - { label: "Website", name: "website", widget: "string", required: false }
 
