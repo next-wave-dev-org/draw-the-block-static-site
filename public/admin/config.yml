@@ -73,7 +73,7 @@ collections:
       - { label: "Instagram", name: "instagramUrl", widget: "string", required: false }
       - { label: "Twitter / X", name: "twitterUrl", widget: "string", required: false }
       - { label: "Bluesky", name: "bskyUrl", widget: "string", required: false }
-      - { label: "Logo/Image", name: "image", widget: "image", required: false }
+      - { label: "Logo/Image (square, min 400x400px)", name: "image", widget: "image", required: false }
 
   - name: "faq"
     label: "FAQ"
