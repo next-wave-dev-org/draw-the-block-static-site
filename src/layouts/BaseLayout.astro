@@ -3,6 +3,7 @@ import "../styles/global.css";
 import "../styles/tokens.css";
 import "../styles/base.css";
 import { getEntry } from "astro:content";
+import { ClientRouter } from 'astro:transitions';
 
 type NavKey = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq" | "newsletter";
 
@@ -19,7 +20,7 @@ function navLabel(key: NavKey, label: string) {
 }
 
 const socialSettings = await getEntry("settings", "social");
-const { discordUrl, instagramUrl, newsletterUrl } = socialSettings?.data || {};
+const { discordUrl, instagramUrl } = socialSettings?.data || {};
 ---
 
 <!doctype html>
@@ -28,17 +29,17 @@ const { discordUrl, instagramUrl, newsletterUrl } = socialSettings?.data || {};
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
-
-
+  <ClientRouter/>
 </head>
 
 <body>
 <main class="site-strip" aria-label="Main content">
-  <header class="strip-header" aria-label="Site header">
-    <img class="strip-logo" src="/images/logo.png" alt="Draw The Block logo" />
 
+  <img class="strip-logo" src="/images/logo.png" alt="Draw The Block logo" transition:persist />
+
+  <header class="strip-header" aria-label="Site header">
     <nav class="strip-nav" aria-label="Primary navigation">
-      <a class:list={["strip-nav__link", current === "home" && "is-active"]} href="/">
+      <a class:list={["strip-nav__link", current === "home" && "is-active"]} href="/home">
         {navLabel("home", "HOME")}
       </a>
       <a class:list={["strip-nav__link", current === "about" && "is-active"]} href="/about">
@@ -78,18 +79,19 @@ const { discordUrl, instagramUrl, newsletterUrl } = socialSettings?.data || {};
 </main>
 
 <style>
-  .strip-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-5);
-  }
-
   .strip-logo {
     width: 240px;
     height: auto;
     display: block;
-    /* margin-top: var(--space-2); */
+    margin: 0 auto;
+    padding-top: var(--space-4);
+  }
+
+  .strip-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: var(--space-4);
   }
 
   .strip-nav {
@@ -107,7 +109,6 @@ const { discordUrl, instagramUrl, newsletterUrl } = socialSettings?.data || {};
     text-decoration: none;
   }
 
-  /* 3) Active page should NOT underline */
   .strip-nav__link.is-active {
     text-decoration: none;
   }
@@ -121,7 +122,6 @@ const { discordUrl, instagramUrl, newsletterUrl } = socialSettings?.data || {};
     margin-top: var(--space-2);
   }
 
-  /*  Footer inside strip and pinned to bottom */
   .strip-footer {
     margin-top: auto;
     padding-top: var(--space-6);
