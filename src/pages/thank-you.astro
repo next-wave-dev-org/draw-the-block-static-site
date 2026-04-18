@@ -1,0 +1,30 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Thank You | DRAW THE BLOCK" current="">
+    <div class="stack prose">
+        <h1>You're In.</h1>
+        <p>Thanks for subscribing to the DRAW THE BLOCK newsletter. We'll keep you updated on the latest announcements, events, and drops.</p>
+        <a href="/" class="back-link">[Back to Home]</a>
+    </div>
+</BaseLayout>
+
+<style>
+    h1 {
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .back-link {
+        display: inline-block;
+        margin-top: var(--space-4);
+        font-family: var(--font-display);
+        font-size: var(--fs-nav);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-decoration: none;
+    }
+    .back-link:hover {
+        opacity: 0.7;
+    }
+</style>
