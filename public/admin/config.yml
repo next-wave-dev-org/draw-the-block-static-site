@@ -58,7 +58,7 @@ collections:
     fields:
       - { label: "Name", name: "name", widget: "string" }
       - { label: "Role", name: "role", widget: "string" }
-      - { label: "Image", name: "image", widget: "image" }
+      - { label: "Image (portrait, 3:4 ratio, min 300x400px)", name: "image", widget: "image" }
       - { label: "Display Order", name: "displayOrder", widget: "number", value_type: "int", min: 0 }
       - { label: "Website", name: "website", widget: "string", required: false }
 
@@ -69,12 +69,11 @@ collections:
     slug: "{{name | slug}}"
     fields:
       - { label: "Name", name: "name", widget: "string" }
-      - { label: "Category", name: "category", widget: "string", required: false }
       - { label: "Website", name: "websiteUrl", widget: "string", required: false }
       - { label: "Instagram", name: "instagramUrl", widget: "string", required: false }
-      - { label: "Logo/Image", name: "image", widget: "image", required: false }
-      - { label: "Blurb", name: "blurb", widget: "text", required: false }
-      - { label: "Body", name: "body", widget: "markdown", required: false }
+      - { label: "Twitter / X", name: "twitterUrl", widget: "string", required: false }
+      - { label: "Bluesky", name: "bskyUrl", widget: "string", required: false }
+      - { label: "Logo/Image (square, min 400x400px)", name: "image", widget: "image", required: false }
 
   - name: "faq"
     label: "FAQ"
@@ -104,3 +103,9 @@ collections:
         fields:
           - { label: "Discord URL", name: "discordUrl", widget: "string", required: false }
           - { label: "Instagram URL", name: "instagramUrl", widget: "string", required: false }
+      - label: "Vendor Applications"
+        name: "vendors"
+        file: "src/content/vendorSettings/vendors.json"
+        fields:
+          - { label: "Application URL", name: "vendorApplicationUrl", widget: "string", required: false }
+          - { label: "Application Info", name: "vendorAppInfo", widget: "text", required: false }
