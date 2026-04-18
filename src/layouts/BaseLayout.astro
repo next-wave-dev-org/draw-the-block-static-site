@@ -58,6 +58,7 @@ const { discordUrl, instagramUrl } = socialSettings?.data || {};
         {navLabel("donate", "DONATE")}
       </a>
     </nav>
+    <div class="divider" aria-hidden="true"></div>
   </header>
 
   <section class="strip-content">
@@ -148,6 +149,12 @@ const { discordUrl, instagramUrl } = socialSettings?.data || {};
 
   .strip-footer__link.is-active {
     text-decoration: none;
+  }
+  .divider {
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-4);
   }
 </style>
 </body>
