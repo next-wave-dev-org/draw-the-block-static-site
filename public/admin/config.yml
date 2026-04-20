@@ -109,3 +109,79 @@ collections:
         fields:
           - { label: "Application URL", name: "vendorApplicationUrl", widget: "string", required: false }
           - { label: "Application Info", name: "vendorAppInfo", widget: "text", required: false }
+      - label: "Marquee (Scrolling Banner)"
+        name: "marquee"
+        file: "src/content/marqueeSettings/marquee.json"
+        description: "The scrolling ticker that appears under the site navigation. Edit 'Global' for a site-wide banner. Use the per-page sections to override the banner on a single page."
+        fields:
+          - label: "Global (shown on all pages by default)"
+            name: "global"
+            widget: "object"
+            collapsed: false
+            fields:
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: true, hint: "Turn off to hide the marquee site-wide (unless a page has its own override)." }
+              - { label: "Messages", name: "messages", widget: "list", field: { label: "Message", name: "message", widget: "string" }, hint: "Each line becomes one scrolling message. Keep them short and punchy." }
+              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false, hint: "Optional. Higher number = slower scroll. Leave blank for default." }
+          - label: "Home — Override"
+            name: "home"
+            widget: "object"
+            collapsed: true
+            required: false
+            fields:
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Home page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
+              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+          - label: "About — Override"
+            name: "about"
+            widget: "object"
+            collapsed: true
+            required: false
+            fields:
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the About page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
+              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+          - label: "Events — Override"
+            name: "events"
+            widget: "object"
+            collapsed: true
+            required: false
+            fields:
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Events page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
+              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+          - label: "Vendors — Override"
+            name: "vendors"
+            widget: "object"
+            collapsed: true
+            required: false
+            fields:
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Vendors page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
+              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+          - label: "Sponsor — Override"
+            name: "sponsor"
+            widget: "object"
+            collapsed: true
+            required: false
+            fields:
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Sponsor page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
+              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+          - label: "Donate — Override"
+            name: "donate"
+            widget: "object"
+            collapsed: true
+            required: false
+            fields:
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Donate page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
+              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+          - label: "FAQ — Override"
+            name: "faq"
+            widget: "object"
+            collapsed: true
+            required: false
+            fields:
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the FAQ page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
+              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }

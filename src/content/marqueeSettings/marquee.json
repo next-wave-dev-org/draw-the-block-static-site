@@ -1,0 +1,38 @@
+{
+  "global": {
+    "enabled": true,
+    "messages": [
+      "ART MARKET HAPPENING NOW!",
+      "COSPLAY SIGNUP DUE TONIGHT!"
+    ],
+    "speed": 15
+  },
+  "home": {
+    "enabled": false,
+    "messages": []
+  },
+  "about": {
+    "enabled": false,
+    "messages": []
+  },
+  "events": {
+    "enabled": false,
+    "messages": []
+  },
+  "vendors": {
+    "enabled": false,
+    "messages": []
+  },
+  "sponsor": {
+    "enabled": false,
+    "messages": []
+  },
+  "donate": {
+    "enabled": false,
+    "messages": []
+  },
+  "faq": {
+    "enabled": false,
+    "messages": []
+  }
+}

@@ -80,11 +80,11 @@ const faq = defineCollection({
 });
 
 const sponsor = defineCollection({
-  type: "content",
-  schema: z.object({
-    stripeUrl: requiredUrlField,            // Stripe button link2
-    poster: z.string().optional(), // Image for the sponsor poster
-  }),
+    type: "content",
+    schema: z.object({
+        stripeUrl: requiredUrlField,            // Stripe button link2
+        poster: z.string().optional(), // Image for the sponsor poster
+    }),
 });
 
 const settings = defineCollection({
@@ -103,4 +103,26 @@ const vendorSettings = defineCollection({
     }),
 });
 
-export const collections = { events, subevents, team, vendors, faq, sponsor, settings, vendorSettings };
+const marqueeScopeSchema = z.object({
+    enabled: z.boolean().default(false),
+    messages: z.array(z.string().min(1)).default([]),
+    // Scroll duration in seconds for one full loop. Higher = slower.
+    // Optional so the client doesn't have to set it; default is in the component.
+    speed: z.number().positive().optional(),
+});
+
+const marqueeSettings = defineCollection({
+    type: "data",
+    schema: z.object({
+        global: marqueeScopeSchema,
+        home: marqueeScopeSchema,
+        about: marqueeScopeSchema,
+        events: marqueeScopeSchema,
+        vendors: marqueeScopeSchema,
+        sponsor: marqueeScopeSchema,
+        donate: marqueeScopeSchema,
+        faq: marqueeScopeSchema,
+    }),
+});
+
+export const collections = { events, subevents, team, vendors, faq, sponsor, settings, vendorSettings, marqueeSettings };

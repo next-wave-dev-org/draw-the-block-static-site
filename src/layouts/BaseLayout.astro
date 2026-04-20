@@ -2,8 +2,9 @@
 import "../styles/global.css";
 import "../styles/tokens.css";
 import "../styles/base.css";
-import { getEntry } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import { ClientRouter } from 'astro:transitions';
+import Marquee from "../components/marquee.astro";
 
 type NavKey = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq" | "newsletter";
 
@@ -21,6 +22,37 @@ function navLabel(key: NavKey, label: string) {
 
 const socialSettings = await getEntry("settings", "social");
 const { discordUrl, instagramUrl } = socialSettings?.data || {};
+
+
+type MarqueeScope = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq" | "global";
+
+const pageScope: MarqueeScope | null =
+    current && current !== "newsletter" ? (current as MarqueeScope) : null;
+
+// Using getCollection + find to avoid strict literal-ID overload issues with getEntry.
+const marqueeAll = await getCollection("marqueeSettings");
+const marqueeDoc = marqueeAll.find((m) => m.id === "marquee");
+
+let activeMessages: string[] | null = null;
+let activeSpeed: number | undefined = undefined;
+
+if (marqueeDoc) {
+  const scopes = marqueeDoc.data;
+  const pageConfig = pageScope ? scopes[pageScope] : undefined;
+  const globalConfig = scopes.global;
+
+  if (pageConfig?.enabled) {
+    // Page explicitly opted in — honor it, even if messages is empty (silence).
+    if (pageConfig.messages.length > 0) {
+      activeMessages = pageConfig.messages;
+      activeSpeed = pageConfig.speed;
+    }
+    // else: explicitly silent on this page. Do not fall back.
+  } else if (globalConfig?.enabled && globalConfig.messages.length > 0) {
+    activeMessages = globalConfig.messages;
+    activeSpeed = globalConfig.speed;
+  }
+}
 ---
 
 <!doctype html>
@@ -60,6 +92,10 @@ const { discordUrl, instagramUrl } = socialSettings?.data || {};
     </nav>
     <div class="divider" aria-hidden="true"></div>
   </header>
+
+  {activeMessages && (
+      <Marquee messages={activeMessages} speed={activeSpeed} />
+  )}
 
   <section class="strip-content">
     <slot />
