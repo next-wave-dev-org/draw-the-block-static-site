@@ -20,8 +20,12 @@
     "messages": []
   },
   "vendors": {
-    "enabled": false,
-    "messages": []
+    "enabled": true,
+    "messages": [
+      "VENDOR APPS DUE TOMORROW!",
+      "SIGN UP BELOW!"
+    ],
+    "speed": 15
   },
   "sponsor": {
     "enabled": false,
