@@ -2,7 +2,7 @@
 const { targetIso } = Astro.props as { targetIso: string };
 ---
 
-<div class="countdown" data-target={targetIso}>
+<div class="countdown" data-countdown data-target={targetIso}>
     <div class="countdown__time" data-el="time">00:00</div>
     <div class="countdown__labels">
         <span>WEEKS</span>
@@ -30,16 +30,13 @@ const { targetIso } = Astro.props as { targetIso: string };
     }
 </style>
 
-<script is:inline>
+<script>
 
-    (function() {
-        const scriptEl = document.currentScript;
-        const root = scriptEl?.previousElementSibling;
+    const intervals = new WeakMap<HTMLElement, number>();
 
-        if (!root || !(root instanceof HTMLElement)) return;
-
+    function startCountdown(root: HTMLElement) {
         const targetAttr = root.dataset.target;
-        const timeEl = root.querySelector('[data-el="time"]');
+        const timeEl = root.querySelector<HTMLElement>('[data-el="time"]');
         if (!targetAttr || !timeEl) return;
 
         const target = new Date(targetAttr);
@@ -49,7 +46,12 @@ const { targetIso } = Astro.props as { targetIso: string };
             const diffMs = target.getTime() - now;
 
             if (diffMs <= 0) {
-                timeEl.textContent = "00:00";
+                timeEl!.textContent = "00:00";
+                const existing = intervals.get(root);
+                if (existing !== undefined) {
+                    clearInterval(existing);
+                    intervals.delete(root);
+                }
                 return;
             }
 
@@ -57,11 +59,36 @@ const { targetIso } = Astro.props as { targetIso: string };
             const weeks = Math.floor(daysTotal / 7);
             const days = daysTotal % 7;
 
-            timeEl.textContent =
+            timeEl!.textContent =
                 String(weeks).padStart(2, "0") + ":" + String(days).padStart(2, "0");
         }
 
+        // Clear any existing interval on this element before starting a new one.
+        const existing = intervals.get(root);
+        if (existing !== undefined) clearInterval(existing);
+
         tick();
-        setInterval(tick, 60000);
-    })();
+        const id = window.setInterval(tick, 60_000);
+        intervals.set(root, id);
+    }
+
+    function initAllCountdowns() {
+        const roots = document.querySelectorAll<HTMLElement>('[data-countdown]');
+        roots.forEach(startCountdown);
+    }
+
+    // Runs on initial full page load AND after every client-side navigation.
+    document.addEventListener("astro:page-load", initAllCountdowns);
+
+    // Before a client-side navigation swaps the DOM, stop any running intervals.
+    // The page-load handler will restart them if countdowns are still present.
+    document.addEventListener("astro:before-swap", () => {
+        document.querySelectorAll<HTMLElement>('[data-countdown]').forEach((root) => {
+            const id = intervals.get(root);
+            if (id !== undefined) {
+                clearInterval(id);
+                intervals.delete(root);
+            }
+        });
+    });
 </script>
