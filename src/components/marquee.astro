@@ -1,0 +1,133 @@
+---
+/**
+    * Marquee — horizontal scrolling banner.
+    *
+    * Consumed by BaseLayout. Given a list of messages, renders a seamlessly looping
+    * ticker band. Does nothing if messages is empty.
+    *
+    * Implementation notes:
+    *  - Pure CSS animation. Content is rendered twice inside the track; translating
+    *    the track by -50% lands the second copy exactly where the first started,
+    *    producing a seamless loop.
+    *  - The duplicated copy is aria-hidden so screen readers see each message once.
+    *  - Respects prefers-reduced-motion: falls back to a static, scrollable strip.
+    *  - `speed` controls seconds per full loop. Higher = slower.
+    */
+
+export interface Props {
+    messages: string[];
+    speed?: number;
+}
+
+const { messages, speed } = Astro.props;
+
+// Default: 40s per loop. Slow enough to read, fast enough to feel alive.
+const durationSeconds = speed ?? 40;
+
+// Bullet separator between messages. Rendered as its own span so we can style it.
+const SEPARATOR = "◉";
+---
+
+{messages && messages.length > 0 && (
+<div
+        class="marquee"
+        role="region"
+        aria-label="Site announcements"
+        style={`--marquee-duration: ${durationSeconds}s;`}
+>
+    <div class="marquee__track">
+        <div class="marquee__group">
+            {messages.map((msg) => (
+                    <>
+                        <span class="marquee__item">{msg}</span>
+                        <span class="marquee__sep" aria-hidden="true">{SEPARATOR}</span>
+                    </>
+            ))}
+        </div>
+        <div class="marquee__group" aria-hidden="true">
+            {messages.map((msg) => (
+                    <>
+                        <span class="marquee__item">{msg}</span>
+                        <span class="marquee__sep">{SEPARATOR}</span>
+                    </>
+            ))}
+        </div>
+    </div>
+</div>
+    )}
+
+<style>
+    .marquee {
+        /* Declare --marqueeSettings-duration here so the linter can resolve it.
+           The inline style on the element overrides this default when speed is set. */
+        --marquee-duration: 40s;
+
+        width: 100%;
+        overflow: hidden;
+        background: #000;
+        color: #FFD400; /* Yellow — matches the DTB logo */
+        border-top: 1px solid rgba(255, 212, 0, 0.25);
+        border-bottom: 1px solid rgba(255, 212, 0, 0.25);
+        padding: 10px 0;
+        font-family: var(--font-display), system-ui, sans-serif;
+        font-weight: var(--fw-display, 700);
+        font-size: 13px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        user-select: none;
+    }
+
+    .marquee__track {
+        display: flex;
+        width: max-content;
+        animation: marquee-scroll var(--marquee-duration) linear infinite;
+        will-change: transform;
+    }
+
+    .marquee:hover .marquee__track {
+        animation-play-state: paused;
+    }
+
+    .marquee__group {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        /* Each group is exactly 50% of the track so -50% translateX wraps perfectly */
+        padding-right: 0; /* separator after last item provides the gap */
+    }
+
+    .marquee__item {
+        padding: 0 1.25rem;
+        white-space: nowrap;
+    }
+
+    .marquee__sep {
+        color: #FFD400;
+        opacity: 0.6;
+        font-size: 10px;
+        line-height: 1;
+    }
+
+    @keyframes marquee-scroll {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    /* Respect user preference: no motion, just a static readable strip. */
+    @media (prefers-reduced-motion: reduce) {
+        .marquee {
+            overflow-x: auto;
+        }
+        .marquee__track {
+            animation: none;
+        }
+        /* Hide the duplicated copy when not scrolling — one read is enough. */
+        .marquee__group[aria-hidden="true"] {
+            display: none;
+        }
+    }
+</style>
