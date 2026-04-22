@@ -1,6 +1,7 @@
 ---
 // src/pages/events/[eventSlug]/[subSlug].astro
 import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../../components/Breadcrumb.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
@@ -11,36 +12,46 @@ export async function getStaticPaths() {
   const subs = (await getCollection("subevents")) as SubEventEntry[];
 
   const validSubs = subs.filter((s) =>
-    events.some((e) => e.slug === s.data.parentEvent)
+      events.some((e) => e.slug === s.data.parentEvent)
   );
 
-  return validSubs.map((s) => ({
-    params: { eventSlug: s.data.parentEvent, subSlug: s.slug },
-    props: { subevent: s },
-  }));
+  // Attach the parent event to props so the template can render a full
+  // breadcrumb without a second collection fetch per request.
+  return validSubs.map((s) => {
+    const parent = events.find((e) => e.slug === s.data.parentEvent)!;
+    return {
+      params: { eventSlug: s.data.parentEvent, subSlug: s.slug },
+      props: { subevent: s, parent },
+    };
+  });
 }
 
-const { subevent } = Astro.props as { subevent: SubEventEntry };
+const { subevent, parent } = Astro.props as {
+  subevent: SubEventEntry;
+  parent: EventEntry;
+};
 const { Content } = await subevent.render();
 
 const formatDateTime = (d: Date) =>
-  d.toLocaleString(undefined, {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+    d.toLocaleString(undefined, {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
 ---
 
 <BaseLayout title={subevent.data.title} current="events">
   <main class="events stack">
-    <a class="backLink" href={`/events/${subevent.data.parentEvent}`}>Back to Event</a>
-
-    <div class="divider" aria-hidden="true"></div>
+    <Breadcrumb items={[
+      { label: "EVENTS", href: "/events" },
+      { label: parent.data.title.toUpperCase(), href: `/events/${parent.slug}` },
+      { label: subevent.data.title.toUpperCase() }
+    ]} />
 
     {subevent.data.image && (
-      <img class="eventImg" src={subevent.data.image} alt={subevent.data.title} />
+        <img class="eventImg" src={subevent.data.image} alt={subevent.data.title} />
     )}
 
     <div class="eventPoster">
@@ -53,19 +64,19 @@ const formatDateTime = (d: Date) =>
       <small>
         {formatDateTime(subevent.data.startDate)}
         {subevent.data.endDate
-          ? ` – ${formatDateTime(subevent.data.endDate)}`
-          : subevent.data.endTime
-            ? ` – ${subevent.data.endTime}`
-            : ""}
+            ? ` – ${formatDateTime(subevent.data.endDate)}`
+            : subevent.data.endTime
+                ? ` – ${subevent.data.endTime}`
+                : ""}
         {subevent.data.location && <br />}
         {subevent.data.location && <span>{subevent.data.location}</span>}
       </small>
     </p>
 
     {subevent.data.eventUrl && (
-      <p class="eventMeta">
-        <a href={subevent.data.eventUrl} target="_blank" rel="noreferrer">Link</a>
-      </p>
+        <p class="eventMeta">
+          <a href={subevent.data.eventUrl} target="_blank" rel="noreferrer">Link</a>
+        </p>
     )}
 
     <hr />
@@ -78,19 +89,6 @@ const formatDateTime = (d: Date) =>
       width: 100%;
       max-width: 520px;
       text-align: left;
-    }
-
-    .backLink {
-      text-decoration: none;
-      font-size: 11px;
-      opacity: 0.9;
-    }
-
-    .divider {
-      width: 100%;
-      border-top: 1px solid rgba(255, 255, 255, 0.25);
-      margin-top: var(--space-4);
-      margin-bottom: var(--space-4);
     }
 
     .eventImg {

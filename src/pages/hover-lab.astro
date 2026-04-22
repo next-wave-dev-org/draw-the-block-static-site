@@ -1,0 +1,497 @@
+---
+// src/pages/hover-lab.astro
+// Design playground for testing hover treatments before porting them into the
+// real components. Each section demonstrates one effect in isolation, with
+// notes on timing and properties.
+//
+// Current candidates being evaluated:
+//   01 · Scale + hard shadow (shadow = yellow, fixed)
+//   02 · Bracket-travel nav indicator
+//
+// When a treatment is chosen, copy its CSS + markup block into the target
+// component (EventCard for the card effect, BaseLayout for the nav effect).
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="DRAW THE BLOCK — HOVER LAB" current="home">
+    <div class="lab">
+        <header class="lab__header">
+            <div class="kicker">[ HOVER LAB / 実験室 ]</div>
+            <h1 class="lab__title">HOVER EFFECTS</h1>
+            <p class="lab__lede">
+                Hover over each card and each nav link to preview. Timings and
+                properties are documented under each section.
+            </p>
+        </header>
+
+        <!-- ───────────── EFFECT 01 · SCALE + HARD SHADOW ───────────── -->
+        <section class="lab__section">
+            <div class="lab__sectionHead">
+                <div class="kicker">[ 01 · SCALE + SHADOW ]</div>
+                <h2 class="lab__sectionTitle">SCALE + SHADOW</h2>
+                <p class="lab__desc">
+                    On hover, the card scales to 1.02x and gains a hard yellow drop
+                    shadow offset 6px down and 6px right. No blur. Evokes a risograph
+                    print or manga panel. 180ms ease-out. Shadow is fixed to yellow
+                    regardless of the card's image, since the client controls the
+                    imagery and we can't rely on a complementary-color rule.
+                </p>
+            </div>
+
+            <div class="lab__grid">
+                <article class="card card--shadow" style="--card-fill: var(--dtb-red);">
+                    <div class="card__block">
+                        <span class="card__logo">DTB</span>
+                        <span class="card__logoSub">ART MARKET</span>
+                    </div>
+                    <div class="card__meta">
+                        <h3 class="card__title">ART MARKET DAY 1</h3>
+                        <p class="card__metaLine">Day one begins!</p>
+                        <p class="card__metaLine">6/1/2026 · 5:00 PM</p>
+                    </div>
+                </article>
+
+                <article class="card card--shadow" style="--card-fill: var(--dtb-blue);">
+                    <div class="card__block">
+                        <span class="card__logo">DTB</span>
+                        <span class="card__logoSub">ART MARKET</span>
+                    </div>
+                    <div class="card__meta">
+                        <h3 class="card__title">ART MARKET DAY 2</h3>
+                        <p class="card__metaLine">Day 2 begins!</p>
+                        <p class="card__metaLine">6/2/2026 · 5:00 PM</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ───────────── EFFECT 02 · BRACKET-TRAVEL NAV ───────────── -->
+        <section class="lab__section">
+            <div class="lab__sectionHead">
+                <div class="kicker">[ 02 · BRACKET TRAVEL ]</div>
+                <h2 class="lab__sectionTitle">BRACKET TRAVEL</h2>
+                <p class="lab__desc">
+                    Two brackets hover in space around the active page. On hover, they
+                    slide to surround whichever link you're pointing at. On un-hover,
+                    they slide back to the active page. 300ms with a smooth ease-in-out
+                    for the swoosh.
+                </p>
+            </div>
+
+            <nav class="bt-nav" aria-label="Nav bracket-travel preview" data-bt-nav>
+                <!-- Brackets are rendered once and positioned absolutely. JS translates them. -->
+                <span class="bt-nav__bracket bt-nav__bracket--left" aria-hidden="true" data-bt-left>[</span>
+                <span class="bt-nav__bracket bt-nav__bracket--right" aria-hidden="true" data-bt-right>]</span>
+
+                <!-- Links. The active one is marked with data-bt-active. -->
+                <a class="bt-nav__link" href="#" data-bt-link>HOME</a>
+                <a class="bt-nav__link" href="#" data-bt-link>ABOUT</a>
+                <a class="bt-nav__link" href="#" data-bt-link data-bt-active>EVENTS</a>
+                <a class="bt-nav__link" href="#" data-bt-link>VENDORS</a>
+                <a class="bt-nav__link" href="#" data-bt-link>SPONSOR</a>
+                <a class="bt-nav__link" href="#" data-bt-link>DONATE</a>
+            </nav>
+
+            <p class="lab__note">
+                EVENTS is the active item here. Try hovering SPONSOR (long word,
+                far from active), then scrubbing quickly across ABOUT → VENDORS to
+                confirm the motion stays smooth. Resize the window to verify the
+                indicator re-measures and lands correctly.
+            </p>
+        </section>
+
+        <footer class="lab__footer">
+            <div class="kicker">[ END OF LAB ]</div>
+            <p class="lab__note">
+                To ship an effect: copy its CSS + markup block (and the nav's
+                script) into the target component, rename the modifier class, and
+                keep the CSS custom properties so future palette tweaks stay
+                centralized.
+            </p>
+        </footer>
+    </div>
+
+    <style>
+        /*
+         * Palette tokens — scoped to the lab. When porting effects into real
+         * components, these should live in /styles/tokens.css if they don't
+         * already.
+         */
+        .lab {
+            --dtb-red: #E4322B;
+            --dtb-blue: #2B6CE4;
+            --dtb-yellow: #FFD400;
+            --dtb-white: #FFFFFF;
+            --dtb-black: #000000;
+
+            /* Shared timings */
+            --t-fast: 150ms;
+            --t-med: 180ms;
+            --t-bracket: 300ms;
+
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 var(--space-4, 24px);
+            text-align: left;
+        }
+
+        /*
+         * LAB CHROME — intentionally minimal so it doesn't compete with the
+         * effects being demoed.
+         */
+        .lab__header {
+            padding: var(--space-6, 48px) 0 var(--space-5, 32px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .kicker {
+            font-family: var(--font-display);
+            font-size: 12px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            opacity: 0.85;
+        }
+
+        .lab__title {
+            font-family: var(--font-display);
+            font-weight: var(--fw-display, 700);
+            font-size: clamp(40px, 6vw, 64px);
+            letter-spacing: 0.01em;
+            text-transform: uppercase;
+            line-height: 1;
+            margin: 8px 0 12px;
+        }
+
+        .lab__lede {
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 48ch;
+            opacity: 0.85;
+        }
+
+        .lab__section {
+            padding: var(--space-6, 48px) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .lab__sectionHead {
+            margin-bottom: var(--space-4, 24px);
+        }
+
+        .lab__sectionTitle {
+            font-family: var(--font-display);
+            font-weight: var(--fw-display, 700);
+            font-size: clamp(24px, 4vw, 36px);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            line-height: 1.05;
+            margin: 6px 0 10px;
+        }
+
+        .lab__desc {
+            font-size: 13px;
+            line-height: 1.55;
+            max-width: 60ch;
+            opacity: 0.85;
+        }
+
+        .lab__note {
+            margin-top: 20px;
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            opacity: 0.7;
+            line-height: 1.5;
+            max-width: 60ch;
+            font-style: italic;
+        }
+
+        .lab__grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+            padding: 8px;
+        }
+
+        @media (min-width: 720px) {
+            .lab__grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .lab__footer {
+            padding: var(--space-5, 32px) 0 var(--space-6, 48px);
+        }
+
+        /* ═════════════════════════════════════════════════════════════
+         * CARD BASE
+         * ═════════════════════════════════════════════════════════════ */
+        .card {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition:
+                    transform var(--t-med) ease-out,
+                    box-shadow var(--t-med) ease-out;
+        }
+
+        .card__block {
+            background: var(--card-fill);
+            aspect-ratio: 16 / 9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .card__logo {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(48px, 8vw, 72px);
+            letter-spacing: -0.02em;
+            color: var(--dtb-yellow);
+            line-height: 1;
+        }
+
+        .card__logoSub {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            color: var(--dtb-white);
+        }
+
+        .card__meta {
+            background: var(--dtb-white);
+            color: var(--dtb-black);
+            padding: 14px 16px;
+        }
+
+        .card__title {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .card__metaLine {
+            font-family: var(--font-display);
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            margin: 4px 0 0;
+            opacity: 0.9;
+        }
+
+        /* ═════════════════════════════════════════════════════════════
+         * EFFECT 01 · SCALE + HARD SHADOW
+         * Fixed yellow shadow — since event cards use client-provided images,
+         * we can't reliably pair the shadow with a "complementary" color,
+         * so we anchor to the brand yellow as the accent.
+         * ═════════════════════════════════════════════════════════════ */
+        .card--shadow:hover {
+            transform: scale(1.02);
+            box-shadow: 6px 6px 0 0 var(--dtb-yellow);
+        }
+
+        /* ═════════════════════════════════════════════════════════════
+         * EFFECT 02 · BRACKET TRAVEL
+         *
+         * Layout:
+         *   - .bt-nav is position: relative so absolute children measure
+         *     against it.
+         *   - Each link is a normal flex child. The active link has
+         *     data-bt-active; that's the fallback position for the brackets.
+         *   - Two bracket spans are absolutely positioned. JS sets their
+         *     translateX (and translateY, accounting for vertical centering).
+         *   - At rest the brackets "hug" the active link. On mouseenter of
+         *     any link they translate to that link's edges. On mouseleave of
+         *     the whole nav they return to the active link.
+         *
+         * Why transform instead of left/top:
+         *   transform is GPU-accelerated and doesn't trigger layout, so the
+         *   motion stays silky even across a dozen links.
+         * ═════════════════════════════════════════════════════════════ */
+        .bt-nav {
+            position: relative;
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            padding: 24px 32px;
+            font-family: var(--font-display);
+            font-weight: var(--fw-display, 700);
+            font-size: 14px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .bt-nav__link {
+            position: relative;
+            color: inherit;
+            text-decoration: none;
+            /* Padding gives the bracket a comfortable hug distance. */
+            padding: 2px 4px;
+        }
+
+        .bt-nav__bracket {
+            position: absolute;
+            top: 0;
+            left: 0;
+            /* Inherit the nav's line-height so the bracket glyph's baseline
+               aligns with the link text. If a specific webfont still sits a
+               pixel off after load, use --bt-y-nudge to shift vertically. */
+            pointer-events: none;
+            color: inherit;
+            /* CSS custom properties drive the actual position. JS sets --bt-x
+               and --bt-y; --bt-y-nudge is an optional manual offset (in px).
+               Defaults avoid a flash before JS runs — brackets sit off-screen
+               until measured. */
+            --bt-x: -9999px;
+            --bt-y: 0;
+            --bt-y-nudge: 0px;
+            transform: translate3d(var(--bt-x), calc(var(--bt-y) + var(--bt-y-nudge)), 0);
+            transition: transform var(--t-bracket) cubic-bezier(0.5, 0, 0.2, 1);
+            will-change: transform;
+        }
+
+        /*
+         * Once measured, the nav gets data-bt-ready, which reveals the brackets.
+         * This prevents the initial flash before JS runs its first measurement.
+         */
+        .bt-nav:not([data-bt-ready]) .bt-nav__bracket {
+            opacity: 0;
+        }
+        .bt-nav[data-bt-ready] .bt-nav__bracket {
+            opacity: 1;
+            transition:
+                    transform var(--t-bracket) cubic-bezier(0.5, 0, 0.2, 1),
+                    opacity var(--t-bracket) ease-out;
+        }
+
+        /* Reduced-motion users: snap instead of swoosh. */
+        @media (prefers-reduced-motion: reduce) {
+            .bt-nav__bracket {
+                transition: none !important;
+            }
+        }
+    </style>
+
+    <script>
+        /**
+         * Bracket-travel nav — measures each link's position on mount and
+         * animates two floating bracket glyphs between them on hover.
+         *
+         * Re-binds on astro:page-load so it works with <ClientRouter />.
+         * Uses a WeakMap to track per-nav state and avoid stacking listeners.
+         */
+
+        type NavState = {
+            nav: HTMLElement;
+            left: HTMLElement;
+            right: HTMLElement;
+            links: HTMLElement[];
+            activeLink: HTMLElement | null;
+            cleanup: () => void;
+        };
+
+        const states = new WeakMap<HTMLElement, NavState>();
+
+        function measureAndPlace(state: NavState, targetLink: HTMLElement) {
+            const navRect = state.nav.getBoundingClientRect();
+            const linkRect = targetLink.getBoundingClientRect();
+
+            // Position the left bracket just to the left of the link,
+            // vertically aligned to the link's top.
+            const leftX = linkRect.left - navRect.left - state.left.offsetWidth - 2;
+            const y = linkRect.top - navRect.top;
+            state.left.style.setProperty("--bt-x", `${leftX}px`);
+            state.left.style.setProperty("--bt-y", `${y}px`);
+
+            // Right bracket goes just to the right of the link.
+            const rightX = linkRect.right - navRect.left + 2;
+            state.right.style.setProperty("--bt-x", `${rightX}px`);
+            state.right.style.setProperty("--bt-y", `${y}px`);
+        }
+
+        function placeOnActive(state: NavState) {
+            if (state.activeLink) measureAndPlace(state, state.activeLink);
+        }
+
+        async function initNav(nav: HTMLElement) {
+            // Tear down previous instance if we're re-initializing.
+            const prev = states.get(nav);
+            if (prev) prev.cleanup();
+
+            const left = nav.querySelector<HTMLElement>("[data-bt-left]");
+            const right = nav.querySelector<HTMLElement>("[data-bt-right]");
+            const links = Array.from(nav.querySelectorAll<HTMLElement>("[data-bt-link]"));
+            const activeLink = nav.querySelector<HTMLElement>("[data-bt-active]");
+
+            if (!left || !right || links.length === 0) return;
+
+            const state: NavState = {
+                nav,
+                left,
+                right,
+                links,
+                activeLink,
+                cleanup: () => {},
+            };
+
+            // Wait for fonts so link widths are accurate before measuring.
+            if (document.fonts && document.fonts.ready) {
+                try {
+                    await document.fonts.ready;
+                } catch {
+                    /* fonts API failure is non-fatal */
+                }
+            }
+
+            placeOnActive(state);
+            nav.setAttribute("data-bt-ready", "");
+
+            // Hover handlers: move to hovered link.
+            const onEnter = (e: Event) => {
+                const link = e.currentTarget as HTMLElement;
+                measureAndPlace(state, link);
+            };
+            links.forEach((l) => l.addEventListener("mouseenter", onEnter));
+
+            // Leaving the whole nav returns brackets to active.
+            const onLeave = () => placeOnActive(state);
+            nav.addEventListener("mouseleave", onLeave);
+
+            // Re-measure on layout changes (resize, font load, responsive reflow).
+            const ro = new ResizeObserver(() => placeOnActive(state));
+            ro.observe(nav);
+
+            state.cleanup = () => {
+                links.forEach((l) => l.removeEventListener("mouseenter", onEnter));
+                nav.removeEventListener("mouseleave", onLeave);
+                ro.disconnect();
+            };
+
+            states.set(nav, state);
+        }
+
+        function initAll() {
+            document.querySelectorAll<HTMLElement>("[data-bt-nav]").forEach(initNav);
+        }
+
+        document.addEventListener("astro:page-load", initAll);
+
+        // Clean up before ClientRouter swaps the DOM.
+        document.addEventListener("astro:before-swap", () => {
+            document.querySelectorAll<HTMLElement>("[data-bt-nav]").forEach((nav) => {
+                const s = states.get(nav);
+                if (s) s.cleanup();
+            });
+        });
+    </script>
+</BaseLayout>

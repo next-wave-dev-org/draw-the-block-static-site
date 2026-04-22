@@ -4,7 +4,7 @@ import "../styles/tokens.css";
 import "../styles/base.css";
 import { getCollection, getEntry } from "astro:content";
 import { ClientRouter } from 'astro:transitions';
-import Marquee from "../components/marquee.astro";
+import Marquee from "../components/Marquee.astro";
 
 type NavKey = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq" | "newsletter";
 
@@ -16,10 +16,6 @@ const {
   current?: NavKey;
 };
 
-function navLabel(key: NavKey, label: string) {
-  return current === key ? `[${label}]` : label;
-}
-
 const socialSettings = await getEntry("settings", "social");
 const { discordUrl, instagramUrl } = socialSettings?.data || {};
 
@@ -29,7 +25,6 @@ type MarqueeScope = "home" | "about" | "events" | "vendors" | "sponsor" | "donat
 const pageScope: MarqueeScope | null =
     current && current !== "newsletter" ? (current as MarqueeScope) : null;
 
-// Using getCollection + find to avoid strict literal-ID overload issues with getEntry.
 const marqueeAll = await getCollection("marqueeSettings");
 const marqueeDoc = marqueeAll.find((m) => m.id === "marquee");
 
@@ -42,16 +37,37 @@ if (marqueeDoc) {
   const globalConfig = scopes.global;
 
   if (pageConfig?.enabled) {
-    // Page explicitly opted in — honor it, even if messages is empty (silence).
     if (pageConfig.messages.length > 0) {
       activeMessages = pageConfig.messages;
       activeSpeed = pageConfig.speed;
     }
-    // else: explicitly silent on this page. Do not fall back.
   } else if (globalConfig?.enabled && globalConfig.messages.length > 0) {
     activeMessages = globalConfig.messages;
     activeSpeed = globalConfig.speed;
   }
+}
+
+/**
+ * Header nav uses a "bracket-travel" indicator: two floating bracket glyphs
+ * hug the active link at rest and slide to any link on hover. Active link
+ * is tagged with `data-bt-active` from the `current` prop.
+ *
+ * Unlike the previous design, we do NOT wrap the active label in literal
+ * [BRACKETS]. The floating brackets provide that affordance now. Keeping
+ * both would produce nested/stacked brackets on the active item.
+ */
+const navItems: Array<{ key: NavKey; href: string; label: string }> = [
+  { key: "home", href: "/home", label: "HOME" },
+  { key: "about", href: "/about", label: "ABOUT" },
+  { key: "events", href: "/events", label: "EVENTS" },
+  { key: "vendors", href: "/vendors", label: "VENDORS" },
+  { key: "sponsor", href: "/sponsor", label: "SPONSOR" },
+  { key: "donate", href: "/donate", label: "DONATE" },
+];
+
+
+function footerNavLabel(key: NavKey, label: string) {
+  return current === key ? `[${label}]` : label;
 }
 ---
 
@@ -70,27 +86,23 @@ if (marqueeDoc) {
   <img class="strip-logo" src="/images/logo.png" alt="Draw The Block logo" transition:persist />
 
   <header class="strip-header" aria-label="Site header">
-    <nav class="strip-nav" aria-label="Primary navigation">
-      <a class:list={["strip-nav__link", current === "home" && "is-active"]} href="/home">
-        {navLabel("home", "HOME")}
-      </a>
-      <a class:list={["strip-nav__link", current === "about" && "is-active"]} href="/about">
-        {navLabel("about", "ABOUT")}
-      </a>
-      <a class:list={["strip-nav__link", current === "events" && "is-active"]} href="/events">
-        {navLabel("events", "EVENTS")}
-      </a>
-      <a class:list={["strip-nav__link", current === "vendors" && "is-active"]} href="/vendors">
-        {navLabel("vendors", "VENDORS")}
-      </a>
-      <a class:list={["strip-nav__link", current === "sponsor" && "is-active"]} href="/sponsor">
-        {navLabel("sponsor", "SPONSOR")}
-      </a>
-      <a class:list={["strip-nav__link", current === "donate" && "is-active"]} href="/donate">
-        {navLabel("donate", "DONATE")}
-      </a>
+    <nav class="strip-nav" aria-label="Primary navigation" data-bt-nav>
+      {/* Floating brackets — JS translates these to the active or hovered link. */}
+      <span class="strip-nav__bracket strip-nav__bracket--left" aria-hidden="true" data-bt-left>[</span>
+      <span class="strip-nav__bracket strip-nav__bracket--right" aria-hidden="true" data-bt-right>]</span>
+
+      {navItems.map((item) => (
+          <a
+              class="strip-nav__link"
+              href={item.href}
+              data-bt-link
+              data-bt-active={current === item.key ? "" : undefined}
+          >
+            {item.label}
+          </a>
+      ))}
     </nav>
-    <!--<div class="divider" aria-hidden="true"></div>-->
+
   </header>
 
   {activeMessages && (
@@ -104,12 +116,12 @@ if (marqueeDoc) {
   <footer class="strip-footer" aria-label="Site footer">
     <nav class="strip-footer__links" aria-label="Footer links">
       <a class:list={["strip-footer__link", current === "faq" && "is-active"]} href="/faq">
-        {navLabel("faq", "faq")}
+        {footerNavLabel("faq", "faq")}
       </a>
       <a class="strip-footer__link" href={discordUrl || "#"} target="_blank" rel="noreferrer">discord</a>
       <a class="strip-footer__link" href={instagramUrl || "#"} target="_blank" rel="noreferrer">instagram</a>
       <a class:list={["strip-footer__link", current === "newsletter" && "is-active"]} href="/newsletter">
-        {navLabel("newsletter", "newsletter")}
+        {footerNavLabel("newsletter", "newsletter")}
       </a>
     </nav>
   </footer>
@@ -131,25 +143,73 @@ if (marqueeDoc) {
     margin-top: var(--space-4);
   }
 
+  /* ═════════════════════════════════════════════════════════════
+   * PRIMARY NAV — bracket-travel indicator
+   *
+   * - .strip-nav is position: relative so absolute children measure
+   *   against it.
+   * - Each link has data-bt-link; the active one adds data-bt-active.
+   * - Two floating bracket spans are absolutely positioned.
+   * - JS listens for mouseenter on links + mouseleave on nav to
+   *   animate the brackets' translate3d position.
+   * - Transform-only animation keeps things GPU-accelerated.
+   * ═════════════════════════════════════════════════════════════ */
   .strip-nav {
-    display: flex;
+    position: relative;
+    display: inline-flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: var(--space-3);
+    padding: 2px 24px;  /* horizontal padding gives brackets room around the outermost links */
     font-size: var(--fs-nav);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    font-family: var(--font-display)
+    font-family: var(--font-display);
   }
 
   .strip-nav__link {
+    position: relative;
     text-decoration: none;
+    color: inherit;
+    padding: 2px 4px;
   }
 
-  .strip-nav__link.is-active {
-    text-decoration: none;
+  .strip-nav__bracket {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    color: inherit;
+    /* JS sets --bt-x and --bt-y; --bt-y-nudge is a manual vertical
+       fine-tune for webfont quirks. */
+    --bt-x: -9999px;
+    --bt-y: 0;
+    --bt-y-nudge: 0px;
+    transform: translate3d(var(--bt-x), calc(var(--bt-y) + var(--bt-y-nudge)), 0);
+    transition: transform 300ms cubic-bezier(0.5, 0, 0.2, 1);
+    will-change: transform;
   }
 
+  /* Reveal brackets only after first measurement, to avoid pre-JS flash. */
+  .strip-nav:not([data-bt-ready]) .strip-nav__bracket {
+    opacity: 0;
+  }
+  .strip-nav[data-bt-ready] .strip-nav__bracket {
+    opacity: 1;
+    transition:
+        transform 300ms cubic-bezier(0.5, 0, 0.2, 1),
+        opacity 300ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .strip-nav__bracket {
+      transition: none !important;
+    }
+  }
+
+  /* ═════════════════════════════════════════════════════════════
+   * MAIN CONTENT, FOOTER
+   * ═════════════════════════════════════════════════════════════ */
   .strip-content {
     width: 100%;
     display: flex;
@@ -186,12 +246,127 @@ if (marqueeDoc) {
   .strip-footer__link.is-active {
     text-decoration: none;
   }
-  .divider {
-    width: 100%;
-    border-top: 1px solid rgba(255, 255, 255, 0.25);
-    margin-top: var(--space-4);
-    //margin-bottom: var(--space-4);
-  }
+
 </style>
+
+<script>
+  /**
+   * Bracket-travel nav — measures each link's position on mount and
+   * animates two floating bracket glyphs between them on hover.
+   *
+   * Re-binds on astro:page-load so it survives ClientRouter navigations.
+   * Uses a WeakMap to track per-nav state and avoid stacking listeners.
+   */
+
+  type NavState = {
+    nav: HTMLElement;
+    left: HTMLElement;
+    right: HTMLElement;
+    links: HTMLElement[];
+    activeLink: HTMLElement | null;
+    cleanup: () => void;
+  };
+
+  const states = new WeakMap<HTMLElement, NavState>();
+
+  function measureAndPlace(state: NavState, targetLink: HTMLElement) {
+    const navRect = state.nav.getBoundingClientRect();
+    const linkRect = targetLink.getBoundingClientRect();
+
+    const leftX = linkRect.left - navRect.left - state.left.offsetWidth - 2;
+    const y = linkRect.top - navRect.top;
+    state.left.style.setProperty("--bt-x", `${leftX}px`);
+    state.left.style.setProperty("--bt-y", `${y}px`);
+
+    const rightX = linkRect.right - navRect.left + 2;
+    state.right.style.setProperty("--bt-x", `${rightX}px`);
+    state.right.style.setProperty("--bt-y", `${y}px`);
+  }
+
+  function placeOnActive(state: NavState) {
+    if (state.activeLink) measureAndPlace(state, state.activeLink);
+  }
+
+  async function initNav(nav: HTMLElement) {
+    // Tear down previous instance if re-initializing (e.g. after client-side nav).
+    const prev = states.get(nav);
+    if (prev) prev.cleanup();
+
+    const left = nav.querySelector<HTMLElement>("[data-bt-left]");
+    const right = nav.querySelector<HTMLElement>("[data-bt-right]");
+    const links = Array.from(nav.querySelectorAll<HTMLElement>("[data-bt-link]"));
+    const activeLink = nav.querySelector<HTMLElement>("[data-bt-active]");
+
+    if (!left || !right || links.length === 0) return;
+
+    const state: NavState = {
+      nav,
+      left,
+      right,
+      links,
+      activeLink,
+      cleanup: () => {},
+    };
+
+    // Wait for fonts so link widths are accurate before measuring.
+    if (document.fonts && document.fonts.ready) {
+      try {
+        await document.fonts.ready;
+      } catch {
+        /* non-fatal */
+      }
+    }
+
+
+    left.style.transition = "none";
+    right.style.transition = "none";
+    placeOnActive(state);
+    // Force a reflow so the no-transition placement commits before we
+    // restore the transition. Reading offsetWidth is a standard trick
+    // for this — it flushes pending style/layout changes.
+    void left.offsetWidth;
+    void right.offsetWidth;
+    // Clear the inline transition override so the stylesheet rule
+    // (300ms cubic-bezier) takes over for hover transitions.
+    left.style.transition = "";
+    right.style.transition = "";
+
+    nav.setAttribute("data-bt-ready", "");
+
+    const onEnter = (e: Event) => {
+      const link = e.currentTarget as HTMLElement;
+      measureAndPlace(state, link);
+    };
+    links.forEach((l) => l.addEventListener("mouseenter", onEnter));
+
+    const onLeave = () => placeOnActive(state);
+    nav.addEventListener("mouseleave", onLeave);
+
+    const ro = new ResizeObserver(() => placeOnActive(state));
+    ro.observe(nav);
+
+    state.cleanup = () => {
+      links.forEach((l) => l.removeEventListener("mouseenter", onEnter));
+      nav.removeEventListener("mouseleave", onLeave);
+      ro.disconnect();
+      nav.removeAttribute("data-bt-ready");
+    };
+
+    states.set(nav, state);
+  }
+
+  function initAll() {
+    document.querySelectorAll<HTMLElement>("[data-bt-nav]").forEach(initNav);
+  }
+
+  document.addEventListener("astro:page-load", initAll);
+
+  document.addEventListener("astro:before-swap", () => {
+    document.querySelectorAll<HTMLElement>("[data-bt-nav]").forEach((nav) => {
+      const s = states.get(nav);
+      if (s) s.cleanup();
+    });
+  });
+</script>
 </body>
 </html>

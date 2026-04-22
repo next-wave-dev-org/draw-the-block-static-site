@@ -2,40 +2,31 @@
 // src/pages/home.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Countdown from "../components/Countdown.astro";
+import EventCard from "../components/EventCard.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
 
-const formatDateTime = (d: Date) =>
-  d.toLocaleString(undefined, {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-
 const events = (await getCollection("events")) as EventEntry[];
 const now = new Date();
 
-// All featured events, sorted
+// All featured events, sorted.
 const featuredAll = events
-  .filter((e) => e.data.featured)
-  .slice()
-  .sort((a, b) => a.data.startDate.getTime() - b.data.startDate.getTime());
+    .filter((e) => e.data.featured)
+    .slice()
+    .sort((a, b) => a.data.startDate.getTime() - b.data.startDate.getTime());
 
-// Cap display at 2
+// Cap display at 2.
 const featuredDisplay = featuredAll.slice(0, 2);
 
-// Countdown targets earliest upcoming featured (from all featured, not just the first 2)
+// Countdown targets earliest upcoming featured (from all featured, not just the first 2).
 const countdownEvent =
-  featuredAll.find((e) =>
-    e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now
-  ) ?? null;
+    featuredAll.find((e) =>
+        e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now
+    ) ?? null;
 
 const targetIso = countdownEvent ? countdownEvent.data.startDate.toISOString() : null;
 
-// Convenience for the single-featured layout
 const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
 ---
 
@@ -53,109 +44,69 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
         culture, come have fun and support the block!
       </p>
 
-      {/* SINGLE FEATURED (original style) */}
+      {/* SINGLE FEATURED */}
       {singleFeatured && (
-        <div class="featuredSingle">
-          <div class="kicker featured__kicker">[ FEATURED EVENT ]</div>
+          <div class="featuredSingle">
+            <div class="kicker featured__kicker">[ FEATURED EVENT ]</div>
 
-          {singleFeatured.data.image && (
-            <a class="featured__imgLink" href={`/events/${singleFeatured.slug}`}>
-              <div class="eventImgFrame">
-                <img
-                  class="cardImg"
-                  src={singleFeatured.data.image}
-                  alt={singleFeatured.data.title}
-                  loading="lazy"
-                />
-              </div>
-            </a>
-          )}
-
-          <a class="featured__title" href={`/events/${singleFeatured.slug}`}>
-            {singleFeatured.data.title}
-          </a>
-
-          <div class="featured__meta">
-            {formatDateTime(singleFeatured.data.startDate)}
-            {singleFeatured.data.endDate
-              ? ` – ${formatDateTime(singleFeatured.data.endDate)}`
-              : ""}
-            {singleFeatured.data.location && <br />}
-            {singleFeatured.data.location && <span>{singleFeatured.data.location}</span>}
+            <EventCard
+                href={`/events/${singleFeatured.slug}`}
+                title={singleFeatured.data.title}
+                image={singleFeatured.data.image}
+                description={singleFeatured.data.description}
+                startDate={singleFeatured.data.startDate}
+                endDate={singleFeatured.data.endDate}
+                endTime={singleFeatured.data.endTime}
+                location={singleFeatured.data.location}
+            />
           </div>
-        </div>
       )}
 
-      {/* MULTI FEATURED (Events card style), capped at 2 */}
+      {/* MULTI FEATURED, capped at 2 */}
       {!singleFeatured && featuredDisplay.length > 0 && (
-        <div class="featuredMulti stack">
-          <div class="kicker featured__kicker">[ FEATURED EVENTS ]</div>
+          <div class="featuredMulti stack">
+            <div class="kicker featured__kicker">[ FEATURED EVENTS ]</div>
 
-          <div class="eventsList">
-            {featuredDisplay.map((event) => (
-              <article class="eventCard">
-                <a class="eventLink" href={`/events/${event.slug}`}>
-                  {event.data.image && (
-                    <div class="eventImgFrame">
-                      <img
-                        class="cardImg"
-                        src={event.data.image}
-                        alt={event.data.title}
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
-
-                  <div class="eventPoster">
-                    <h2 class="eventTitle">{event.data.title}</h2>
-                  </div>
-                </a>
-
-                {event.data.description && (
-                  <p class="eventMeta">{event.data.description}</p>
-                )}
-
-                <p class="eventMeta">
-                  <small>
-                    {formatDateTime(event.data.startDate)}
-                    {event.data.endDate
-                      ? ` – ${formatDateTime(event.data.endDate)}`
-                      : event.data.endTime
-                        ? ` – ${event.data.endTime}`
-                        : ""}
-                    {event.data.location && <br />}
-                    {event.data.location && <span>{event.data.location}</span>}
-                  </small>
-                </p>
-              </article>
-            ))}
+            <div class="eventsList">
+              {featuredDisplay.map((event) => (
+                  <EventCard
+                      href={`/events/${event.slug}`}
+                      title={event.data.title}
+                      image={event.data.image}
+                      description={event.data.description}
+                      startDate={event.data.startDate}
+                      endDate={event.data.endDate}
+                      endTime={event.data.endTime}
+                      location={event.data.location}
+                  />
+              ))}
+            </div>
           </div>
-        </div>
       )}
     </section>
 
     <!-- Countdown -->
     <section class="home__countdown" aria-label="Countdown to featured event">
       {targetIso ? (
-        
-        <div class="kicker">[ COUNTDOWN ]</div>
-        <Countdown targetIso={targetIso} />
-        
+
+          <div class="kicker">[ COUNTDOWN ]</div>
+          <Countdown targetIso={targetIso} />
+
       ) : (
-        <div class="eventNone">
-          <div class="kicker">[ NO UPCOMING FEATURED EVENTS ]</div>
-          <p class="prose">Check back soon!</p>
-        </div>
+          <div class="eventNone">
+            <div class="kicker">[ NO UPCOMING FEATURED EVENTS ]</div>
+            <p class="prose">Check back soon!</p>
+          </div>
       )}
     </section>
 
     <!-- Mascot -->
     <section class="home__art" aria-label="Mascot">
       <img
-        src="/images/mascot_flower.png"
-        alt="Draw The Block mascot"
-        class="home__mascot"
-        loading="eager"
+          src="/images/mascot_flower.png"
+          alt="Draw The Block mascot"
+          class="home__mascot"
+          loading="eager"
       />
     </section>
   </div>
@@ -190,31 +141,7 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
       margin-top: 0;
     }
 
-    /* Shared image crop used by both layouts */
-    .eventImgFrame {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.06);
-      margin-bottom: var(--space-2);
-    }
-
-    .cardImg {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      object-position: center;
-    }
-
-    .featured__imgLink {
-      display: block;
-      width: 100%;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    /* SINGLE FEATURED (original feel) */
+    /* SINGLE FEATURED */
     .featuredSingle {
       width: 100%;
       max-width: 520px;
@@ -225,22 +152,7 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
       align-items: center;
     }
 
-    .featured__title {
-      font-family: var(--font-display);
-      font-weight: var(--fw-display);
-      font-size: 20px;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      text-decoration: none;
-    }
-
-    .featured__meta {
-      font-size: 11px;
-      letter-spacing: 0.02em;
-      opacity: 0.95;
-    }
-
-    /* MULTI FEATURED (Events card style) */
+    /* MULTI FEATURED */
     .featuredMulti {
       width: 100%;
       max-width: 520px;
@@ -253,6 +165,8 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
       grid-template-columns: 1fr;
       gap: var(--space-4);
       margin-top: var(--space-2);
+      /* Scale-up hover needs breathing room so the shadow doesn't clip. */
+      padding: 8px;
     }
 
     @media (min-width: 720px) {
@@ -260,45 +174,6 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
         grid-template-columns: 1fr 1fr;
         align-items: start;
       }
-    }
-
-    .eventCard {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-    }
-
-    .eventLink {
-      display: block;
-      width: 100%;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .eventPoster {
-      background: #fff;
-      color: #000;
-      padding: 12px 14px;
-      display: block;
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-
-    .eventTitle {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 800;
-      text-transform: uppercase;
-      line-height: 1.1;
-    }
-
-    .eventMeta {
-      margin: 0;
-      font-size: 11px;
-      letter-spacing: 0.02em;
-      opacity: 0.95;
-      text-align: left;
     }
 
     /* Countdown */
@@ -309,16 +184,6 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
       gap: var(--space-3);
       margin-top: var(--space-2);
       width: 100%;
-    }
-
-    .countdownMeta {
-      font-size: 11px;
-      letter-spacing: 0.02em;
-      opacity: 0.95;
-    }
-
-    .countdownLink {
-      text-decoration: none;
     }
 
     /* Mascot */
