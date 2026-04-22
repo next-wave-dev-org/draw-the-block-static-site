@@ -1,5 +1,8 @@
 # Draw The Block Static Website
 
+LIVE MVP SITE:
+https://draw-the-block-static-site.pages.dev/
+
 ## Prerequisites
 
 Make sure you have the following installed:
