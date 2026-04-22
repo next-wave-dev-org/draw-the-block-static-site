@@ -2,6 +2,7 @@
 // src/pages/events/[slug].astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import EventCard from "../../components/EventCard.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
@@ -62,9 +63,10 @@ const formatDateTime = (d: Date) =>
 
 <BaseLayout title={event.data.title} current="events">
   <main class="events stack">
-    <a class="backLink" href="/events">Back to Events</a>
-
-    <div class="divider" aria-hidden="true"></div>
+    <Breadcrumb items={[
+      { label: "EVENTS", href: "/events" },
+      { label: event.data.title.toUpperCase() }
+    ]} />
 
     <section class="stack">
       <div class="kicker">[ EVENT ]</div>
@@ -140,19 +142,6 @@ const formatDateTime = (d: Date) =>
       width: 100%;
       max-width: 520px;
       text-align: left;
-    }
-
-    .backLink {
-      text-decoration: none;
-      font-size: 11px;
-      opacity: 0.9;
-    }
-
-    .divider {
-      width: 100%;
-      border-top: 1px solid rgba(255, 255, 255, 0.25);
-      margin-top: var(--space-4);
-      margin-bottom: var(--space-4);
     }
 
     .eventsList {
