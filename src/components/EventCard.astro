@@ -1,0 +1,160 @@
+---
+/**
+    * EventCard — shared card used by home (featured events), /events (upcoming
+    * & past lists), and /events/[slug] (subevents).
+    *
+    * Takes primitive props rather than a content entry so it's agnostic about
+    * whether the caller is rendering an `events` entry or a `subevents` entry.
+    * Each caller builds the prop bag from its own data shape.
+    *
+    * Hover treatment: 1.02x scale + hard yellow offset shadow. Pure CSS — no
+    * JS required. Fixed yellow shadow (no complementary-color rule) because
+    * the client controls event imagery via CMS and we can't rely on a
+    * per-card accent.
+    */
+
+export interface Props {
+    href: string;
+    title: string;
+    image?: string;
+    description?: string;
+    startDate: Date;
+    endDate?: Date;
+    endTime?: string;
+    location?: string;
+}
+
+const { href, title, image, description, startDate, endDate, endTime, location } = Astro.props;
+
+const formatDateTime = (d: Date) =>
+    d.toLocaleString(undefined, {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    });
+
+// Build the time range suffix once so the template stays readable.
+let timeSuffix = "";
+if (endDate) {
+    timeSuffix = ` – ${formatDateTime(endDate)}`;
+} else if (endTime) {
+    timeSuffix = ` – ${endTime}`;
+}
+---
+
+<article class="eventCard">
+    <a class="eventLink" href={href}>
+        {image && (
+                <div class="eventImgFrame">
+                    <img
+                            class="cardImg"
+                            src={image}
+                            alt={title}
+                            loading="lazy"
+                    />
+                </div>
+        )}
+
+        <div class="eventPoster">
+            <h2 class="eventTitle">{title}</h2>
+        </div>
+    </a>
+
+    {description && <p class="eventMeta">{description}</p>}
+
+    <p class="eventMeta">
+        <small>
+            {formatDateTime(startDate)}{timeSuffix}
+            {location && <br />}
+            {location && <span>{location}</span>}
+        </small>
+    </p>
+</article>
+
+<style>
+    .eventCard {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        width: 100%;
+        /*
+         * Hover: 1.02x scale + hard yellow offset shadow (6px/6px, no blur).
+         * The transition lives on .eventLink because that's what users
+         * actually hover and click; the whole card moves as one visual unit
+         * thanks to the article being flex-column with the meta lines
+         * outside the link — those stay put while the image+poster lifts.
+         *
+         * If you want the whole card (including meta text) to lift together,
+         * move the transition+transform to .eventCard and change the :hover
+         * selector to .eventCard:hover.
+         */
+    }
+
+    .eventLink {
+        display: block;
+        width: 100%;
+        text-decoration: none;
+        color: inherit;
+        transition:
+                transform 180ms ease-out,
+                box-shadow 180ms ease-out;
+    }
+
+    .eventLink:hover {
+        transform: scale(1.02);
+        box-shadow: 6px 6px 0 0 #FFD400; /* DTB yellow */
+    }
+
+    /* Respect reduced-motion — skip the scale, keep the shadow as a
+       visual affordance so hover is still legible. */
+    @media (prefers-reduced-motion: reduce) {
+        .eventLink {
+            transition: box-shadow 180ms ease-out;
+        }
+        .eventLink:hover {
+            transform: none;
+        }
+    }
+
+    .eventImgFrame {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .cardImg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .eventPoster {
+        background: #fff;
+        color: #000;
+        padding: 12px 14px;
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .eventTitle {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        text-transform: uppercase;
+        line-height: 1.1;
+    }
+
+    .eventMeta {
+        margin: 0;
+        font-size: 11px;
+        letter-spacing: 0.02em;
+        opacity: 0.95;
+    }
+</style>

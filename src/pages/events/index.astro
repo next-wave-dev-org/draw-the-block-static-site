@@ -1,6 +1,7 @@
 ---
-// src/pages/events/home.astro
+// src/pages/events/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import EventCard from "../../components/EventCard.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
@@ -8,29 +9,20 @@ type EventEntry = CollectionEntry<"events">;
 const events = (await getCollection("events")) as EventEntry[];
 
 const sorted = events
-  .slice()
-  .sort(
-    (a: EventEntry, b: EventEntry) =>
-      a.data.startDate.getTime() - b.data.startDate.getTime()
-  );
+    .slice()
+    .sort(
+        (a: EventEntry, b: EventEntry) =>
+            a.data.startDate.getTime() - b.data.startDate.getTime()
+    );
 
 const now = new Date();
 
 const upcoming = sorted.filter((e: EventEntry) =>
-  e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now
+    e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now
 );
 const past = sorted.filter((e: EventEntry) =>
-  e.data.endDate ? e.data.endDate < now : e.data.startDate < now
+    e.data.endDate ? e.data.endDate < now : e.data.startDate < now
 );
-
-const formatDateTime = (d: Date) =>
-  d.toLocaleString(undefined, {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
 ---
 
 <BaseLayout title="DRAW THE BLOCK — EVENTS" current="events">
@@ -40,47 +32,22 @@ const formatDateTime = (d: Date) =>
       <div class="kicker">[ UPCOMING EVENTS ]</div>
 
       {upcoming.length > 0 ? (
-        <div class="eventsList">
-          {upcoming.map((event: EventEntry) => (
-            <article class="eventCard">
-              <a class="eventLink" href={`/events/${event.slug}`}>
-                {event.data.image && (
-                  <div class="eventImgFrame">
-                    <img
-                      class="cardImg"
-                      src={event.data.image}
-                      alt={event.data.title}
-                      loading="lazy"
-                    />
-                  </div>
-                )}
-
-                <div class="eventPoster">
-                  <h2 class="eventTitle">{event.data.title}</h2>
-                </div>
-              </a>
-
-              {event.data.description && (
-                <p class="eventMeta">{event.data.description}</p>
-              )}
-
-              <p class="eventMeta">
-                <small>
-                  {formatDateTime(event.data.startDate)}
-                  {event.data.endDate
-                    ? ` – ${formatDateTime(event.data.endDate)}`
-                    : event.data.endTime
-                      ? ` – ${event.data.endTime}`
-                      : ""}
-                  {event.data.location && <br />}
-                  {event.data.location && <span>{event.data.location}</span>}
-                </small>
-              </p>
-            </article>
-          ))}
-        </div>
+          <div class="eventsList">
+            {upcoming.map((event: EventEntry) => (
+                <EventCard
+                    href={`/events/${event.slug}`}
+                    title={event.data.title}
+                    image={event.data.image}
+                    description={event.data.description}
+                    startDate={event.data.startDate}
+                    endDate={event.data.endDate}
+                    endTime={event.data.endTime}
+                    location={event.data.location}
+                />
+            ))}
+          </div>
       ) : (
-        <p class="eventMeta">No upcoming events yet.</p>
+          <p class="eventMeta">No upcoming events yet.</p>
       )}
     </section>
 
@@ -88,50 +55,22 @@ const formatDateTime = (d: Date) =>
       <div class="kicker">[ PAST EVENTS ]</div>
 
       {past.length > 0 ? (
-        <div class="eventsList">
-          {past
-            .slice()
-            .reverse()
-            .map((event: EventEntry) => (
-              <article class="eventCard">
-                <a class="eventLink" href={`/events/${event.slug}`}>
-                  {event.data.image && (
-                    <div class="eventImgFrame">
-                      <img
-                        class="cardImg"
-                        src={event.data.image}
-                        alt={event.data.title}
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
-
-                  <div class="eventPoster">
-                    <h2 class="eventTitle">{event.data.title}</h2>
-                  </div>
-                </a>
-
-                {event.data.description && (
-                  <p class="eventMeta">{event.data.description}</p>
-                )}
-
-                <p class="eventMeta">
-                  <small>
-                    {formatDateTime(event.data.startDate)}
-                    {event.data.endDate
-                      ? ` – ${formatDateTime(event.data.endDate)}`
-                      : event.data.endTime
-                        ? ` – ${event.data.endTime}`
-                        : ""}
-                    {event.data.location && <br />}
-                    {event.data.location && <span>{event.data.location}</span>}
-                  </small>
-                </p>
-              </article>
+          <div class="eventsList">
+            {past.slice().reverse().map((event: EventEntry) => (
+                <EventCard
+                    href={`/events/${event.slug}`}
+                    title={event.data.title}
+                    image={event.data.image}
+                    description={event.data.description}
+                    startDate={event.data.startDate}
+                    endDate={event.data.endDate}
+                    endTime={event.data.endTime}
+                    location={event.data.location}
+                />
             ))}
-        </div>
+          </div>
       ) : (
-        <p class="eventMeta">No past events yet.</p>
+          <p class="eventMeta">No past events yet.</p>
       )}
     </section>
   </main>
@@ -144,11 +83,12 @@ const formatDateTime = (d: Date) =>
       padding-top: var(--space-3);
     }
 
-
     .eventsList {
       display: grid;
       grid-template-columns: 1fr;
       gap: var(--space-4);
+      /* Scale-up hover needs breathing room so the shadow doesn't clip. */
+      padding: 8px;
     }
 
     @media (min-width: 720px) {
@@ -156,53 +96,6 @@ const formatDateTime = (d: Date) =>
         grid-template-columns: 1fr 1fr;
         align-items: start;
       }
-    }
-
-    .eventCard {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      width: 100%;
-    }
-
-    .eventLink {
-      display: block;
-      width: 100%;
-      text-decoration: none;
-    }
-
-    .eventImgFrame {
-      width: 100%;
-      aspect-ratio: 16 / 9; /* try 4/3 if you want a taller crop */
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.06);
-      margin-bottom: var(--space-2);
-    }
-
-    .cardImg {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      object-position: center;
-    }
-
-    .eventPoster {
-      background: #fff;
-      color: #000;
-      padding: 12px 14px;
-      display: block;
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-
-    .eventTitle {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 800;
-      text-transform: uppercase;
-      line-height: 1.1;
     }
 
     .eventMeta {

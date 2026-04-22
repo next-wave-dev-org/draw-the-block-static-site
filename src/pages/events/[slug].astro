@@ -1,6 +1,7 @@
 ---
 // src/pages/events/[slug].astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import EventCard from "../../components/EventCard.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
@@ -20,12 +21,12 @@ const { Content } = await event.render();
 const allSubs = (await getCollection("subevents")) as SubEventEntry[];
 
 const subevents = allSubs
-  .filter((s: SubEventEntry) => s.data.parentEvent === event.slug)
-  .slice()
-  .sort(
-    (a: SubEventEntry, b: SubEventEntry) =>
-      a.data.startDate.getTime() - b.data.startDate.getTime()
-  );
+    .filter((s: SubEventEntry) => s.data.parentEvent === event.slug)
+    .slice()
+    .sort(
+        (a: SubEventEntry, b: SubEventEntry) =>
+            a.data.startDate.getTime() - b.data.startDate.getTime()
+    );
 
 const sections: Array<{
   title: string;
@@ -50,16 +51,13 @@ const sections: Array<{
 ].filter((section) => section.items.length > 0);
 
 const formatDateTime = (d: Date) =>
-  d.toLocaleString(undefined, {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-
-const start = event.data.startDate;
-const end = event.data.endDate;
+    d.toLocaleString(undefined, {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
 ---
 
 <BaseLayout title={event.data.title} current="events">
@@ -72,11 +70,11 @@ const end = event.data.endDate;
       <div class="kicker">[ EVENT ]</div>
 
       {event.data.image && (
-        <img
-          class="detailImg"
-          src={event.data.image}
-          alt={event.data.title}
-        />
+          <img
+              class="detailImg"
+              src={event.data.image}
+              alt={event.data.title}
+          />
       )}
 
       <div class="eventPoster">
@@ -89,21 +87,21 @@ const end = event.data.endDate;
         <small>
           {formatDateTime(event.data.startDate)}
           {event.data.endDate
-            ? ` – ${formatDateTime(event.data.endDate)}`
-            : event.data.endTime
-              ? ` – ${event.data.endTime}`
-              : ""}
+              ? ` – ${formatDateTime(event.data.endDate)}`
+              : event.data.endTime
+                  ? ` – ${event.data.endTime}`
+                  : ""}
           {event.data.location && <br />}
           {event.data.location && <span>{event.data.location}</span>}
         </small>
       </p>
 
       {event.data.eventUrl && (
-        <p class="eventMeta">
-          <a href={event.data.eventUrl} target="_blank" rel="noreferrer">
-            Event Link
-          </a>
-        </p>
+          <p class="eventMeta">
+            <a href={event.data.eventUrl} target="_blank" rel="noreferrer">
+              Event Link
+            </a>
+          </p>
       )}
 
       <hr />
@@ -112,51 +110,28 @@ const end = event.data.endDate;
     </section>
 
     {subevents.length > 0 && (
-      <section class="stack">
-        {sections.map((section) => (
-          <div class="stack">
-            <div class="kicker">[ {section.title} ]</div>
+        <section class="stack">
+          {sections.map((section) => (
+              <div class="stack">
+                <div class="kicker">[ {section.title} ]</div>
 
-            <div class="eventsList">
-              {section.items.map((s: SubEventEntry) => (
-                <article class="eventCard">
-                  <a class="eventLink" href={`/events/${event.slug}/${s.slug}`}>
-                    {s.data.image && (
-                      <div class="eventImgFrame">
-                        <img
-                          class="cardImg"
-                          src={s.data.image}
-                          alt={s.data.title}
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
-
-                    <div class="eventPoster">
-                      <h2 class="eventTitle">{s.data.title}</h2>
-                    </div>
-                  </a>
-
-                  {s.data.description && <p class="eventMeta">{s.data.description}</p>}
-
-                  <p class="eventMeta">
-                    <small>
-                      {formatDateTime(event.data.startDate)}
-                      {event.data.endDate
-                        ? ` – ${formatDateTime(event.data.endDate)}`
-                        : event.data.endTime
-                          ? ` – ${event.data.endTime}`
-                          : ""}
-                      {event.data.location && <br />}
-                      {event.data.location && <span>{event.data.location}</span>}
-                    </small>
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        ))}
-      </section>
+                <div class="eventsList">
+                  {section.items.map((s: SubEventEntry) => (
+                      <EventCard
+                          href={`/events/${event.slug}/${s.slug}`}
+                          title={s.data.title}
+                          image={s.data.image}
+                          description={s.data.description}
+                          startDate={s.data.startDate}
+                          endDate={s.data.endDate}
+                          endTime={s.data.endTime}
+                          location={s.data.location}
+                      />
+                  ))}
+                </div>
+              </div>
+          ))}
+        </section>
     )}
   </main>
 
@@ -182,53 +157,25 @@ const end = event.data.endDate;
 
     .eventsList {
       display: grid;
-      grid-template-columns: 1fr;  /* default mobile */
+      grid-template-columns: 1fr;
       gap: var(--space-4);
+      /* Scale-up hover needs breathing room so the shadow doesn't clip. */
+      padding: 8px;
     }
 
     @media (min-width: 720px) {
       .eventsList {
-        grid-template-columns: 1fr 1fr; /* 2-up like Events-1 */
+        grid-template-columns: 1fr 1fr;
         align-items: start;
       }
     }
 
-    .eventCard {
-      /* height: 100%; */
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-    }
-
-    .eventLink {
-      display: block;
-      /* height: 100%; */
-      text-decoration: none;
-    }
-
-    /* Full-size image on the main event page */
+    /* Full-size image on the main event detail view */
     .detailImg {
       width: 100%;
       height: auto;
       display: block;
       margin-bottom: var(--space-2);
-    }
-
-    /* Cropped card image frame */
-    .eventImgFrame {
-      width: 100%;
-      aspect-ratio: 16 / 9; /* try 4/3 if you want a taller crop */
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.06);
-      margin-bottom: var(--space-2);
-    }
-
-    .cardImg {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      object-position: center;
     }
 
     .eventPoster {
