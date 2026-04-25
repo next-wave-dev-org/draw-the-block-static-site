@@ -15,32 +15,33 @@ const requiredUrlField = z.string()
         return val;
     })
     .pipe(z.string().url());
+
 const events = defineCollection({
     type: "content",
     schema: z.object({
         title: z.string(),
-        startDate: z.coerce.date(),                         // Use dates for sorting, display, and countdown
-        endDate: z.coerce.date().optional(),                // multi-day (full datetime)
-        endTime: z.string().optional(),                     // same-day (HH:mm)
-        location: z.string().optional(),                    // The main event should have location; sub events can inherit or specify their own
-        description: z.string().optional(),                 // Used on: events list card + event detail page
-        eventUrl: optionalUrlField,                                 // Used on: event detail page (rsvp or hosted elsewhere)
-        image: z.string().optional(),                       // Optional hero/card image
-        featured: z.boolean().default(false),               // Drives homepage countdown (normally set true only on the main event)
+        startDate: z.coerce.date(),
+        endDate: z.coerce.date().optional(),
+        endTime: z.string().optional(),
+        location: z.string().optional(),
+        description: z.string().optional(),
+        eventUrl: optionalUrlField,
+        image: z.string().optional(),
+        featured: z.boolean().default(false),
     })
 });
 
 const subevents = defineCollection({
     type: "content",
     schema: z.object({
-        parentEvent: z.string(), // main event slug
+        parentEvent: z.string(),
         category: z
             .enum(["liveShowcases", "gamesAndActivities", "contests", "other"])
             .default("other"),
         title: z.string(),
         startDate: z.coerce.date(),
         endDate: z.coerce.date().optional(),
-        endTime: z.string().optional(),                     // same-day (HH:mm)
+        endTime: z.string().optional(),
         location: z.string().optional(),
         description: z.string().optional(),
         eventUrl: optionalUrlField,
@@ -79,11 +80,33 @@ const faq = defineCollection({
     }),
 });
 
+/**
+ * Sponsor collection.
+ *
+ * Now includes an optional `description` field used as the intro paragraph
+ * on /support#sponsor. Lives under `support`'s SPONSOR section, no longer
+ * its own page.
+ */
 const sponsor = defineCollection({
     type: "content",
     schema: z.object({
-        stripeUrl: requiredUrlField,            // Stripe button link2
-        poster: z.string().optional(), // Image for the sponsor poster
+        stripeUrl: requiredUrlField,
+        poster: z.string().optional(),
+        description: z.string().optional(),
+    }),
+});
+
+/**
+ * Donate collection (new).
+ *
+ * Previously the donate page hardcoded the Ko-fi URL. Moving it into a
+ * collection so the client can swap handles without a deploy.
+ */
+const donate = defineCollection({
+    type: "content",
+    schema: z.object({
+        kofiUrl: requiredUrlField,
+        description: z.string().optional(),
     }),
 });
 
@@ -103,11 +126,17 @@ const vendorSettings = defineCollection({
     }),
 });
 
+/**
+ * Marquee settings.
+ *
+ * Sponsor and Donate have been consolidated into a single /support page,
+ * so their per-page marquee scopes are merged into a new `support` scope.
+ * If migrating from the previous schema, copy whichever of sponsor/donate
+ * was enabled into the new support entry; both old keys are gone.
+ */
 const marqueeScopeSchema = z.object({
     enabled: z.boolean().default(false),
     messages: z.array(z.string().min(1)).default([]),
-    // Scroll duration in seconds for one full loop. Higher = slower.
-    // Optional so the client doesn't have to set it; default is in the component.
     speed: z.number().positive().optional(),
 });
 
@@ -119,10 +148,20 @@ const marqueeSettings = defineCollection({
         about: marqueeScopeSchema,
         events: marqueeScopeSchema,
         vendors: marqueeScopeSchema,
-        sponsor: marqueeScopeSchema,
-        donate: marqueeScopeSchema,
+        support: marqueeScopeSchema,
         faq: marqueeScopeSchema,
     }),
 });
 
-export const collections = { events, subevents, team, vendors, faq, sponsor, settings, vendorSettings, marqueeSettings };
+export const collections = {
+    events,
+    subevents,
+    team,
+    vendors,
+    faq,
+    sponsor,
+    donate,
+    settings,
+    vendorSettings,
+    marqueeSettings,
+};

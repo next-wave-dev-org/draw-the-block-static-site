@@ -93,6 +93,16 @@ collections:
     fields:
       - { label: "Stripe URL", name: "stripeUrl", widget: "string" }
       - { label: "Poster Image", name: "poster", widget: "image", required: false }
+      - { label: "Intro / Description", name: "description", widget: "text", required: false, hint: "Short paragraph shown above the Stripe button on the Support page." }
+
+  - name: "donate"
+    label: "Donate"
+    folder: "src/content/donate"
+    create: false
+    slug: "donate"
+    fields:
+      - { label: "Ko-fi URL", name: "kofiUrl", widget: "string", hint: "The full Ko-fi page URL, e.g. https://ko-fi.com/drawtheblock" }
+      - { label: "Intro / Description", name: "description", widget: "text", required: false, hint: "Short paragraph shown above the Ko-fi widget on the Support page." }
 
   - name: "settings"
     label: "Settings"
@@ -158,22 +168,13 @@ collections:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Vendors page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
               - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
-          - label: "Sponsor — Override"
-            name: "sponsor"
+          - label: "Support — Override"
+            name: "support"
             widget: "object"
             collapsed: true
             required: false
             fields:
-              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Sponsor page. Enable with empty messages to hide the marquee on this page." }
-              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
-              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
-          - label: "Donate — Override"
-            name: "donate"
-            widget: "object"
-            collapsed: true
-            required: false
-            fields:
-              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Donate page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Support page (donate + sponsor). Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
               - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
           - label: "FAQ — Override"

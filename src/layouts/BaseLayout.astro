@@ -6,7 +6,7 @@ import { getCollection, getEntry } from "astro:content";
 import { ClientRouter } from 'astro:transitions';
 import Marquee from "../components/Marquee.astro";
 
-type NavKey = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq" | "newsletter";
+type NavKey = "home" | "about" | "events" | "vendors" | "support" | "faq" | "newsletter";
 
 const {
   title = "DRAW THE BLOCK",
@@ -20,7 +20,7 @@ const socialSettings = await getEntry("settings", "social");
 const { discordUrl, instagramUrl } = socialSettings?.data || {};
 
 
-type MarqueeScope = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq" | "global";
+type MarqueeScope = "home" | "about" | "events" | "vendors" | "support" | "faq" | "global";
 
 const pageScope: MarqueeScope | null =
     current && current !== "newsletter" ? (current as MarqueeScope) : null;
@@ -61,8 +61,7 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   { key: "about", href: "/about", label: "ABOUT" },
   { key: "events", href: "/events", label: "EVENTS" },
   { key: "vendors", href: "/vendors", label: "VENDORS" },
-  { key: "sponsor", href: "/sponsor", label: "SPONSOR" },
-  { key: "donate", href: "/donate", label: "DONATE" },
+  { key: "support", href: "/support", label: "SUPPORT" },
 ];
 
 
