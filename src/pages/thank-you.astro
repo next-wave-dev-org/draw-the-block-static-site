@@ -5,6 +5,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 <BaseLayout title="Thank You | DRAW THE BLOCK" current="">
     <div class="stack prose">
         <h1>You're In.</h1>
+        <img
+                src="/images/thumbsup.png"
+                alt=""
+                class="thanks-thumbsup"
+        />
         <p>Thanks for subscribing to the DRAW THE BLOCK newsletter. We'll keep you updated on the latest announcements, events, and drops.</p>
         <a href="/" class="back-link">[Back to Home]</a>
     </div>
@@ -14,6 +19,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     h1 {
         text-transform: uppercase;
         letter-spacing: 0.05em;
+    }
+    .thanks-thumbsup {
+        display: block;
+        width: 200px;
+        height: auto;
+        margin: var(--space-3) auto;
     }
     .back-link {
         display: inline-block;
