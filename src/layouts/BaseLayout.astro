@@ -6,7 +6,7 @@ import { getCollection, getEntry } from "astro:content";
 import { ClientRouter } from 'astro:transitions';
 import Marquee from "../components/Marquee.astro";
 
-type NavKey = "home" | "about" | "events" | "vendors" | "support" | "faq" | "newsletter";
+type NavKey = "home" | "about" | "events" | "vendors" | "shop" | "support" | "faq" | "newsletter";
 
 const {
   title = "DRAW THE BLOCK",
@@ -61,6 +61,7 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   { key: "about", href: "/about", label: "ABOUT" },
   { key: "events", href: "/events", label: "EVENTS" },
   { key: "vendors", href: "/vendors", label: "VENDORS" },
+  { key: "shop", href: "/shop", label: "SHOP" },
   { key: "support", href: "/support", label: "SUPPORT" },
 ];
 

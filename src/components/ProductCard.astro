@@ -1,0 +1,159 @@
+---
+/**
+    * ProductCard — shop catalog card.
+    *
+    * Visually mirrors EventCard: image frame → white poster strip with title →
+    * meta line below for price. Same scale + yellow shadow hover (top-right).
+    *
+    * Sold-out state: a small badge in the top-right corner of the image frame.
+    * Card stays fully clickable — Shopify is the source of truth for whether
+    * something is actually available, and users may want to read the product
+    * page even when it's currently out of stock.
+    *
+    * Click target: the card opens the Shopify-hosted product page in a new tab.
+    */
+
+import { formatPrice, sizedImageUrl, type Product } from "../lib/shopify";
+
+export interface Props {
+    product: Product;
+}
+
+const { product } = Astro.props;
+const { title, url, image, price, availableForSale } = product;
+
+const imageSrc = image ? sizedImageUrl(image.src, 600) : null;
+const priceLabel = formatPrice(price.amount, price.currency);
+---
+
+<article class="productCard">
+    <a class="productLink" href={url} target="_blank" rel="noopener noreferrer" title={title}>
+        <div class="productImgFrame">
+            {imageSrc ? (
+                    <img
+                            class="productImg"
+                            src={imageSrc}
+                            alt={image?.alt ?? title}
+                            loading="lazy"
+                    />
+            ) : (
+                    <div class="productImgPlaceholder" aria-hidden="true"></div>
+            )}
+
+            {!availableForSale && (
+                    <span class="productBadge">SOLD OUT</span>
+            )}
+        </div>
+
+        <div class="productPoster">
+            <h2 class="productTitle">{title}</h2>
+            <p class="productPrice">{priceLabel}</p>
+        </div>
+    </a>
+</article>
+
+<style>
+    .productCard {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .productLink {
+        display: block;
+        width: 100%;
+        text-decoration: none;
+        color: inherit;
+        transition:
+                transform 180ms ease-out,
+                box-shadow 180ms ease-out;
+    }
+
+    /* Same hover as EventCard: 1.02x scale, 6px / -6px yellow offset shadow.
+       Keeping these in lockstep is intentional — products and events should
+       feel like siblings. If we ever change one, change both. */
+    .productLink:hover {
+        transform: scale(1.02);
+        box-shadow: 6px -6px 0 0 #FFD400;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .productLink {
+            transition: box-shadow 180ms ease-out;
+        }
+        .productLink:hover {
+            transform: none;
+        }
+    }
+
+    .productImgFrame {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1; /* square — better for product photography than 16:9 */
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .productImg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .productImgPlaceholder {
+        width: 100%;
+        height: 100%;
+        background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.08));
+    }
+
+    /* Sold-out badge: small, corner-pinned, brand-yellow, no card-wide treatment. */
+    .productBadge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 4px 8px;
+        background: #FFD400;
+        color: #000;
+        font-family: var(--font-display), system-ui, sans-serif;
+        font-weight: 700;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+
+    .productPoster {
+        background: #fff;
+        color: #000;
+        padding: 10px 14px;
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .productTitle {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 800;
+        text-transform: uppercase;
+        line-height: 1.2;
+        letter-spacing: 0.01em;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: calc(16px * 1.2 * 2); /* font-size × line-height × 2 lines */
+    }
+
+    .productPrice {
+        margin: 4px 0 0;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+</style>
