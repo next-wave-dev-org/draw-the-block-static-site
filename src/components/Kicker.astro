@@ -1,0 +1,122 @@
+---
+/**
+    * Kicker — small, all-caps label that sits above section content.
+    * Renders the bracketed English label with optional Japanese subtitle.
+    *
+    * Used as `[ FEATURED EVENTS ]`, `[ UPCOMING EVENTS ]`, etc. across
+    * the site. The Japanese subtitle is opt-in via the `format` prop —
+    * not every kicker is a section header (some are copy-style flavor
+    * text), and forcing a Japanese subtitle on those would feel weird.
+    *
+    * Format options:
+    *   - "plain"           [ FEATURED EVENTS ]
+    *   - "inline"          [ FEATURED EVENTS / 注目イベント ]      (default)
+    *   - "stacked"         [ FEATURED EVENTS ]
+    *                       【 注目イベント 】
+    *   - "stacked-bracket" [ FEATURED EVENTS ]
+    *                       [ 注目イベント ]
+    *
+    * Translations live in the JA_DICT below. If a label has no entry,
+    * the component silently falls back to plain rendering — missing
+    * translations never produce garbage.
+    *
+    * Visual styles (font-size, letter-spacing, opacity, etc.) live in
+    * this component's <style> block. Pages that need positional
+    * adjustments (margin, text-align) should wrap <Kicker /> in their
+    * own styled container — DON'T target .kicker from page styles, the
+    * scoping won't reach it.
+    */
+
+export type KickerFormat = "plain" | "stacked" | "inline" | "stacked-bracket";
+
+export interface Props {
+    label: string;
+    format?: KickerFormat;
+}
+
+const { label, format = "inline" } = Astro.props;
+
+/**
+ * English → Japanese label dictionary.
+ * Add new entries here as new section headers appear in the codebase.
+ */
+const JA_DICT: Record<string, string> = {
+    // Section labels
+    "featured event": "注目イベント",
+    "featured events": "注目イベント",
+    "upcoming events": "今後のイベント",
+    "past events": "過去のイベント",
+    "event": "イベント",
+    "live showcases": "ライブショーケース",
+    "games and activities": "ゲーム・アクティビティ",
+    "contests": "コンテスト",
+    "other": "その他",
+    "countdown": "カウントダウン",
+    "donate": "応援",
+    "sponsor": "スポンサー",
+    "no upcoming featured events": "今後のイベントはありません",
+
+    // Top-level / page-level labels
+    "shop": "ショップ",
+    "faq": "よくある質問",
+    "vendor applications": "ベンダー応募",
+    "meet the team": "チーム紹介",
+
+    // Unique Header
+    "manga and comic market": "マンガ・コミックマーケット",
+};
+
+const ja = JA_DICT[label.toLowerCase()];
+const effectiveFormat: KickerFormat = ja ? format : "plain";
+---
+
+{effectiveFormat === "plain" && (
+<div class="kicker">[ {label} ]</div>
+    )}
+
+{effectiveFormat === "stacked" && (
+<div class="kicker kicker--stacked">
+    <div class="kicker__en">[ {label} ]</div>
+    <div class="kicker__ja">【 {ja} 】</div>
+</div>
+    )}
+
+{effectiveFormat === "inline" && (
+<div class="kicker kicker--inline">[ {label} / {ja} ]</div>
+    )}
+
+{effectiveFormat === "stacked-bracket" && (
+<div class="kicker kicker--stacked-bracket">
+    <div class="kicker__en">[ {label} ]</div>
+    <div class="kicker__ja">[ {ja} ]</div>
+</div>
+    )}
+
+<style>
+    /*
+     * Visual styles — owned by this component, applied everywhere it's used.
+     * Matches the original site-wide kicker styling: small, uppercase,
+     * tight letter-spacing, slightly dimmed.
+     */
+    .kicker {
+        font-family: var(--font-display), system-ui, sans-serif;
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.9;
+    }
+
+    .kicker--stacked,
+    .kicker--stacked-bracket {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    /* Japanese subtitle in stacked variants is slightly dimmer + smaller. */
+    .kicker__ja {
+        font-size: 0.85em;
+        opacity: 0.7;
+        letter-spacing: 0.04em;
+    }
+</style>

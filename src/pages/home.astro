@@ -3,6 +3,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Countdown from "../components/Countdown.astro";
 import EventCard from "../components/EventCard.astro";
+import Kicker from "../components/Kicker.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
@@ -34,20 +35,18 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
   <div class="home">
     <!-- Intro -->
     <section class="home__intro">
-      <div class="kicker">[ Manga and Comic Market ]</div>
+      <Kicker label="Manga and Comic Market" format="stacked" />
 
       <p class="prose">
         Welcome to DRAW THE BLOCK, an anime and manga-inspired art market infused
-        with hip-hop and cultural creativity! We're gathering interest from
-        artists and vendors who want to be part of this vibrant event in Seattle
-        on January 31st - February 1st. If you like anime, manga, and hip-hop
+        with hip-hop and cultural creativity! If you like anime, manga, and hip-hop
         culture, come have fun and support the block!
       </p>
 
       {/* SINGLE FEATURED */}
       {singleFeatured && (
           <div class="featuredSingle">
-            <div class="kicker featured__kicker">[ FEATURED EVENT ]</div>
+            <Kicker label="FEATURED EVENT" />
 
             <EventCard
                 href={`/events/${singleFeatured.slug}`}
@@ -65,7 +64,7 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
       {/* MULTI FEATURED, capped at 2 */}
       {!singleFeatured && featuredDisplay.length > 0 && (
           <div class="featuredMulti stack">
-            <div class="kicker featured__kicker">[ FEATURED EVENTS ]</div>
+            <Kicker label="FEATURED EVENTS" />
 
             <div class="eventsList">
               {featuredDisplay.map((event) => (
@@ -89,12 +88,12 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
     <section class="home__countdown" aria-label="Countdown to featured event">
       {targetIso ? (
 
-          <div class="kicker">[ COUNTDOWN ]</div>
+          <Kicker label="COUNTDOWN" />
           <Countdown targetIso={targetIso} />
 
       ) : (
           <div class="eventNone">
-            <div class="kicker">[ NO UPCOMING FEATURED EVENTS ]</div>
+            <Kicker label="NO UPCOMING FEATURED EVENTS" />
             <p class="prose">Check back soon!</p>
           </div>
       )}
@@ -129,17 +128,7 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
       gap: var(--space-2);
     }
 
-    .kicker {
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0.9;
-      margin-top: var(--space-3);
-    }
 
-    .featured__kicker {
-      margin-top: 0;
-    }
 
     /* SINGLE FEATURED */
     .featuredSingle {

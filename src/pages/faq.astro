@@ -1,5 +1,7 @@
 ---
+// src/pages/faq.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Kicker from "../components/Kicker.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 type FaqEntry = CollectionEntry<"faq">;
@@ -18,17 +20,138 @@ const renderedFaqs = await Promise.all(
 );
 ---
 
-<BaseLayout title="FAQ">
-    <main>
-        <h1>FAQ</h1>
+<BaseLayout title="DRAW THE BLOCK — FAQ" current="faq">
+    <main class="faq stack">
+        <Kicker label="FAQ" />
 
-        {renderedFaqs.map(({ item, Content }) => (
-                <details>
-                    <summary>{item.data.question}</summary>
-                    <div style="margin-top: 8px;">
-                        <Content />
-                    </div>
-                </details>
-        ))}
+        {renderedFaqs.length > 0 ? (
+                <div class="faq__list">
+                    {renderedFaqs.map(({ item, Content }) => (
+                            <details class="faq__item">
+                                <summary class="faq__question">
+                                    <span class="faq__questionText">{item.data.question}</span>
+                                    <span class="faq__toggle" aria-hidden="true">+</span>
+                                </summary>
+                                <div class="faq__answer">
+                                    <Content />
+                                </div>
+                            </details>
+                    ))}
+                </div>
+        ) : (
+                <p class="faq__empty">No questions yet. Check back soon!</p>
+        )}
     </main>
+
+    <style>
+        .faq {
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            text-align: left;
+            padding-top: var(--space-3);
+        }
+
+        .faq__list {
+            display: flex;
+            flex-direction: column;
+            margin-top: var(--space-3);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .faq__item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* Native <summary> has built-in disclosure triangle styling we want
+           to suppress and replace with our own +/- toggle. */
+        .faq__question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-3);
+            padding: var(--space-3) 0;
+            cursor: pointer;
+            list-style: none;
+            font-family: var(--font-display), system-ui, sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            transition: opacity 150ms ease-out;
+        }
+
+        .faq__question:hover {
+            opacity: 0.85;
+        }
+
+        /* Suppress the default disclosure marker on Webkit/Blink and Firefox. */
+        .faq__question::-webkit-details-marker {
+            display: none;
+        }
+        .faq__question {
+            list-style: none;
+        }
+
+        .faq__questionText {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .faq__toggle {
+            display: inline-block;
+            width: 1em;
+            text-align: center;
+            font-weight: 400;
+            transition: transform 200ms ease-out;
+            flex-shrink: 0;
+        }
+
+        /* Rotate the + into an × on open. Cheap and readable. */
+        .faq__item[open] .faq__toggle {
+            transform: rotate(45deg);
+        }
+
+        .faq__answer {
+            padding: 0 0 var(--space-4);
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 60ch;
+        }
+
+        /* Reset margins on whatever markdown renders inside the answer.
+           Markdown content can include <p>, <ul>, <a>, etc. */
+        .faq__answer :global(p) {
+            margin: 0 0 var(--space-2);
+        }
+        .faq__answer :global(p:last-child) {
+            margin-bottom: 0;
+        }
+        .faq__answer :global(a) {
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .faq__answer :global(ul),
+        .faq__answer :global(ol) {
+            margin: 0 0 var(--space-2);
+            padding-left: 1.4em;
+        }
+        .faq__answer :global(li) {
+            margin-bottom: 4px;
+        }
+
+        .faq__empty {
+            margin-top: var(--space-3);
+            font-size: 14px;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .faq__toggle {
+                transition: none;
+            }
+        }
+    </style>
 </BaseLayout>

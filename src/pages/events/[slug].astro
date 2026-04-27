@@ -3,6 +3,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import EventCard from "../../components/EventCard.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import Kicker from "../../components/Kicker.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
@@ -69,7 +70,7 @@ const formatDateTime = (d: Date) =>
     ]} />
 
     <section class="stack">
-      <div class="kicker">[ EVENT ]</div>
+      <!--<Kicker label="EVENT" />-->
 
       {event.data.image && (
           <img
@@ -115,7 +116,7 @@ const formatDateTime = (d: Date) =>
         <section class="stack">
           {sections.map((section) => (
               <div class="stack">
-                <div class="kicker">[ {section.title} ]</div>
+                <Kicker label={section.title} />
 
                 <div class="eventsList">
                   {section.items.map((s: SubEventEntry) => (
@@ -193,13 +194,5 @@ const formatDateTime = (d: Date) =>
       opacity: 0.95;
     }
 
-    .kicker {
-      text-align: left;
-      margin-top: 0;
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0.9;
-    }
   </style>
 </BaseLayout>
