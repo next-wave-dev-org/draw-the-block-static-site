@@ -68,7 +68,7 @@ export function sizedImageUrl(url: string, width: number): string {
 export async function getProducts(): Promise<Product[]> {
     const domain = import.meta.env.SHOPIFY_STORE_DOMAIN;
     const token = import.meta.env.SHOPIFY_STOREFRONT_TOKEN;
-    const useMocks = import.meta.env.SHOPIFY_USE_MOCKS === "true";
+    const useMocks = import.meta.env.SHOPIFY_USE_MOCKS === "false";
 
     if (useMocks || !domain || !token) {
         return getMockProducts();
@@ -83,7 +83,7 @@ export async function getProducts(): Promise<Product[]> {
 
 const PRODUCTS_QUERY = `
   query Products($first: Int!) {
-    products(first: $first, sortKey: MANUAL) {
+    products(first: $first, sortKey: CREATED_AT, reverse: true) {
       edges {
         node {
           id
