@@ -239,38 +239,20 @@ The component uses `<nav>` + `<ol>` semantics with `aria-label="Breadcrumb"` so 
 
 ---
 
-## shopify.ts (data layer)
+## Shopify Integration
 
-**Path:** `src/lib/shopify.ts`
+The `/shop` page pulls products from the client's Shopify store at
+build time using the Storefront API. No backend, no runtime
+dependencies — the product list is baked into the static HTML on
+each deploy.
 
-Build-time Shopify Storefront API client. Imported from `shop.astro` only; not a component. Documented here because it's a complex piece of infrastructure that future maintainers will need to reason about.
+For everything else — environment variables, credential acquisition,
+webhook setup, credential rotation, troubleshooting — see
+[`docs/shopify.md`](docs/shopify.md).
 
-### Public API
-
-```ts
-export interface Product { /* ... */ }
-export function getProducts(): Promise<Product[]>
-export function formatPrice(amount: number, currency: string): string
-export function sizedImageUrl(url: string, width: number): string
-```
-
-### Mock fallback
-
-When `SHOPIFY_STORE_DOMAIN` or `SHOPIFY_STOREFRONT_TOKEN` env vars are missing, `getProducts()` returns six hand-crafted mock products instead of calling the API. Force-mock by setting `SHOPIFY_USE_MOCKS=true` even when the real env vars are present.
-
-This is by design. It lets development proceed without API access (which can take weeks to coordinate with the client) and gives every developer a consistent baseline for visual testing. If `/shop` shows mock data unexpectedly, it means env vars aren't set — not that anything is broken.
-
-### Real fetch path
-
-Uses Shopify's GraphQL Storefront API at `/api/2024-10/graphql.json`. The query asks for the first 100 products sorted by `MANUAL` (whatever order the client arranged in their admin).
-
-The fetch is wrapped in error handling at three levels:
-
-1. **Network failure** (try/catch around `fetch`) → log, return empty array. Build doesn't blow up.
-2. **Non-2xx HTTP response** → log status, return empty array.
-3. **GraphQL errors in response body** → log, return empty array.
-
-In every error case, `/shop` falls through to the empty-state message ("Shop is currently being updated"). This is deliberate — a transient API hiccup shouldn't break the build or show a broken page.
+If `/shop` shows mock products instead of real ones, your `.env` is
+either missing or `SHOPIFY_USE_MOCKS=true` is set. Drop in real
+credentials and restart the dev server.
 
 ### Image URLs
 
