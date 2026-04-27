@@ -1,14 +1,7 @@
 ---
-// src/pages/support.astro
-//
-// Unified "ways to support the block" page.
-// Two sections, anchor-linkable:
-//   /support#donate   — Ko-fi widget
-//   /support#sponsor  — Stripe button + poster
-//
-// The old /donate and /sponsor URLs 301-redirect to those anchors via
-// astro.config.mjs's `redirects` map.
+
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Kicker from "../components/Kicker.astro";
 import { getCollection } from "astro:content";
 
 const donateEntries = await getCollection("donate");
@@ -33,7 +26,7 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
 
         <!-- ─────────────  DONATE  ───────────── -->
         <section id="donate" class="support__section" aria-labelledby="donate-heading">
-            <div class="kicker">[ DONATE ]</div>
+            <Kicker label="DONATE" />
 
             {donate?.description && (
                     <p class="support__lede">{donate.description}</p>
@@ -59,7 +52,7 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
 
         <!-- ─────────────  SPONSOR  ───────────── -->
         <section id="sponsor" class="support__section" aria-labelledby="sponsor-heading">
-            <div class="kicker">[ SPONSOR ]</div>
+            <Kicker label="SPONSOR" />
 
             {sponsor?.description && (
                     <p class="support__lede">{sponsor.description}</p>
@@ -118,15 +111,6 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
         .support__section + .support__section {
             border-top: 1px solid rgba(255, 255, 255, 0.15);
             padding-top: var(--space-5);
-        }
-
-        .kicker {
-            font-family: var(--font-display);
-            font-size: 12px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            opacity: 0.9;
-            margin: 0 0 var(--space-2);
         }
 
         .support__lede {
@@ -189,6 +173,7 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
             text-decoration: none;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 180ms ease-out, box-shadow 180ms ease-out;
+            margin-top: 4px;
         }
 
         .support__stripeButton:hover {

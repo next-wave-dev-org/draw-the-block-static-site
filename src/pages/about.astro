@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Kicker from "../components/Kicker.astro";
 import { getCollection } from "astro:content";
 
 const team = (await getCollection("team"))
@@ -14,7 +15,7 @@ const aboutCopy =
   <section class="about">
     <p class="prose">{aboutCopy}</p>
 
-    <a class="about__meetBtn" href="#team">[Meet the Team]</a>
+    <Kicker label="MEET THE TEAM" />
 
     <div id="team" class="about__teamGrid" aria-label="Team members">
       {team.map((member) => {
@@ -75,13 +76,6 @@ const aboutCopy =
       opacity: 0.95;
     }
 
-    .about__meetBtn {
-      font-size: var(--fs-nav);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-family: var(--font-display);
-      text-decoration: none;
-    }
 
     .about__teamGrid {
       width: 100%;

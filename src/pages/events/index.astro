@@ -1,6 +1,7 @@
 ---
 // src/pages/events/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Kicker from "../../components/Kicker.astro";
 import EventCard from "../../components/EventCard.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
@@ -29,7 +30,7 @@ const past = sorted.filter((e: EventEntry) =>
   <main class="events stack">
 
     <section class="stack">
-      <div class="kicker">[ UPCOMING EVENTS ]</div>
+      <Kicker label="UPCOMING EVENTS" />
 
       {upcoming.length > 0 ? (
           <div class="eventsList">
@@ -52,7 +53,7 @@ const past = sorted.filter((e: EventEntry) =>
     </section>
 
     <section class="stack">
-      <div class="kicker">[ PAST EVENTS ]</div>
+      <Kicker label="PAST EVENTS" />
 
       {past.length > 0 ? (
           <div class="eventsList">
@@ -105,9 +106,5 @@ const past = sorted.filter((e: EventEntry) =>
       opacity: 0.95;
     }
 
-    .kicker {
-      text-align: left;
-      margin-top: 0;
-    }
   </style>
 </BaseLayout>

@@ -7,6 +7,7 @@
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ProductCard from "../components/ProductCard.astro";
+import Kicker from "../components/Kicker.astro";
 import { getProducts } from "../lib/shopify";
 
 const products = await getProducts();
@@ -16,7 +17,7 @@ const isEmpty = products.length === 0;
 <BaseLayout title="DRAW THE BLOCK — SHOP" current="shop">
     <main class="shop stack">
 
-        <div class="kicker">[ SHOP ]</div>
+        <Kicker label="SHOP" />
 
         {isEmpty ? (
                 <p class="shop__empty">Shop is currently being updated.</p>
@@ -39,14 +40,6 @@ const isEmpty = products.length === 0;
             padding-top: var(--space-3);
         }
 
-        .kicker {
-            font-family: var(--font-display);
-            font-size: 12px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            opacity: 0.9;
-            margin: 0 0 var(--space-3);
-        }
 
         .shop__grid {
             display: grid;
