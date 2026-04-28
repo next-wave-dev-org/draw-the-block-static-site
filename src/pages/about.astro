@@ -1,23 +1,39 @@
 ---
+// src/pages/about.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Kicker from "../components/Kicker.astro";
-import { getCollection } from "astro:content";
+import PeekMascot from "../components/PeekMascot.astro";
+import { getCollection, getEntry } from "astro:content";
 
 const team = (await getCollection("team"))
     .map((entry) => entry.data)
     .sort((a, b) => a.displayOrder - b.displayOrder);
 
-const aboutCopy =
-    "DRAW THE BLOCK was started to give people who love making manga and comics a place to bring their full selves. We explore and wants to bring all dimensions and their culture. As we grow we want to keep our values and morals consistent as well, artist come first and we will continue to strive to make this market by artist for artist. - Kenji";
+// Mission and quote from the pageContent collection. Both are wrapped
+// in catch(() => null) so a missing entry doesn't crash the build —
+// the page just renders without that section.
+
+
+const missionEntry = await getEntry("pageContent", "mission").catch(() => null);
+const mission = missionEntry?.data?.mission?.trim() ?? null;
+
+const quoteEntry = await getEntry("pageContent", "quote").catch(() => null);
+const quote = quoteEntry?.data?.quote?.trim() ?? null;
+const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
 ---
 
 <BaseLayout title="ABOUT — DRAW THE BLOCK" current="about">
   <section class="about">
-    <p class="prose">{aboutCopy}</p>
 
+    {/* MISSION */}
+    {mission && (
+        <p class="about__mission prose">{mission}</p>
+    )}
+
+    {/* MEET THE TEAM */}
     <Kicker label="MEET THE TEAM" />
 
-    <div id="team" class="about__teamGrid" aria-label="Team members">
+    <div class="about__teamGrid" aria-label="Team members">
       {team.map((member) => {
         const Card = (
             <article class="teamCard">
@@ -52,6 +68,20 @@ const aboutCopy =
         );
       })}
     </div>
+
+    {/* QUOTE */}
+    {quote && (
+        <blockquote class="about__quote">
+          <p class="about__quoteText">{quote}</p>
+          {attribution && (
+              <footer class="about__quoteAttr">— {attribution}</footer>
+          )}
+        </blockquote>
+    )}
+
+    {/* peeking mascot */}
+    <PeekMascot offset="15%" />
+
   </section>
 
   <style>
@@ -59,6 +89,7 @@ const aboutCopy =
       --team-img-w: 225px;
       --team-img-h: 325px;
     }
+
     .about {
       width: 100%;
       max-width: 520px;
@@ -66,36 +97,37 @@ const aboutCopy =
       flex-direction: column;
       align-items: center;
       gap: var(--space-5);
-      //padding-top: var(--space-3);
+      position: relative;
     }
 
-    .about__copy {
-      max-width: 430px;
-      font-size: 12px;
-      line-height: 1.45;
+    /* MISSION
+       Sits at the top, sets the page's purpose before the team grid. */
+    .about__mission {
+      max-width: 460px;
+      text-align: center;
+      font-size: 15px;
+      line-height: 1.55;
       opacity: 0.95;
+      margin: 12px;
     }
 
-
+    /* TEAM GRID */
     .about__teamGrid {
       width: 100%;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: var(--space-5);
       justify-items: center;
-      margin-top: var(--space-4);
+      margin-top: var(--space-2);
     }
 
-    /* clickable wrapper */
     .teamCard__link {
       color: inherit;
       text-decoration: none;
       display: inline-flex;
       width: var(--team-img-w);
-
     }
 
-    /* card becomes a simple vertical stack */
     .teamCard {
       width: var(--team-img-w);
       display: flex;
@@ -105,7 +137,6 @@ const aboutCopy =
       min-width: var(--team-img-w);
     }
 
-    /* remove the yellow frame entirely */
     .teamCard__photoFrame {
       background: transparent;
       padding: 0;
@@ -113,7 +144,6 @@ const aboutCopy =
       display: block;
     }
 
-    /* show the image at its true dimensions */
     .teamCard__photo {
       width: var(--team-img-w);
       height: var(--team-img-h);
@@ -121,7 +151,10 @@ const aboutCopy =
       display: block;
     }
 
-    /* white box aligned to image width */
+    .teamCard__photo:hover {
+      opacity: 0.8;
+    }
+
     .teamCard__meta {
       width: var(--team-img-w);
       max-width: var(--team-img-w);
@@ -130,13 +163,12 @@ const aboutCopy =
       background: #fff;
       padding: 6px 14px 6px;
       margin: 0;
-      border: 0;            /* remove divider/border */
-      box-shadow: none;     /* in case a shadow is being used */
+      border: 0;
+      box-shadow: none;
       position: relative;
       text-align: left;
     }
 
-    /* hard kill any divider pseudo-elements */
     .teamCard__meta::before,
     .teamCard__meta::after,
     .teamCard::before,
@@ -162,11 +194,35 @@ const aboutCopy =
       color: #f7152b;
     }
 
-    /* Optional: keep it from looking cramped on very small screens */
+    .about__quote {
+      max-width: 460px;
+      margin: 0;
+      text-align: center;
+      padding: var(--space-3) 0;
+    }
+
+    .about__quoteText {
+      font-style: italic;
+      font-size: 17px;
+      line-height: 1.5;
+      margin: 0;
+      opacity: 0.95;
+    }
+
+    .about__quoteAttr {
+      margin-top: var(--space-2);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    /* Mobile collapse — single column for the team grid */
     @media (max-width: 520px) {
       .about__teamGrid {
         grid-template-columns: 1fr;
       }
     }
+
   </style>
 </BaseLayout>

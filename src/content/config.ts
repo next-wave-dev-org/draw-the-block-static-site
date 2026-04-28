@@ -1,4 +1,4 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection, reference, z } from "astro:content";
 
 const optionalUrlField = z.union([z.string(), z.literal("")])
     .optional()
@@ -69,6 +69,7 @@ const vendors = defineCollection({
         twitterUrl: optionalUrlField,
         bskyUrl: optionalUrlField,
         image: z.string().optional(),
+        events: z.array(reference("events")).optional(),
     }),
 });
 
@@ -153,6 +154,23 @@ const marqueeSettings = defineCollection({
     }),
 });
 
+const pageContent = defineCollection({
+    type: "data",
+    schema: ({ image }) =>
+        z.object({
+            // Used by the tagline entry (home page hero)
+            taglineImage: z.string().optional(),
+            taglineText: z.string().optional(),
+
+            // Used by the mission entry (about page intro)
+            mission: z.string().optional(),
+
+            // Used by the quote entry (about page, below team)
+            quote: z.string().optional(),
+            attribution: z.string().optional(),
+        }),
+});
+
 export const collections = {
     events,
     subevents,
@@ -164,4 +182,5 @@ export const collections = {
     settings,
     vendorSettings,
     marqueeSettings,
+    pageContent,
 };

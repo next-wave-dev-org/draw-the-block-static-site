@@ -1,0 +1,99 @@
+---
+/**
+    * PeekMascot — a decorative character that peeks from the side band,
+    * her hand resting on the central column edge.
+    *
+    * Positioned absolutely; the parent container must have `position:
+    * relative` for anchoring. Set width, offset, and bottom via props
+    * to tune per-page. Default values match the original About-page
+    * placement that we tuned visually together.
+    *
+    * The `side` prop chooses which side band she lives in. When set to
+    * "right", the asset is mirrored via CSS transform — handy for
+    * variant assets, but also works with a single source asset that's
+    * been drawn for one side.
+    *
+    * Hidden below 960px (no side band space at narrow viewports). The
+    * breakpoint is per-component, not global, so future variants can
+    * override if their proportions warrant it.
+    */
+
+export type PeekSide = "left" | "right";
+
+export interface Props {
+    src?: string;
+    side?: PeekSide;
+    width?: string;
+    offset?: string;
+    bottom?: string;
+}
+
+const {
+    src = "/images/mascot_peek.png",
+    side = "left",
+    width = "280px",
+    offset = "15%",
+    bottom = "80px",
+} = Astro.props;
+
+// Build the inline style object so each instance can tune via props
+// while sharing the same scoped CSS rules below.
+const styleVars = [
+    `--peek-width: ${width}`,
+    `--peek-offset: ${offset}`,
+    `--peek-bottom: ${bottom}`,
+].join("; ");
+---
+
+<img
+        class={`peek peek--${side}`}
+        src={src}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        style={styleVars}
+/>
+
+<style>
+    /*
+     * The peek mascot positioning system.
+     *
+     * For the LEFT-side variant: she sits in the left side band with
+     * her right edge aligned to the parent's left edge, then nudged
+     * back behind the parent so her hand grips the column edge.
+     *
+     * For the RIGHT-side variant: mirrored. Her left edge aligns to
+     * the parent's right edge, asset is flipped horizontally with
+     * scaleX(-1) so the drawing reads correctly.
+     *
+     * pointer-events: none so she never intercepts clicks.
+     * user-select: none so she doesn't get caught in text selection.
+     */
+    .peek {
+        position: absolute;
+        bottom: var(--peek-bottom);
+        width: var(--peek-width);
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+        z-index: 0;
+    }
+
+    .peek--left {
+        right: 100%;
+        transform: translateX(var(--peek-offset));
+    }
+
+    .peek--right {
+        left: 100%;
+        transform: translateX(calc(var(--peek-offset) * -1)) scaleX(-1);
+    }
+
+    /* Hide on small viewports — no side band space, would overflow
+       the viewport edge or overlap content. */
+    @media (max-width: 960px) {
+        .peek {
+            display: none;
+        }
+    }
+</style>

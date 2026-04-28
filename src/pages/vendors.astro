@@ -5,67 +5,269 @@ import { getCollection, getEntry } from "astro:content";
 import { Image } from "astro:assets";
 
 const vendorSettings = await getEntry("vendorSettings", "vendors");
-const vendors = await getCollection("vendors");
+const allVendors = await getCollection("vendors");
+const allEvents = await getCollection("events");
+import PeekMascot from "../components/PeekMascot.astro";
 
-const sortedVendors = vendors.sort((a, b) =>
-    a.data.name.localeCompare(b.data.name)
-);
+const now = new Date();
+
+// ─────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────
+
+/**
+ * An event is "current or upcoming" if it hasn't fully ended yet.
+ * Multi-day events (with endDate) are upcoming until endDate has passed.
+ * Single-day events stay upcoming until startDate has passed.
+ *
+ * This preserves visibility for in-progress events — on day 1 of a
+ * 2-day market, day 1 is still listed (correctly: vendors are there
+ * today). The event drops out of the upcoming sections only after it
+ * fully ends.
+ */
+function isUpcoming(event: typeof allEvents[number]): boolean {
+  const endish = event.data.endDate ?? event.data.startDate;
+  return endish.getTime() >= now.getTime();
+}
+
+/**
+ * Build a map of event slug → full event entry for quick lookup.
+ */
+const eventBySlug = new Map(allEvents.map((e) => [e.slug, e]));
+
+/**
+ * Get a vendor's event slugs as a clean string[]. Vendor.data.events is
+ * a list of references; each reference has a .slug or just IS a slug
+ * depending on how Astro resolves it. Normalize to slug strings.
+ */
+function vendorEventSlugs(vendor: typeof allVendors[number]): string[] {
+  const refs = vendor.data.events ?? [];
+  return refs.map((r) => (typeof r === "string" ? r : r.id));
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Group vendors by upcoming event
+// ─────────────────────────────────────────────────────────────────────
+
+const upcomingEvents = allEvents
+    .filter(isUpcoming)
+    .sort((a, b) => a.data.startDate.getTime() - b.data.startDate.getTime());
+
+type EventSection = {
+  event: typeof allEvents[number];
+  vendors: typeof allVendors;
+};
+
+const eventSections: EventSection[] = [];
+
+for (const event of upcomingEvents) {
+  const vendorsForThisEvent = allVendors
+      .filter((v) => vendorEventSlugs(v).includes(event.slug))
+      .sort((a, b) => a.data.name.localeCompare(b.data.name));
+
+  if (vendorsForThisEvent.length > 0) {
+    eventSections.push({ event, vendors: vendorsForThisEvent });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Past Collaborators
+//
+// A vendor counts as a "past collaborator" only if their LATEST event
+// is in the past — i.e. they have no upcoming/current events.
+// Recurring artists who are still booked appear in the upcoming sections
+// only. This avoids double-display.
+// ─────────────────────────────────────────────────────────────────────
+
+const pastCollaborators = allVendors
+    .filter((v) => {
+      const slugs = vendorEventSlugs(v);
+      if (slugs.length === 0) return false; // No events at all → hide entirely
+
+      const events = slugs
+          .map((s) => eventBySlug.get(s))
+          .filter((e): e is typeof allEvents[number] => Boolean(e));
+
+      if (events.length === 0) return false; // All slugs were broken refs
+
+      // Has any upcoming event? Then they're not a past collaborator.
+      return !events.some(isUpcoming);
+    })
+    .sort((a, b) => a.data.name.localeCompare(b.data.name));
+
+// Pagination math (used in markup + JS).
+const PAGE_SIZE = 9;
+const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
 ---
 
 <BaseLayout title="DRAW THE BLOCK — VENDORS" current="vendors">
-  <main>
-    <div class="vendor-grid">
-      {sortedVendors.map((vendor) => (
-        <article class="vendor-card">
-          <div class="image-frame">
-            {vendor.data.image ? (
-              <Image 
-                src={vendor.data.image} 
-                alt={vendor.data.name} 
-                width={400} 
-                height={400}
-                format="webp"
-                class="vendor-portrait"
-              />
-            ) : (
-              <div class="placeholder" />
+  <main class="vendorsPage">
+
+    {/* ─── Vendor sections per upcoming event ─── */}
+    {eventSections.length > 0 ? (
+        eventSections.map(({ event, vendors }) => (
+            <section class="vendorSection">
+              <a class="vendorSection__heading" href={`/events/${event.slug}`}>
+                <Kicker label={event.data.title.toUpperCase()} format="plain" />
+              </a>
+
+              <div class="vendor-grid">
+                {vendors.map((vendor) => (
+                    <article class="vendor-card">
+                      <div class="image-frame">
+                        {vendor.data.image ? (
+                            <Image
+                                src={vendor.data.image}
+                                alt={vendor.data.name}
+                                width={400}
+                                height={400}
+                                format="webp"
+                                class="vendor-portrait"
+                            />
+                        ) : (
+                            <div class="placeholder" />
+                        )}
+                      </div>
+
+                      <h3 class="vendor-name">[ {vendor.data.name} ]</h3>
+
+                      <div class="social-links">
+                        {vendor.data.websiteUrl && (
+                            <a href={vendor.data.websiteUrl} target="_blank" rel="noopener noreferrer">
+                              <img src="/images/website.png" alt="Website" class="social-icon" />
+                            </a>
+                        )}
+                        {vendor.data.instagramUrl && (
+                            <a href={vendor.data.instagramUrl} target="_blank" rel="noopener noreferrer">
+                              <img src="/images/instagram.png" alt="Instagram" class="social-icon" />
+                            </a>
+                        )}
+                        {vendor.data.twitterUrl && (
+                            <a href={vendor.data.twitterUrl} target="_blank" rel="noopener noreferrer">
+                              <img src="/images/x.png" alt="X" class="social-icon x-logo" />
+                            </a>
+                        )}
+                        {vendor.data.bskyUrl && (
+                            <a href={vendor.data.bskyUrl} target="_blank" rel="noopener noreferrer">
+                              <img src="/images/bluesky.png" alt="Bluesky" class="social-icon" />
+                            </a>
+                        )}
+                      </div>
+                    </article>
+                ))}
+              </div>
+            </section>
+        ))
+    ) : (
+        <p class="vendorsPage__empty">No vendors are currently scheduled for upcoming events. Check back soon!</p>
+    )}
+
+    {/* ─── Past Collaborators (paginated) ─── */}
+    {pastCollaborators.length > 0 && (
+        <section class="vendorSection vendorSection--past">
+          <Kicker label="PAST COLLABORATORS" format="plain" />
+
+          <div
+              class="pastCollaborators"
+              data-past-collaborators
+              data-page-size={String(PAGE_SIZE)}
+              data-total-pages={String(totalPages)}
+          >
+            <div class="vendor-grid">
+              {pastCollaborators.map((vendor, idx) => (
+                  <article
+                      class="vendor-card"
+                      data-vendor-card
+                      data-page={String(Math.floor(idx / PAGE_SIZE) + 1)}
+                  >
+                    <div class="image-frame">
+                      {vendor.data.image ? (
+                          <Image
+                              src={vendor.data.image}
+                              alt={vendor.data.name}
+                              width={400}
+                              height={400}
+                              format="webp"
+                              class="vendor-portrait"
+                          />
+                      ) : (
+                          <div class="placeholder" />
+                      )}
+                    </div>
+
+                    <h3 class="vendor-name">[ {vendor.data.name} ]</h3>
+
+                    <div class="social-links">
+                      {vendor.data.websiteUrl && (
+                          <a href={vendor.data.websiteUrl} target="_blank" rel="noopener noreferrer">
+                            <img src="/images/website.png" alt="Website" class="social-icon" />
+                          </a>
+                      )}
+                      {vendor.data.instagramUrl && (
+                          <a href={vendor.data.instagramUrl} target="_blank" rel="noopener noreferrer">
+                            <img src="/images/instagram.png" alt="Instagram" class="social-icon" />
+                          </a>
+                      )}
+                      {vendor.data.twitterUrl && (
+                          <a href={vendor.data.twitterUrl} target="_blank" rel="noopener noreferrer">
+                            <img src="/images/x.png" alt="X" class="social-icon x-logo" />
+                          </a>
+                      )}
+                      {vendor.data.bskyUrl && (
+                          <a href={vendor.data.bskyUrl} target="_blank" rel="noopener noreferrer">
+                            <img src="/images/bluesky.png" alt="Bluesky" class="social-icon" />
+                          </a>
+                      )}
+                    </div>
+                  </article>
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+                <nav class="pastCollaborators__pager" aria-label="Past collaborators pages">
+                  <button
+                      type="button"
+                      class="pastCollaborators__arrow"
+                      data-pager-prev
+                      aria-label="Previous page"
+                  >
+                    ←
+                  </button>
+
+                  <ol class="pastCollaborators__pages" data-pager-pages>
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                        <li>
+                          <button
+                              type="button"
+                              class="pastCollaborators__pageBtn"
+                              data-pager-goto={String(i + 1)}
+                              aria-label={`Page ${i + 1}`}
+                          >
+                            {i + 1}
+                          </button>
+                        </li>
+                    ))}
+                  </ol>
+
+                  <button
+                      type="button"
+                      class="pastCollaborators__arrow"
+                      data-pager-next
+                      aria-label="Next page"
+                  >
+                    →
+                  </button>
+                </nav>
             )}
           </div>
-          
-          <h2 class="vendor-name">[ {vendor.data.name} ]</h2>
+        </section>
+    )}
 
-          <div class="social-links">
-            {vendor.data.websiteUrl && (
-                <a href={vendor.data.websiteUrl} target="_blank" rel="noopener noreferrer">
-                  <img src="/images/website.png" alt="Website" class="social-icon" />
-                </a>
-            )}
-            {vendor.data.instagramUrl && (
-                <a href={vendor.data.instagramUrl} target="_blank" rel="noopener noreferrer">
-                  <img src="/images/instagram.png" alt="Instagram" class="social-icon" />
-                </a>
-            )}
-            {vendor.data.twitterUrl && (
-                <a href={vendor.data.twitterUrl} target="_blank" rel="noopener noreferrer">
-                  <img src="/images/x.png" alt="X" class="social-icon x-logo" />
-                </a>
-            )}
-            {vendor.data.bskyUrl && (
-                <a href={vendor.data.bskyUrl} target="_blank" rel="noopener noreferrer">
-                  <img src="/images/bluesky.png" alt="Bluesky" class="social-icon" />
-                </a>
-            )}
-          </div>
-        </article>
-      ))}
-    </div>
-
+    {/* ─── Vendor Applications (unchanged from previous) ─── */}
     <section class="application-section">
       <hr class="divider" />
-      <p class="app-status-title">
-        <Kicker label="VENDOR APPLICATIONS" />
-      </p>
-      <!--<p class="app-status-main">VENDOR APPLICATIONS CURRENTLY CLOSED</p>-->
+      <Kicker label="VENDOR APPLICATIONS" />
+
       {vendorSettings?.data.vendorAppInfo && (
           <p class="app-info">{vendorSettings.data.vendorAppInfo}</p>
       )}
@@ -80,10 +282,149 @@ const sortedVendors = vendors.sort((a, b) =>
         )}
       </div>
     </section>
+
+    <PeekMascot bottom="200px" offset="29%" />
+
   </main>
 </BaseLayout>
 
+<script>
+  /**
+   * Past Collaborators paginator.
+   *
+   * Cards have data-page="N" set at build time. The script just toggles
+   * the `--paged-active` attribute on the container and uses CSS to hide
+   * cards whose data-page doesn't match the current page.
+   *
+   * Bound on astro:page-load so it survives ClientRouter navigations.
+   * Cleaned up on astro:before-swap to avoid leaking listeners.
+   */
+  type PagerState = {
+    container: HTMLElement;
+    cards: HTMLElement[];
+    pageButtons: HTMLElement[];
+    prevBtn: HTMLElement | null;
+    nextBtn: HTMLElement | null;
+    totalPages: number;
+    currentPage: number;
+    cleanup: () => void;
+  };
+
+  const pagers = new WeakMap<HTMLElement, PagerState>();
+
+  function setPage(state: PagerState, page: number) {
+    const clamped = Math.max(1, Math.min(state.totalPages, page));
+    state.currentPage = clamped;
+
+    // Show/hide cards by toggling a data attribute on the container —
+    // CSS handles the visibility.
+    state.container.setAttribute("data-current-page", String(clamped));
+
+    // Update page button "current" state for styling and a11y.
+    state.pageButtons.forEach((btn) => {
+      const btnPage = Number(btn.getAttribute("data-pager-goto"));
+      if (btnPage === clamped) {
+        btn.setAttribute("aria-current", "page");
+      } else {
+        btn.removeAttribute("aria-current");
+      }
+    });
+
+    // Disable arrows at boundaries.
+    if (state.prevBtn) (state.prevBtn as HTMLButtonElement).disabled = clamped === 1;
+    if (state.nextBtn) (state.nextBtn as HTMLButtonElement).disabled = clamped === state.totalPages;
+  }
+
+  function initPager(container: HTMLElement) {
+    const prev = pagers.get(container);
+    if (prev) prev.cleanup();
+
+    const totalPages = Number(container.getAttribute("data-total-pages") ?? "1");
+    const cards = Array.from(container.querySelectorAll<HTMLElement>("[data-vendor-card]"));
+    const pageButtons = Array.from(container.querySelectorAll<HTMLElement>("[data-pager-goto]"));
+    const prevBtn = container.querySelector<HTMLElement>("[data-pager-prev]");
+    const nextBtn = container.querySelector<HTMLElement>("[data-pager-next]");
+
+    const state: PagerState = {
+      container,
+      cards,
+      pageButtons,
+      prevBtn,
+      nextBtn,
+      totalPages,
+      currentPage: 1,
+      cleanup: () => {},
+    };
+
+    const onPageBtn = (e: Event) => {
+      const target = e.currentTarget as HTMLElement;
+      const page = Number(target.getAttribute("data-pager-goto"));
+      setPage(state, page);
+    };
+    const onPrev = () => setPage(state, state.currentPage - 1);
+    const onNext = () => setPage(state, state.currentPage + 1);
+
+    pageButtons.forEach((btn) => btn.addEventListener("click", onPageBtn));
+    if (prevBtn) prevBtn.addEventListener("click", onPrev);
+    if (nextBtn) nextBtn.addEventListener("click", onNext);
+
+    state.cleanup = () => {
+      pageButtons.forEach((btn) => btn.removeEventListener("click", onPageBtn));
+      if (prevBtn) prevBtn.removeEventListener("click", onPrev);
+      if (nextBtn) nextBtn.removeEventListener("click", onNext);
+    };
+
+    pagers.set(container, state);
+    setPage(state, 1);
+  }
+
+  function initAll() {
+    document.querySelectorAll<HTMLElement>("[data-past-collaborators]").forEach(initPager);
+  }
+
+  document.addEventListener("astro:page-load", initAll);
+  document.addEventListener("astro:before-swap", () => {
+    document.querySelectorAll<HTMLElement>("[data-past-collaborators]").forEach((c) => {
+      const s = pagers.get(c);
+      if (s) s.cleanup();
+    });
+  });
+</script>
+
 <style>
+  .vendorsPage {
+    width: 100%;
+    position: relative;
+  }
+
+  /* Each event section — the heading + grid block */
+  .vendorSection {
+    margin: 0 0 var(--space-6);
+  }
+
+  .vendorSection__heading {
+    display: inline-block;
+    margin-top: 12px;
+    margin-bottom: var(--space-3);
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 150ms ease-out;
+  }
+
+  .vendorSection__heading:hover {
+    opacity: 0.75;
+  }
+
+  .vendorsPage__empty {
+    text-align: center;
+    margin: var(--space-5) auto;
+    font-size: 14px;
+    opacity: 0.75;
+    font-style: italic;
+    max-width: 60ch;
+  }
+
+  /* Vendor grid — unchanged from previous */
   .vendor-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -102,7 +443,7 @@ const sortedVendors = vendors.sort((a, b) =>
   .image-frame {
     width: 100%;
     aspect-ratio: 1 / 1;
-    border: 1.5px solid #fff;
+    border: 2px solid #fff;
     background: #111;
     overflow: hidden;
     display: flex;
@@ -125,7 +466,7 @@ const sortedVendors = vendors.sort((a, b) =>
   .vendor-name {
     font-size: 1rem;
     font-family: var(--font-display);
-    margin-bottom: 12px;
+    margin: 12px 0;
     font-weight: normal;
   }
 
@@ -150,6 +491,115 @@ const sortedVendors = vendors.sort((a, b) =>
     opacity: 0.6;
   }
 
+  /* ════════════════════════════════════════════════════════════
+   * PAST COLLABORATORS PAGINATION
+   *
+   * Cards stay in the DOM at all positions. CSS hides any card
+   * whose data-page doesn't match the container's data-current-page.
+   * No DOM mutation needed for page changes — just attribute swaps.
+   * ════════════════════════════════════════════════════════════ */
+  .pastCollaborators[data-current-page="1"] [data-vendor-card]:not([data-page="1"]) { display: none; }
+  .pastCollaborators[data-current-page="2"] [data-vendor-card]:not([data-page="2"]) { display: none; }
+  .pastCollaborators[data-current-page="3"] [data-vendor-card]:not([data-page="3"]) { display: none; }
+  .pastCollaborators[data-current-page="4"] [data-vendor-card]:not([data-page="4"]) { display: none; }
+  .pastCollaborators[data-current-page="5"] [data-vendor-card]:not([data-page="5"]) { display: none; }
+  .pastCollaborators[data-current-page="6"] [data-vendor-card]:not([data-page="6"]) { display: none; }
+  .pastCollaborators[data-current-page="7"] [data-vendor-card]:not([data-page="7"]) { display: none; }
+  .pastCollaborators[data-current-page="8"] [data-vendor-card]:not([data-page="8"]) { display: none; }
+  .pastCollaborators[data-current-page="9"] [data-vendor-card]:not([data-page="9"]) { display: none; }
+  .pastCollaborators[data-current-page="10"] [data-vendor-card]:not([data-page="10"]) { display: none; }
+
+  /* No-JS fallback: if [data-current-page] is never set, all cards
+     remain visible. This is a graceful degradation — users without
+     JS see the full list (one big grid) instead of nothing. */
+
+  .pastCollaborators__pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+    font-family: var(--font-display);
+  }
+
+  .pastCollaborators__arrow {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: inherit;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background-color 150ms ease-out,
+        border-color 150ms ease-out,
+        opacity 150ms ease-out;
+  }
+
+  .pastCollaborators__arrow:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+
+  .pastCollaborators__arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .pastCollaborators__pages {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .pastCollaborators__pageBtn {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: inherit;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 10px;
+    cursor: pointer;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    transition:
+        background-color 150ms ease-out,
+        border-color 150ms ease-out;
+  }
+
+  .pastCollaborators__pageBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  .pastCollaborators__pageBtn[aria-current="page"] {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.95);
+    font-weight: 700;
+  }
+
+  .pastCollaborators .vendor-grid {
+    min-height: 850px;
+    grid-auto-rows: max-content;
+    align-content: start;
+  }
+
+  @media (max-width: 768px) {
+    .pastCollaborators .vendor-grid {
+      min-height: auto;
+      grid-auto-rows: auto;
+      align-content: stretch;
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * APPLICATION SECTION (unchanged from previous)
+   * ════════════════════════════════════════════════════════════ */
   .application-section {
     margin-top: 100px;
     padding-bottom: 60px;
@@ -164,23 +614,11 @@ const sortedVendors = vendors.sort((a, b) =>
     margin: 0 auto 40px auto;
   }
 
-  .app-status-title {
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-    letter-spacing: 0.1rem;
-  }
-
-  .app-status-main {
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-  }
-
   .app-info {
     font-size: 0.8rem;
     color: #aaa;
     max-width: 500px;
-    margin: 0 auto 30px auto;
+    margin: var(--space-3) auto var(--space-4);
     text-transform: lowercase;
     line-height: 1.4;
   }
@@ -209,12 +647,31 @@ const sortedVendors = vendors.sort((a, b) =>
     letter-spacing: 0.1rem;
   }
 
+  /* ════════════════════════════════════════════════════════════
+   * RESPONSIVE
+   * ════════════════════════════════════════════════════════════ */
   @media (max-width: 768px) {
+
     .vendor-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .pastCollaborators__pager {
+      display: none;
+    }
+
+    .pastCollaborators[data-current-page] [data-vendor-card] {
+      display: flex !important;
+    }
+
+    /* Tighten gaps a bit on smaller screens so the grid feels less sparse */
+    .vendor-grid {
+      gap: 40px 20px;
+    }
   }
 
   @media (max-width: 480px) {
-    .vendor-grid { grid-template-columns: 1fr; }
     .divider { width: 80%; }
+    .vendor-grid {
+      gap: 32px 16px;
+    }
   }
 </style>
