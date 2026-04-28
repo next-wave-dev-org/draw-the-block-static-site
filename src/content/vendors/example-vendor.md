@@ -1,11 +1,13 @@
 ---
 name: Example Vendor
-category: Art Prints
 websiteUrl: https://example.com
+bskyUrl: www.bsky.com
+events:
+  - art-market-day-1
+blurb: Original prints and merch.
 instagramUrl: https://instagram.com/example
 twitterUrl: www.twitter.com
-bskyUrl: www.bsky.com
 image: /uploads/eeotdoq.jpg
-blurb: Original prints and merch.
+category: Art Prints
 ---
 Optional longer description (if you want it).
