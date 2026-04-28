@@ -12,6 +12,7 @@
 // component (EventCard for the card effect, BaseLayout for the nav effect).
 
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Kicker from "../components/Kicker.astro";
 ---
 
 <BaseLayout title="DRAW THE BLOCK — HOVER LAB" current="home">
@@ -99,6 +100,95 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 confirm the motion stays smooth. Resize the window to verify the
                 indicator re-measures and lands correctly.
             </p>
+
+            <!-- ───────────── EFFECT 03 · KICKER VARIANTS ───────────── -->
+            <section class="lab__section">
+                <div class="lab__sectionHead">
+                    <div class="kicker">[ 03 · KICKER VARIANTS ]</div>
+                    <h2 class="lab__sectionTitle">DUAL-LANGUAGE KICKERS</h2>
+                    <p class="lab__desc">
+                        Three formats for the dual-language section header treatment.
+                        Each variant is shown with the same sample kickers above
+                        sample content so you can judge how it reads in real layout
+                        context, not just in isolation. Translations come from the
+                        Kicker component's internal dictionary; missing entries
+                        silently fall back to plain English.
+                    </p>
+                </div>
+
+                <!-- Variant A: Stacked with Japanese-style brackets -->
+                <div class="lab__variant">
+                    <div class="kicker lab__variantLabel">[ A · STACKED · JP BRACKETS 】</div>
+                    <p class="lab__variantNote">
+                        English on top with Western brackets, Japanese below with
+                        the more authentic 【 】 brackets you'd see on Japanese
+                        magazines and zines.
+                    </p>
+
+                    <div class="lab__kickerStage">
+                        <Kicker label="FEATURED EVENTS" format="stacked" />
+                        <div class="lab__fakeContent">— event grid would render here —</div>
+
+                        <Kicker label="UPCOMING EVENTS" format="stacked" />
+                        <div class="lab__fakeContent">— event list would render here —</div>
+
+                        <Kicker label="LIVE SHOWCASES" format="stacked" />
+                        <div class="lab__fakeContent">— subevent grid would render here —</div>
+                    </div>
+                </div>
+
+                <!-- Variant B: Inline with slash separator -->
+                <div class="lab__variant">
+                    <div class="kicker lab__variantLabel">[ B · INLINE · SLASH ]</div>
+                    <p class="lab__variantNote">
+                        Single line, both languages joined by a slash. Tightest of
+                        the three. Slash separator reads slightly Western — fine if
+                        that's your aesthetic, less authentic if you want the
+                        Japanese to feel native.
+                    </p>
+
+                    <div class="lab__kickerStage">
+                        <Kicker label="FEATURED EVENTS" format="inline" />
+                        <div class="lab__fakeContent">— event grid would render here —</div>
+
+                        <Kicker label="UPCOMING EVENTS" format="inline" />
+                        <div class="lab__fakeContent">— event list would render here —</div>
+
+                        <Kicker label="LIVE SHOWCASES" format="inline" />
+                        <div class="lab__fakeContent">— subevent grid would render here —</div>
+                    </div>
+                </div>
+
+                <!-- Variant C: Stacked, both lines in Western brackets -->
+                <div class="lab__variant">
+                    <div class="kicker lab__variantLabel">[ C · STACKED · WESTERN BRACKETS ]</div>
+                    <p class="lab__variantNote">
+                        Both languages stacked, both wrapped in the same Western
+                        bracket style. Most consistent typographically; least
+                        differentiated visually between the two lines.
+                    </p>
+
+                    <div class="lab__kickerStage">
+                        <Kicker label="FEATURED EVENTS" format="stacked-bracket" />
+                        <div class="lab__fakeContent">— event grid would render here —</div>
+
+                        <Kicker label="UPCOMING EVENTS" format="stacked-bracket" />
+                        <div class="lab__fakeContent">— event list would render here —</div>
+
+                        <Kicker label="LIVE SHOWCASES" format="stacked-bracket" />
+                        <div class="lab__fakeContent">— subevent grid would render here —</div>
+                    </div>
+                </div>
+
+                <p class="lab__note">
+                    Once a winner is picked: change the Kicker component's default
+                    format prop in src/components/Kicker.astro to that variant.
+                    Every existing &lt;Kicker /&gt; call site upgrades automatically
+                    — no per-page edits needed. Kickers that should stay plain
+                    English (like "[ Manga and Comic Market ]") explicitly pass
+                    format="plain" or use a label that has no dictionary entry.
+                </p>
+            </section>
         </section>
 
         <footer class="lab__footer">
@@ -379,6 +469,46 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             .bt-nav__bracket {
                 transition: none !important;
             }
+        }
+
+        /* ═════════════════════════════════════════════════════════════
+     * EFFECT 03 · KICKER VARIANTS
+     * ═════════════════════════════════════════════════════════════ */
+        .lab__variant {
+            padding: var(--space-4, 24px) 0;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .lab__variantLabel {
+            margin-bottom: var(--space-2, 12px);
+            opacity: 0.6;
+        }
+
+        .lab__variantNote {
+            font-size: 12px;
+            line-height: 1.5;
+            max-width: 60ch;
+            opacity: 0.7;
+            margin: 0 0 var(--space-3, 16px);
+        }
+
+        /* The stage where the actual Kicker components render alongside
+           fake content. Tight stack to mimic real page rhythm. */
+        .lab__kickerStage {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3, 16px);
+        }
+
+        .lab__fakeContent {
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            opacity: 0.5;
+            font-style: italic;
+            text-align: center;
         }
     </style>
 

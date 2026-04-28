@@ -44,7 +44,7 @@ if (endDate) {
 ---
 
 <article class="eventCard">
-    <a class="eventLink" href={href}>
+    <a class="eventLink" href={href} title={title}>
         {image && (
                 <div class="eventImgFrame">
                     <img
@@ -78,11 +78,13 @@ if (endDate) {
         flex-direction: column;
         gap: var(--space-2);
         width: 100%;
+        min-width: 0;
     }
 
     .eventLink {
         display: block;
         width: 100%;
+        min-width: 0;
         text-decoration: none;
         color: inherit;
         transition:
@@ -127,6 +129,7 @@ if (endDate) {
         display: block;
         width: 100%;
         max-width: 100%;
+        min-width: 0;
         box-sizing: border-box;
     }
 
@@ -135,7 +138,12 @@ if (endDate) {
         font-size: 22px;
         font-weight: 800;
         text-transform: uppercase;
-        line-height: 1.1;
+        line-height: 1.15;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        min-width: 0;
     }
 
     .eventMeta {

@@ -3,7 +3,8 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Countdown from "../components/Countdown.astro";
 import EventCard from "../components/EventCard.astro";
-import { getCollection, type CollectionEntry } from "astro:content";
+import Kicker from "../components/Kicker.astro";
+import { getCollection, getEntry, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
 
@@ -28,79 +29,86 @@ const countdownEvent =
 const targetIso = countdownEvent ? countdownEvent.data.startDate.toISOString() : null;
 
 const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
+
+// Tagline content (image preferred, text fallback). Both are optional —
+// if neither is set, no tagline renders. We don't crash on missing entries
+// either, since this is brand-new content the client may not have set yet.
+const taglineEntry = await getEntry("pageContent", "tagline").catch(() => null);
+const taglineImage = taglineEntry?.data?.taglineImage ?? null;
+const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
 ---
 
 <BaseLayout title="DRAW THE BLOCK — HOME" current="home">
   <div class="home">
-    <!-- Intro -->
-    <section class="home__intro">
-      <div class="kicker">[ Manga and Comic Market ]</div>
 
-      <p class="prose">
-        Welcome to DRAW THE BLOCK, an anime and manga-inspired art market infused
-        with hip-hop and cultural creativity! We're gathering interest from
-        artists and vendors who want to be part of this vibrant event in Seattle
-        on January 31st - February 1st. If you like anime, manga, and hip-hop
-        culture, come have fun and support the block!
-      </p>
+    {/* TAGLINE — image first, text fallback, nothing if neither set. */}
+    {taglineImage && (
+        <div class="home__tagline">
+          <img src={taglineImage} alt="" class="home__taglineImg" loading="eager" />
+        </div>
+    )}
 
-      {/* SINGLE FEATURED */}
-      {singleFeatured && (
-          <div class="featuredSingle">
-            <div class="kicker featured__kicker">[ FEATURED EVENT ]</div>
+    {!taglineImage && taglineText && (
+        <div class="home__tagline">
+          <p class="home__taglineText">{taglineText}</p>
+        </div>
+    )}
 
-            <EventCard
-                href={`/events/${singleFeatured.slug}`}
-                title={singleFeatured.data.title}
-                image={singleFeatured.data.image}
-                description={singleFeatured.data.description}
-                startDate={singleFeatured.data.startDate}
-                endDate={singleFeatured.data.endDate}
-                endTime={singleFeatured.data.endTime}
-                location={singleFeatured.data.location}
-            />
+    {/* FEATURED EVENT(S) */}
+    {singleFeatured && (
+        <section class="featuredSingle">
+          <Kicker label="FEATURED EVENT" />
+
+          <EventCard
+              href={`/events/${singleFeatured.slug}`}
+              title={singleFeatured.data.title}
+              image={singleFeatured.data.image}
+              description={singleFeatured.data.description}
+              startDate={singleFeatured.data.startDate}
+              endDate={singleFeatured.data.endDate}
+              endTime={singleFeatured.data.endTime}
+              location={singleFeatured.data.location}
+          />
+        </section>
+    )}
+
+    {!singleFeatured && featuredDisplay.length > 0 && (
+        <section class="featuredMulti stack">
+          <Kicker label="FEATURED EVENTS" />
+
+          <div class="eventsList">
+            {featuredDisplay.map((event) => (
+                <EventCard
+                    href={`/events/${event.slug}`}
+                    title={event.data.title}
+                    image={event.data.image}
+                    description={event.data.description}
+                    startDate={event.data.startDate}
+                    endDate={event.data.endDate}
+                    endTime={event.data.endTime}
+                    location={event.data.location}
+                />
+            ))}
           </div>
-      )}
+        </section>
+    )}
 
-      {/* MULTI FEATURED, capped at 2 */}
-      {!singleFeatured && featuredDisplay.length > 0 && (
-          <div class="featuredMulti stack">
-            <div class="kicker featured__kicker">[ FEATURED EVENTS ]</div>
-
-            <div class="eventsList">
-              {featuredDisplay.map((event) => (
-                  <EventCard
-                      href={`/events/${event.slug}`}
-                      title={event.data.title}
-                      image={event.data.image}
-                      description={event.data.description}
-                      startDate={event.data.startDate}
-                      endDate={event.data.endDate}
-                      endTime={event.data.endTime}
-                      location={event.data.location}
-                  />
-              ))}
-            </div>
-          </div>
-      )}
-    </section>
-
-    <!-- Countdown -->
+    {/* COUNTDOWN */}
     <section class="home__countdown" aria-label="Countdown to featured event">
       {targetIso ? (
-
-          <div class="kicker">[ COUNTDOWN ]</div>
-          <Countdown targetIso={targetIso} />
-
+          <>
+            <Kicker label="COUNTDOWN" />
+            <Countdown targetIso={targetIso} />
+          </>
       ) : (
           <div class="eventNone">
-            <div class="kicker">[ NO UPCOMING FEATURED EVENTS ]</div>
+            <Kicker label="NO UPCOMING FEATURED EVENTS" />
             <p class="prose">Check back soon!</p>
           </div>
       )}
     </section>
 
-    <!-- Mascot -->
+    {/* MASCOT */}
     <section class="home__art" aria-label="Mascot">
       <img
           src="/images/mascot_flower.png"
@@ -109,6 +117,7 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
           loading="eager"
       />
     </section>
+
   </div>
 
   <style>
@@ -121,31 +130,36 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
       gap: var(--space-6);
     }
 
-    .home__intro {
+    /* TAGLINE
+       Image renders at its native dimensions up to 890px wide (the
+       client's intended size). Text fallback is small, dimmer, italic
+       — clearly secondary to an image-style hero treatment. */
+    .home__tagline {
       width: 100%;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-2);
-    }
-
-    .kicker {
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0.9;
+      justify-content: center;
       margin-top: var(--space-3);
     }
 
-    .featured__kicker {
-      margin-top: 0;
+    .home__taglineImg {
+      width: 100%;
+      max-width: 890px;
+      height: auto;
+      display: block;
+    }
+
+    .home__taglineText {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      opacity: 0.9;
+      max-width: 60ch;
     }
 
     /* SINGLE FEATURED */
     .featuredSingle {
       width: 100%;
       max-width: 520px;
-      margin-top: var(--space-3);
       display: flex;
       flex-direction: column;
       gap: var(--space-2);
@@ -156,7 +170,6 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
     .featuredMulti {
       width: 100%;
       max-width: 520px;
-      margin-top: var(--space-3);
       text-align: left;
     }
 
@@ -176,17 +189,16 @@ const singleFeatured = featuredAll.length === 1 ? featuredAll[0] : null;
       }
     }
 
-    /* Countdown */
+    /* COUNTDOWN */
     .home__countdown {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: var(--space-3);
-      margin-top: var(--space-2);
       width: 100%;
     }
 
-    /* Mascot */
+    /* MASCOT */
     .home__art {
       width: 100%;
       display: flex;

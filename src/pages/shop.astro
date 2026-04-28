@@ -1,0 +1,74 @@
+---
+// src/pages/shop.astro
+//
+// Catalog page. Pulls products at build time from Shopify Storefront API
+// (or mock data if env vars aren't set) and renders a card grid. Each card
+// links to the Shopify-hosted product page in a new tab.
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProductCard from "../components/ProductCard.astro";
+import Kicker from "../components/Kicker.astro";
+import { getProducts } from "../lib/shopify";
+
+const products = await getProducts();
+const isEmpty = products.length === 0;
+---
+
+<BaseLayout title="DRAW THE BLOCK — SHOP" current="shop">
+    <main class="shop stack">
+
+        <Kicker label="SHOP" />
+
+        {isEmpty ? (
+                <p class="shop__empty">Shop is currently being updated.</p>
+        ) : (
+                <div class="shop__grid">
+                    {products.map((product) => (
+                            <ProductCard product={product} />
+                    ))}
+                </div>
+        )}
+
+    </main>
+
+    <style>
+        .shop {
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            text-align: left;
+            padding-top: var(--space-3);
+        }
+
+
+        .shop__grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-4);
+            /* Top-right shadow on hover needs breathing room. Same pattern as
+               the event lists. */
+            padding: 8px;
+        }
+
+        /* Two columns at small breakpoint, three at wider. Square cards keep
+           the grid balanced regardless of column count. */
+        @media (min-width: 480px) {
+            .shop__grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (min-width: 720px) {
+            .shop__grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        .shop__empty {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.75;
+            font-style: italic;
+        }
+    </style>
+</BaseLayout>

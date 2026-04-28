@@ -13,7 +13,7 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Title", name: "title", widget: "string", hint: "Keep under 20 characters so the title fits on one line on event cards. Longer titles will be truncated with an ellipsis." }
       - { label: "Show on Front Page", name: "featured", widget: "boolean", default: false }
       - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
       - { label: "End Time (same-day)", name: "endTime", widget: "string", required: false, hint: "Use for same-day end time. If event ends on a different day, use End Date/Time instead." }
@@ -38,7 +38,7 @@ collections:
         value_field: "{{slug}}"
         display_fields: ["title"]
       - { label: "Category", name: "category", widget: "select", options: ["liveShowcases", "gamesAndActivities", "contests", "other"], default: "other" }
-      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Title", name: "title", widget: "string", hint: "Keep under 20 characters so the title fits on one line on event cards. Longer titles will be truncated with an ellipsis." }
       - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
       - { label: "End Time (same-day)", name: "endTime", widget: "string", required: false, hint: "Use for same-day end time. If event ends on a different day, use End Date/Time instead." }
       - { label: "End Date/Time (multi-day)", name: "endDate", widget: "datetime", required: false }
@@ -93,6 +93,16 @@ collections:
     fields:
       - { label: "Stripe URL", name: "stripeUrl", widget: "string" }
       - { label: "Poster Image", name: "poster", widget: "image", required: false }
+      - { label: "Intro / Description", name: "description", widget: "text", required: false, hint: "Short paragraph shown above the Stripe button on the Support page." }
+
+  - name: "donate"
+    label: "Donate"
+    folder: "src/content/donate"
+    create: false
+    slug: "donate"
+    fields:
+      - { label: "Ko-fi URL", name: "kofiUrl", widget: "string", hint: "The full Ko-fi page URL, e.g. https://ko-fi.com/drawtheblock" }
+      - { label: "Intro / Description", name: "description", widget: "text", required: false, hint: "Short paragraph shown above the Ko-fi widget on the Support page." }
 
   - name: "settings"
     label: "Settings"
@@ -158,22 +168,13 @@ collections:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Vendors page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
               - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
-          - label: "Sponsor — Override"
-            name: "sponsor"
+          - label: "Support — Override"
+            name: "support"
             widget: "object"
             collapsed: true
             required: false
             fields:
-              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Sponsor page. Enable with empty messages to hide the marquee on this page." }
-              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
-              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
-          - label: "Donate — Override"
-            name: "donate"
-            widget: "object"
-            collapsed: true
-            required: false
-            fields:
-              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Donate page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Support page (donate + sponsor). Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
               - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
           - label: "FAQ — Override"
@@ -185,3 +186,26 @@ collections:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the FAQ page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
               - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+
+  - name: "pageContent"
+    label: "Page Content"
+    files:
+      - file: "src/content/pageContent/tagline.json"
+        label: "Tagline"
+        name: "tagline"
+        fields:
+          - { label: "Tagline Image", name: "taglineImage", widget: "image", required: false, hint: "..." }
+          - { label: "Tagline Text (fallback)", name: "taglineText", widget: "string", required: false, hint: "..." }
+
+      - file: "src/content/pageContent/mission.json"
+        label: "Mission"
+        name: "mission"
+        fields:
+          - { label: "Mission Paragraph", name: "mission", widget: "text", required: true, hint: "Shown at the top of the About page. Keep it evergreen — avoid hardcoded dates or specific event details." }
+
+      - file: "src/content/pageContent/quote.json"
+        label: "Quote"
+        name: "quote"
+        fields:
+          - { label: "Quote", name: "quote", widget: "text", required: true, hint: "A short quote shown below the team grid on the About page. Don't include the dash and attribution here — use the field below for that." }
+          - { label: "Attribution", name: "attribution", widget: "string", required: false, hint: "Who said it. e.g. \"Kenji\" — the dash will be added automatically when displayed." }

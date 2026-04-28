@@ -6,7 +6,7 @@ import { getCollection, getEntry } from "astro:content";
 import { ClientRouter } from 'astro:transitions';
 import Marquee from "../components/Marquee.astro";
 
-type NavKey = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq" | "newsletter";
+type NavKey = "home" | "about" | "events" | "vendors" | "shop" | "support" | "faq" | "newsletter";
 
 const {
   title = "DRAW THE BLOCK",
@@ -20,7 +20,7 @@ const socialSettings = await getEntry("settings", "social");
 const { discordUrl, instagramUrl } = socialSettings?.data || {};
 
 
-type MarqueeScope = "home" | "about" | "events" | "vendors" | "sponsor" | "donate" | "faq" | "global";
+type MarqueeScope = "home" | "about" | "events" | "vendors" | "support" | "faq" | "global";
 
 const pageScope: MarqueeScope | null =
     current && current !== "newsletter" ? (current as MarqueeScope) : null;
@@ -61,14 +61,12 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   { key: "about", href: "/about", label: "ABOUT" },
   { key: "events", href: "/events", label: "EVENTS" },
   { key: "vendors", href: "/vendors", label: "VENDORS" },
-  { key: "sponsor", href: "/sponsor", label: "SPONSOR" },
-  { key: "donate", href: "/donate", label: "DONATE" },
+  { key: "shop", href: "/shop", label: "SHOP" },
+  { key: "support", href: "/support", label: "SUPPORT" },
 ];
 
 
-function footerNavLabel(key: NavKey, label: string) {
-  return current === key ? `[${label}]` : label;
-}
+
 ---
 
 <!doctype html>
@@ -114,14 +112,46 @@ function footerNavLabel(key: NavKey, label: string) {
   </section>
 
   <footer class="strip-footer" aria-label="Site footer">
-    <nav class="strip-footer__links" aria-label="Footer links">
-      <a class:list={["strip-footer__link", current === "faq" && "is-active"]} href="/faq">
-        {footerNavLabel("faq", "faq")}
+    <nav class="strip-footer__links" data-bt-nav data-bt-scope="footer" aria-label="Footer links">
+      {/* Floating brackets — JS translates these to the active or hovered link.
+          Mirrors the header bracket-travel system; `data-bt-scope="footer"`
+          is a CSS hook for the smaller footer-sized bracket type. */}
+      <span class="bt-bracket bt-bracket--left" data-bt-left aria-hidden="true">[</span>
+      <span class="bt-bracket bt-bracket--right" data-bt-right aria-hidden="true">]</span>
+
+      <a
+          class="strip-footer__link"
+          href="/faq"
+          data-bt-link
+          data-bt-active={current === "faq" ? "" : undefined}
+      >
+        faq
       </a>
-      <a class="strip-footer__link" href={discordUrl || "#"} target="_blank" rel="noreferrer">discord</a>
-      <a class="strip-footer__link" href={instagramUrl || "#"} target="_blank" rel="noreferrer">instagram</a>
-      <a class:list={["strip-footer__link", current === "newsletter" && "is-active"]} href="/newsletter">
-        {footerNavLabel("newsletter", "newsletter")}
+      <a
+          class="strip-footer__link"
+          href={discordUrl || "#"}
+          target="_blank"
+          rel="noreferrer"
+          data-bt-link
+      >
+        discord
+      </a>
+      <a
+          class="strip-footer__link"
+          href={instagramUrl || "#"}
+          target="_blank"
+          rel="noreferrer"
+          data-bt-link
+      >
+        instagram
+      </a>
+      <a
+          class="strip-footer__link"
+          href="/newsletter"
+          data-bt-link
+          data-bt-active={current === "newsletter" ? "" : undefined}
+      >
+        newsletter
       </a>
     </nav>
   </footer>
@@ -201,8 +231,48 @@ function footerNavLabel(key: NavKey, label: string) {
         opacity 300ms ease-out;
   }
 
+  /* When the nav has no active link (e.g. header on FAQ/Newsletter,
+     or footer on home/about/etc.), hide the brackets at rest.
+     Hover removes data-bt-floating via measureAndPlace, so brackets
+     fade in. Mouseleave restores it, fading them back out. */
+  .strip-nav[data-bt-floating] .strip-nav__bracket {
+    opacity: 0;
+  }
+
+  /* ═════════════════════════════════════════════════════════════
+   * FOOTER NAV — same bracket-travel system, smaller scale
+   * ═════════════════════════════════════════════════════════════ */
+
+  .bt-bracket {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    color: inherit;
+    font-size: 0.85em;
+    --bt-x: -9999px;
+    --bt-y: 0;
+    --bt-y-nudge: 1px;
+    transform: translate3d(var(--bt-x), calc(var(--bt-y) + var(--bt-y-nudge)), 0);
+    transition: transform 300ms cubic-bezier(0.5, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  .strip-footer__links:not([data-bt-ready]) .bt-bracket {
+    opacity: 0;
+  }
+  .strip-footer__links[data-bt-ready] .bt-bracket {
+    opacity: 1;
+    transition:
+        transform 300ms cubic-bezier(0.5, 0, 0.2, 1),
+        opacity 300ms ease-out;
+  }
+  .strip-footer__links[data-bt-floating] .bt-bracket {
+    opacity: 0;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .strip-nav__bracket {
+    .bt-bracket {
       transition: none !important;
     }
   }
@@ -237,15 +307,13 @@ function footerNavLabel(key: NavKey, label: string) {
     letter-spacing: 0.1em;
     text-transform: lowercase;
     opacity: 0.95;
+    position: relative;
   }
 
   .strip-footer__link {
     text-decoration: none;
   }
 
-  .strip-footer__link.is-active {
-    text-decoration: none;
-  }
 
 </style>
 
@@ -281,10 +349,19 @@ function footerNavLabel(key: NavKey, label: string) {
     const rightX = linkRect.right - navRect.left + 2;
     state.right.style.setProperty("--bt-x", `${rightX}px`);
     state.right.style.setProperty("--bt-y", `${y}px`);
+
+    state.nav.removeAttribute("data-bt-floating");
   }
 
   function placeOnActive(state: NavState) {
-    if (state.activeLink) measureAndPlace(state, state.activeLink);
+    if (state.activeLink) {
+      measureAndPlace(state, state.activeLink);
+      state.nav.removeAttribute("data-bt-floating");
+    } else {
+      // No active top-nav item (e.g. on FAQ or Newsletter pages).
+      // Hide brackets at rest; hover reveals them via measureAndPlace.
+      state.nav.setAttribute("data-bt-floating", "");
+    }
   }
 
   async function initNav(nav: HTMLElement) {
