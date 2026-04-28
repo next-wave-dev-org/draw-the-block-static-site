@@ -74,6 +74,16 @@ collections:
       - { label: "Twitter / X", name: "twitterUrl", widget: "string", required: false }
       - { label: "Bluesky", name: "bskyUrl", widget: "string", required: false }
       - { label: "Logo/Image (square, min 400x400px)", name: "image", widget: "image", required: false }
+      - label: "Events Attending"
+        name: "events"
+        widget: "relation"
+        collection: "events"
+        search_fields: [ "title" ]
+        value_field: "{{slug}}"
+        display_fields: [ "title" ]
+        multiple: true
+        required: false
+        hint: "Select which events this vendor is attending. Vendors with no events selected won't appear on the public Vendors page until at least one event is assigned."
 
   - name: "faq"
     label: "FAQ"

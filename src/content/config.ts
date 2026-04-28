@@ -1,4 +1,4 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection, reference, z } from "astro:content";
 
 const optionalUrlField = z.union([z.string(), z.literal("")])
     .optional()
@@ -69,6 +69,7 @@ const vendors = defineCollection({
         twitterUrl: optionalUrlField,
         bskyUrl: optionalUrlField,
         image: z.string().optional(),
+        events: z.array(reference("events")).optional(),
     }),
 });
 
