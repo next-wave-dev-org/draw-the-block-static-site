@@ -186,3 +186,26 @@ collections:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the FAQ page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
               - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+
+  - name: "pageContent"
+    label: "Page Content"
+    files:
+      - file: "src/content/pageContent/tagline.json"
+        label: "Tagline"
+        name: "tagline"
+        fields:
+          - { label: "Tagline Image", name: "taglineImage", widget: "image", required: false, hint: "..." }
+          - { label: "Tagline Text (fallback)", name: "taglineText", widget: "string", required: false, hint: "..." }
+
+      - file: "src/content/pageContent/mission.json"
+        label: "Mission"
+        name: "mission"
+        fields:
+          - { label: "Mission Paragraph", name: "mission", widget: "text", required: true, hint: "Shown at the top of the About page. Keep it evergreen — avoid hardcoded dates or specific event details." }
+
+      - file: "src/content/pageContent/quote.json"
+        label: "Quote"
+        name: "quote"
+        fields:
+          - { label: "Quote", name: "quote", widget: "text", required: true, hint: "A short quote shown below the team grid on the About page. Don't include the dash and attribution here — use the field below for that." }
+          - { label: "Attribution", name: "attribution", widget: "string", required: false, hint: "Who said it. e.g. \"Kenji\" — the dash will be added automatically when displayed." }
