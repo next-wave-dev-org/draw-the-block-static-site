@@ -2,6 +2,7 @@
 // src/pages/about.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Kicker from "../components/Kicker.astro";
+import PeekMascot from "../components/PeekMascot.astro";
 import { getCollection, getEntry } from "astro:content";
 
 const team = (await getCollection("team"))
@@ -78,6 +79,9 @@ const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
         </blockquote>
     )}
 
+    {/* peeking mascot */}
+    <PeekMascot offset="15%" />
+
   </section>
 
   <style>
@@ -93,6 +97,7 @@ const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
       flex-direction: column;
       align-items: center;
       gap: var(--space-5);
+      position: relative;
     }
 
     /* MISSION
@@ -218,5 +223,6 @@ const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
         grid-template-columns: 1fr;
       }
     }
+
   </style>
 </BaseLayout>
