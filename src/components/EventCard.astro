@@ -1,17 +1,5 @@
 ---
-/**
-    * EventCard — shared card used by home (featured events), /events (upcoming
-    * & past lists), and /events/[slug] (subevents).
-    *
-    * Takes primitive props rather than a content entry so it's agnostic about
-    * whether the caller is rendering an `events` entry or a `subevents` entry.
-    * Each caller builds the prop bag from its own data shape.
-    *
-    * Hover treatment: 1.02x scale + hard yellow offset shadow (top-right).
-    * Pure CSS, no JS required. Fixed yellow shadow (no complementary-color
-    * rule) because the client controls event imagery via CMS and we can't
-    * rely on a per-card accent.
-    */
+
 
 export interface Props {
     href: string;
