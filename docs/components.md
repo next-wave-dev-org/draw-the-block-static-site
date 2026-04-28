@@ -239,6 +239,103 @@ The component uses `<nav>` + `<ol>` semantics with `aria-label="Breadcrumb"` so 
 
 ---
 
+---
+
+## PeekMascot
+
+**Path:** `src/components/PeekMascot.astro`
+
+A decorative mascot character that peeks from the side band of a
+page, her hand resting on the central column edge. Currently used
+on the about, events detail, and vendors pages.
+
+### Props
+
+| Prop      | Type                  | Default                   | Description                                                                |
+| :-------- | :-------------------- | :------------------------ | :------------------------------------------------------------------------- |
+| `src`     | `string`              | `"/images/mascot_peek.png"` | Path to the mascot asset. Override per-page when using a variant.        |
+| `side`    | `"left" \| "right"`    | `"left"`                  | Which side band the mascot peeks from. Right side mirrors via CSS.       |
+| `width`   | `string` (CSS length) | `"280px"`                 | Rendered width.                                                            |
+| `offset`  | `string` (CSS length or %) | `"15%"`              | How much of the asset tucks behind the parent's edge to align the hand.  |
+| `bottom`  | `string` (CSS length) | `"80px"`                  | Distance from the bottom of the parent container.                          |
+
+### Required parent setup
+
+The mascot is absolutely positioned. **The parent container must have
+`position: relative`** for it to anchor correctly. This is non-optional
+— without it, she'll position relative to the document body or
+viewport instead of the page's content column.
+
+### How the side variants work
+
+The asset is drawn for the left side band (mascot's right hand grips
+the column edge, body extends leftward). When `side="right"`, the
+component flips the asset horizontally with `transform: scaleX(-1)`.
+This works with any asset but won't be as clean as a dedicated flipped
+variant — the artist can subtly adjust facial features for each side.
+
+If you have a dedicated flipped asset, pass it via `src`:
+
+```astro
+<PeekMascot src="/images/mascot_peek_right.png" side="right" />
+```
+
+The `side="right"` is still needed — it tells the component to anchor
+to the parent's right edge instead of the left.
+
+### Tuning per page
+
+Each page has different content height and visual context. Default
+values match the about page, but other pages will likely need overrides:
+
+```astro
+{/* About — original tuning */}
+<PeekMascot offset="15%" />
+
+{/* Events detail — content runs deep, lift her up */}
+<PeekMascot bottom="120px" />
+
+{/* Vendors — clear the application section at the bottom */}
+<PeekMascot bottom="200px" offset="29%" />
+```
+
+The `offset` value differs across pages because each parent container
+has a different width and position. The percentage is calculated from
+the mascot's own width, but the visual anchor depends on parent
+geometry — so tuning per page is expected.
+
+### Hidden on narrow viewports
+
+The mascot is `display: none` below 960px. At smaller viewports, the
+side band space disappears and she'd overflow the viewport edge or
+overlap content. The breakpoint is hardcoded in the component; if
+you ever want a per-page exception, that's a one-line override in
+the page's CSS:
+
+```css
+@media (max-width: 960px) {
+  .your-page .peek {
+    display: block;  /* override the component's hide rule */
+  }
+}
+```
+
+But generally, the hide-below-960px rule is what you want.
+
+### Variant support
+
+The component is designed for asset variants. Three likely scenarios:
+
+1. **Different expressions** (smiling, thinking, etc.) — pass via `src`.
+2. **Flipped pose for opposite side** — pass via `src` plus `side="right"`.
+3. **Different mascot character** for a specific page — pass via `src`.
+
+The CSS variables (`--peek-width`, `--peek-offset`, `--peek-bottom`)
+are set inline from props, so each instance is fully independent.
+No global state, no coordination between instances.
+
+---
+
 ## Shopify Integration
 
 The `/shop` page pulls products from the client's Shopify store at
@@ -277,6 +374,7 @@ Cart UI, product detail pages on this site, filtering, variants, real-time inven
 The components above don't exist in isolation. A few worth knowing about together:
 
 - **EventCard and ProductCard are intentionally siblings.** They look the same on hover, share the yellow accent, and appear in the same grid pattern across pages. If you change the hover on one, change both — there's a comment in ProductCard's CSS reminding future-you of this.
+- **PeekMascot appears on multiple pages with shared logic.** About, events detail, and vendors all use the same component with per-page prop overrides. If you ever change the breakpoint, sizing math, or mirror logic, the change is component-local and applies everywhere. The home page does NOT use PeekMascot — its mascot is part of a larger composition with the DRAW/THE/BLOCK wordmark and lives directly in `home.astro`.
 - **BaseLayout's marquee resolution and the Marquee component are tightly coupled but the seam is clean.** Marquee just renders a list of strings. BaseLayout decides which list to pass. New scopes (e.g. "shop") would require editing `MarqueeScope` in BaseLayout *and* the schema in `config.ts` *and* the Decap CMS config in `public/admin/config.yml`. Three coordinated edits — keep them in lockstep.
 - **Breadcrumb and EventCard are layout siblings.** Breadcrumb sits at the top of detail pages where EventCard appears at the top of list pages. They're visual peers in a hierarchy.
 
