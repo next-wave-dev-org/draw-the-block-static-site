@@ -10,8 +10,7 @@ const team = (await getCollection("team"))
 
 // Mission and quote from the pageContent collection. Both are wrapped
 // in catch(() => null) so a missing entry doesn't crash the build —
-// the page just renders without that section. This matters when
-// content is brand new and not yet seeded.
+// the page just renders without that section.
 
 
 const missionEntry = await getEntry("pageContent", "mission").catch(() => null);
@@ -104,10 +103,10 @@ const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
       font-size: 15px;
       line-height: 1.55;
       opacity: 0.95;
-      margin: 0;
+      margin: 12px;
     }
 
-    /* TEAM GRID — unchanged from before */
+    /* TEAM GRID */
     .about__teamGrid {
       width: 100%;
       display: grid;
@@ -186,10 +185,6 @@ const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
       color: #f7152b;
     }
 
-    /* QUOTE
-       Sits below the team grid as the closing emotional beat —
-       the "why" after the "what" and "who". Centered, slightly
-       larger and italic, with attribution on its own line. */
     .about__quote {
       max-width: 460px;
       margin: 0;
