@@ -108,14 +108,19 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
       )}
     </section>
 
-    {/* MASCOT */}
-    <section class="home__art" aria-label="Mascot">
+    {/* MASCOT + TYPE COMPOSITION */}
+    <section class="home__art" aria-label="Draw The Block">
       <img
-          src="/images/mascot_flower.png"
+          src="/images/mascot_jacket.png"
           alt="Draw The Block mascot"
           class="home__mascot"
           loading="eager"
       />
+      <div class="home__wordmark" aria-hidden="true">
+        <span class="home__wordmarkLine">DRAW</span>
+        <span class="home__wordmarkLine">THE</span>
+        <span class="home__wordmarkLine">BLOCK</span>
+      </div>
     </section>
 
   </div>
@@ -202,14 +207,59 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
     .home__art {
       width: 100%;
       display: flex;
+      flex-direction: row;
+      align-items: end;
       justify-content: center;
+      gap: 0;
+      padding: var(--space-3) 0;
     }
 
     .home__mascot {
-      width: 100%;
-      max-width: 520px;
+
+      width: clamp(180px, 24vw, 380px);
       height: auto;
       display: block;
+      flex-shrink: 0;
+      margin-right: -2vw;
+    }
+
+    .home__wordmark {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; /* left-align text to hug the mascot */
+      line-height: 0.85; /* tight stacking — each line sits close to the next */
+      font-family: var(--font-display), system-ui, sans-serif;
+      font-weight: 800;
+      font-size: clamp(48px, 11vw, 160px); /* fluid sizing across viewports */
+      letter-spacing: -0.02em; /* slight tightening at huge sizes */
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    .home__wordmarkLine {
+      display: block;
+    }
+
+    /*
+     * Stack vertically below 720px. Mascot on top (centered), type below.
+     * The type stays centered too at this size — left-alignment only makes
+     * sense when there's a mascot to the left of it.
+     */
+    @media (max-width: 720px) {
+      .home__art {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-3);
+      }
+
+      .home__mascot {
+        width: 60%;
+        max-width: 280px;
+      }
+
+      .home__wordmark {
+        align-items: center;
+      }
     }
   </style>
 </BaseLayout>
