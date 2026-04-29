@@ -43,24 +43,14 @@ const isEmpty = products.length === 0;
 
         .shop__grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: var(--space-4);
-            /* Top-right shadow on hover needs breathing room. Same pattern as
-               the event lists. */
             padding: 8px;
         }
 
-        /* Two columns at small breakpoint, three at wider. Square cards keep
-           the grid balanced regardless of column count. */
-        @media (min-width: 480px) {
+        @media (min-width: 769px) {
             .shop__grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (min-width: 720px) {
-            .shop__grid {
-                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
