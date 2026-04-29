@@ -7,7 +7,7 @@ import { Image } from "astro:assets";
 const vendorSettings = await getEntry("vendorSettings", "vendors");
 const allVendors = await getCollection("vendors");
 const allEvents = await getCollection("events");
-import PeekMascot from "../components/PeekMascot.astro";
+
 
 const now = new Date();
 
@@ -100,7 +100,7 @@ const PAGE_SIZE = 9;
 const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
 ---
 
-<BaseLayout title="DRAW THE BLOCK — VENDORS" current="vendors">
+<BaseLayout title="DRAW THE BLOCK — VENDORS" current="vendors" peek={{ bottom: "200px" }}>
   <main class="vendorsPage">
 
     {/* ─── Vendor sections per upcoming event ─── */}
@@ -282,9 +282,6 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
         )}
       </div>
     </section>
-
-    <PeekMascot bottom="200px" offset="29%" />
-
   </main>
 </BaseLayout>
 
@@ -394,7 +391,6 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
 <style>
   .vendorsPage {
     width: 100%;
-    position: relative;
   }
 
   /* Each event section — the heading + grid block */

@@ -32,7 +32,7 @@ const {
     src = "/images/mascot_peek.png",
     side = "left",
     width = "280px",
-    offset = "15%",
+    offset,
     bottom = "80px",
 } = Astro.props;
 
@@ -40,7 +40,7 @@ const {
 // while sharing the same scoped CSS rules below.
 const styleVars = [
     `--peek-width: ${width}`,
-    `--peek-offset: ${offset}`,
+    offset ? `--peek-offset: ${offset}` : null,
     `--peek-bottom: ${bottom}`,
 ].join("; ");
 ---
@@ -58,18 +58,25 @@ const styleVars = [
     /*
      * The peek mascot positioning system.
      *
-     * For the LEFT-side variant: she sits in the left side band with
-     * her right edge aligned to the parent's left edge, then nudged
-     * back behind the parent so her hand grips the column edge.
+     * Anchored absolutely to the parent's edge. The `--peek-offset`
+     * variable is set per-breakpoint as the column width changes, so
+     * her hand stays roughly aligned with the column edge regardless
+     * of viewport. Pages can still override via the `offset` prop —
+     * the inline style takes precedence.
      *
-     * For the RIGHT-side variant: mirrored. Her left edge aligns to
-     * the parent's right edge, asset is flipped horizontally with
-     * scaleX(-1) so the drawing reads correctly.
+     * The defaults below are calibrated assuming:
+     *   - Mascot rendered at ~280px width
+     *   - Asset has its character in the right ~50% of the frame
+     *   - Column edge should land where her hand is drawn
      *
-     * pointer-events: none so she never intercepts clicks.
-     * user-select: none so she doesn't get caught in text selection.
+     * If you swap to a different mascot asset, you'll likely need to
+     * re-tune the per-breakpoint offsets here.
      */
     .peek {
+        /* Default offset — overridden inline by the offset prop, OR by
+           the breakpoint-specific defaults below if no prop is passed. */
+        --peek-offset-default: 15%;
+
         position: absolute;
         bottom: var(--peek-bottom);
         width: var(--peek-width);
@@ -81,16 +88,56 @@ const styleVars = [
 
     .peek--left {
         right: 100%;
-        transform: translateX(var(--peek-offset));
+        /* Use the inline-set --peek-offset (from prop) if provided,
+           otherwise fall back to the breakpoint-aware default. */
+        transform: translateX(var(--peek-offset, var(--peek-offset-default)));
     }
 
     .peek--right {
         left: 100%;
-        transform: translateX(calc(var(--peek-offset) * -1)) scaleX(-1);
+        transform: translateX(calc(var(--peek-offset, var(--peek-offset-default)) * -1)) scaleX(-1);
     }
 
-    /* Hide on small viewports — no side band space, would overflow
-       the viewport edge or overlap content. */
+    /*
+ * Peek mascot offset.
+ *
+ * Mascot is anchored to the .site-strip edge in BaseLayout, so her
+ * offset from that edge SHOULD be constant regardless of viewport
+ * width — the strip is her reference point, not the page width.
+ *
+ * In practice, the value is essentially 6.2em across all breakpoints,
+ * with tiny rounding adjustments at edge cases. The 6.3em at 960px
+ * compensates for subpixel rendering quirks at the column-min boundary;
+ * the 6.22em at ultrawide handles a similar quirk further out.
+ *
+ * If you swap the mascot asset or change the rendered width (--peek-width
+ * default of 280px), expect to re-tune. The 6.2em value is empirical to
+ * the current 280px-wide mascot_peek.png asset.
+ */
+    @media (min-width: 960px) {
+        .peek {
+            --peek-offset-default: 6.3em;
+        }
+    }
+
+    @media (min-width: 1025px) {
+        .peek {
+            --peek-offset-default: 6.2em;
+        }
+    }
+
+    @media (min-width: 1441px) {
+        .peek {
+            --peek-offset-default: 6.2em;
+        }
+    }
+
+    @media (min-width: 1921px) {
+        .peek {
+            --peek-offset-default: 6.2em;
+        }
+    }
+
     @media (max-width: 960px) {
         .peek {
             display: none;

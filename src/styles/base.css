@@ -63,6 +63,7 @@ a:hover {
     min-height: 100vh;
     background: var(--color-strip);
     padding: var(--space-4) var(--col-pad-mobile);
+    position: relative; /* needed for mascot peek */
 
     display: flex;
     flex-direction: column;

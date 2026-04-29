@@ -4,7 +4,6 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import EventCard from "../../components/EventCard.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Kicker from "../../components/Kicker.astro";
-import PeekMascot from "../../components/PeekMascot.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
@@ -63,7 +62,7 @@ const formatDateTime = (d: Date) =>
     });
 ---
 
-<BaseLayout title={event.data.title} current="events">
+<BaseLayout title={event.data.title} current="events" peek={{ bottom: "120px" }}>
   <main class="events stack">
     <Breadcrumb items={[
       { label: "EVENTS", href: "/events" },
@@ -137,7 +136,6 @@ const formatDateTime = (d: Date) =>
           ))}
         </section>
     )}
-    <PeekMascot bottom="120px" />
   </main>
 
   <style>
@@ -145,7 +143,6 @@ const formatDateTime = (d: Date) =>
       width: 100%;
       max-width: 520px;
       text-align: left;
-      position: relative;
     }
 
     .eventsList {
