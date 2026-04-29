@@ -173,6 +173,43 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
               data-page-size={String(PAGE_SIZE)}
               data-total-pages={String(totalPages)}
           >
+            {totalPages > 1 && (
+                <nav class="pastCollaborators__pager pastCollaborators__pager--top" aria-label="Past collaborators pages (top)">
+                  <button
+                      type="button"
+                      class="pastCollaborators__arrow"
+                      data-pager-prev
+                      aria-label="Previous page"
+                  >
+                    ←
+                  </button>
+
+                  <ol class="pastCollaborators__pages" data-pager-pages>
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                        <li>
+                          <button
+                              type="button"
+                              class="pastCollaborators__pageBtn"
+                              data-pager-goto={String(i + 1)}
+                              aria-label={`Page ${i + 1}`}
+                          >
+                            {i + 1}
+                          </button>
+                        </li>
+                    ))}
+                  </ol>
+
+                  <button
+                      type="button"
+                      class="pastCollaborators__arrow"
+                      data-pager-next
+                      aria-label="Next page"
+                  >
+                    →
+                  </button>
+                </nav>
+            )}
+
             <div class="vendor-grid">
               {pastCollaborators.map((vendor, idx) => (
                   <article
@@ -222,43 +259,6 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
                   </article>
               ))}
             </div>
-
-            {totalPages > 1 && (
-                <nav class="pastCollaborators__pager" aria-label="Past collaborators pages">
-                  <button
-                      type="button"
-                      class="pastCollaborators__arrow"
-                      data-pager-prev
-                      aria-label="Previous page"
-                  >
-                    ←
-                  </button>
-
-                  <ol class="pastCollaborators__pages" data-pager-pages>
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                        <li>
-                          <button
-                              type="button"
-                              class="pastCollaborators__pageBtn"
-                              data-pager-goto={String(i + 1)}
-                              aria-label={`Page ${i + 1}`}
-                          >
-                            {i + 1}
-                          </button>
-                        </li>
-                    ))}
-                  </ol>
-
-                  <button
-                      type="button"
-                      class="pastCollaborators__arrow"
-                      data-pager-next
-                      aria-label="Next page"
-                  >
-                    →
-                  </button>
-                </nav>
-            )}
           </div>
         </section>
     )}
@@ -403,12 +403,17 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
     margin-top: 12px;
     margin-bottom: var(--space-3);
     text-decoration: none;
-    color: inherit;
-    transition: opacity 150ms ease-out;
+    color: #FFD400;
+    transition:
+        opacity 150ms ease-out,
+        text-decoration-color 150ms ease-out;
   }
 
   .vendorSection__heading:hover {
-    opacity: 0.75;
+    opacity: 1;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 
   .vendorsPage__empty {
