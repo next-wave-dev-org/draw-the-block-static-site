@@ -4,22 +4,37 @@
  * Most layout and chrome lives in base.css and component-scoped styles.
  * This file is intentionally minimal — it's for rules that don't fit
  * anywhere else and should apply unconditionally.
- *
- * Previous version of this file had:
- *   - Duplicate html/body rules (also in base.css) → removed
- *   - Generic header/footer/nav rules that conflict with BaseLayout's
- *     scoped chrome → removed
- *   - Commented-out main rules → removed
- *
- * If you find yourself wanting to add something here, ask whether it
- * truly applies everywhere. If it's specific to a page or component,
- * scope it there instead.
  */
 
-/* Reset margins on html/body — base.css handles full body styling. */
+/* Universal border-box sizing — padding and border are included in
+   any explicit width, so a "100%" element doesn't overflow when given
+   padding. This is the modern default and prevents a whole class of
+   "why is my element wider than its container" bugs. */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Reset margins and prevent horizontal overflow at the document root.
+   overflow-x: hidden on body+html is a defensive measure: even if a
+   descendant overflows its parent, the page won't scroll horizontally.
+   The actual overflow source should still be fixed at its origin, but
+   this ensures users never see horizontal scroll on phones. */
 html,
 body {
     margin: 0;
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* Ensure html and body fill the viewport so .site-strip has somewhere
+   to anchor its min-height: 100vh. Without this, on short pages the
+   body collapses to content height and the blue background can show
+   below the strip. */
+html,
+body {
+    min-height: 100%;
 }
 
 /* Make images responsive by default. Components can opt out via
