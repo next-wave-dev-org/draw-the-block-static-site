@@ -1,3 +1,22 @@
+/**
+ * tokens.css — Design system foundations
+ *
+ * ─── Breakpoints (used in @media queries throughout the codebase) ───
+ * Note: CSS doesn't allow custom properties in media query conditions,
+ * so these are documented here and used as literal pixel values in
+ * any @media rule. Keep them consistent.
+ *
+ *   Mobile      — up to 480px         (phone portrait)
+ *   Tablet      — 481px to 768px      (phone landscape, small tablets)
+ *   Standard    — 769px to 1024px     (tablets, small laptops)
+ *   Wide        — 1025px to 1440px    (typical desktops)
+ *   Ultrawide   — 1441px to 1920px    (large displays)
+ *   Extra-wide  — 1921px+             (ultrawide monitors, 4K, etc.)
+ *
+ * The column maxes (--col-max-*) below match this ladder and are
+ * applied via the .site-strip rule in base.css using @media queries.
+ */
+
 @font-face {
     font-family: "Neue Helvetica Condensed";
     src: url("/fonts/HelveticaNeue-CondensedBold.woff2") format("woff2");
@@ -17,44 +36,81 @@
     --color-white-20: rgba(255, 255, 255, 0.2);
 
     /* =========================
-       Typography
+       Typography (fluid)
+       =========================
+       Each font-size is a clamp() with a tight range — small enough that
+       the layout doesn't wobble, but enough to feel proportional across
+       phone-to-ultrawide displays.
+
+       The fluid value (the middle term) follows: a*vw + b*px
+       where a controls how fast it scales with viewport, and b sets
+       the size at viewport=0 (the "anchor"). Tweak a higher for more
+       scaling, lower for less.
        ========================= */
-    --font-display: "Neue Helvetica Condensed", "Helvetica Neue Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-display: "Neue Helvetica Condensed", "Helvetica Neue Condensed",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
     --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
     --fw-display: 700;
     --fw-body: 400;
     --ls-display: -0.01em;
 
-    /* =========================
-       Layout
-       ========================= */
-    --content-max: min(92vw, 600px);
-    --content-fluid: min(92vw, var(--content-max));
-    --text-max: clamp(40ch, 80%, 52ch);
+    /* Body and small UI text — narrow range, stays readable everywhere */
+    --fs-body:    clamp(14px, calc(0.5vw + 12px), 17px);
+    --fs-nav:     clamp(13px, calc(0.4vw + 12px), 16px);
+    --fs-kicker:  clamp(11px, calc(0.2vw + 10px), 13px);
+    --fs-meta:    clamp(10px, calc(0.2vw + 9px), 12px);
 
-    /* =========================
-       Spacing
-       ========================= */
-    --space-1: 4px;
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-5: 24px;
-    --space-6: 32px;
-    --space-7: 48px;
-    --space-8: 64px;
+    /* Headings — wider scaling range for visual hierarchy across viewports */
+    --fs-h3:      clamp(16px, calc(1vw + 12px), 22px);
+    --fs-h2:      clamp(22px, calc(2vw + 14px), 36px);
 
-    --pad-x: 24px;
-    --pad-y: 32px;
-    --stack: var(--space-6);
+    /* Display / hero type — most dramatic scaling */
+    --fs-countdown: clamp(36px, calc(4vw + 16px), 80px);
 
-
-    /* =========================
-       Type scale (tune after first pass)
-       ========================= */
-    --fs-nav: 15px;
-    --fs-body: 15px;
-    --fs-countdown: 48px;
     --lh-body: 1.35;
+
+    /* =========================
+       Layout (column ladder)
+       =========================
+       Central content column has a max-width that steps up at each
+       breakpoint. The site-strip in base.css applies these via media
+       queries. Below mobile breakpoint, no max — column fills viewport.
+       ========================= */
+    --col-max-tablet:     600px;
+    --col-max-standard:   720px;
+    --col-max-wide:       880px;
+    --col-max-ultrawide:  1080px;
+    --col-max-extrawide:  1200px;
+
+    --col-pad-mobile:     16px;
+    --col-pad-tablet:     24px;
+    --col-pad-standard:   32px;
+    --col-pad-wide:       40px;
+    --col-pad-ultrawide:  48px;
+    --col-pad-extrawide:  56px;
+
+    /* Reading width for prose. Used by .prose helper. */
+    --text-max: clamp(35ch, 80%, 60ch);
+
+    /* =========================
+       Spacing (fluid via clamp)
+       =========================
+       8 named tokens covering the full range from hairline gaps to hero
+       spacing. Each scales with viewport so layouts breathe naturally.
+       The fluid range is small for tight tokens (--space-1, --space-2)
+       and wider for big tokens (--space-7, --space-8) — small spaces
+       should stay snappy on mobile, big spaces stay generous on desktop.
+       ========================= */
+    --space-1: clamp(3px,  calc(0.25vw + 2px), 4px);
+    --space-2: clamp(6px,  calc(0.5vw  + 4px), 10px);
+    --space-3: clamp(10px, calc(1vw    + 4px), 16px);
+    --space-4: clamp(14px, calc(1.5vw  + 6px), 24px);
+    --space-5: clamp(20px, calc(2vw    + 8px), 36px);
+    --space-6: clamp(28px, calc(3vw    + 8px), 56px);
+    --space-7: clamp(40px, calc(4vw    + 8px), 80px);
+    --space-8: clamp(56px, calc(6vw    + 8px), 120px);
+
+    /* Vertical rhythm helper — used by .stack > * + * { margin-top: var(--stack); } */
+    --stack: var(--space-6);
 }

@@ -1,31 +1,43 @@
+/**
+ * global.css — Truly global rules that apply to every page.
+ *
+ * Most layout and chrome lives in base.css and component-scoped styles.
+ * This file is intentionally minimal — it's for rules that don't fit
+ * anywhere else and should apply unconditionally.
+ *
+ * Previous version of this file had:
+ *   - Duplicate html/body rules (also in base.css) → removed
+ *   - Generic header/footer/nav rules that conflict with BaseLayout's
+ *     scoped chrome → removed
+ *   - Commented-out main rules → removed
+ *
+ * If you find yourself wanting to add something here, ask whether it
+ * truly applies everywhere. If it's specific to a page or component,
+ * scope it there instead.
+ */
 
+/* Reset margins on html/body — base.css handles full body styling. */
 html,
 body {
     margin: 0;
-    line-height: 1.5;
-    font-family: var(--font-display);
-    font-weight: var(--fw-body);
 }
 
-header, footer {
-    padding: 16px;
-    /*border-bottom: 1px solid #ddd;*/
+/* Make images responsive by default. Components can opt out via
+   their own width/height rules; this is just a sensible baseline. */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
-footer {
-    /*border-top: 1px solid #ddd;*/
-    border-bottom: none;
+/* Honor user's reduced-motion preference globally for any animations
+   we forget to handle locally. Component-level rules can override. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
-
-nav {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-/*main {*/
-/*    max-width: 900px;*/
-/*    margin: 0 auto;*/
-/*    padding: 32px 16px;*/
-
-/*}*/
