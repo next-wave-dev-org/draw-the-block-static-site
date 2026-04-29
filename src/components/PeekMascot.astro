@@ -78,7 +78,9 @@ const styleVars = [
         --peek-offset-default: 15%;
 
         position: absolute;
+        /* noinspection CssUnresolvedCustomProperty */
         bottom: var(--peek-bottom);
+        /* noinspection CssUnresolvedCustomProperty */
         width: var(--peek-width);
         height: auto;
         pointer-events: none;
@@ -90,11 +92,13 @@ const styleVars = [
         right: 100%;
         /* Use the inline-set --peek-offset (from prop) if provided,
            otherwise fall back to the breakpoint-aware default. */
+        /* noinspection CssUnresolvedCustomProperty */
         transform: translateX(var(--peek-offset, var(--peek-offset-default)));
     }
 
     .peek--right {
         left: 100%;
+        /* noinspection CssUnresolvedCustomProperty */
         transform: translateX(calc(var(--peek-offset, var(--peek-offset-default)) * -1)) scaleX(-1);
     }
 
