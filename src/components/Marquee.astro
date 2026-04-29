@@ -80,6 +80,8 @@ const SEPARATOR = "◉";
     .marquee__track {
         display: flex;
         width: max-content;
+        gap: 2.5rem;
+        padding-left: 100%;
         animation: marquee-scroll var(--marquee-duration) linear infinite;
         will-change: transform;
     }
@@ -92,12 +94,10 @@ const SEPARATOR = "◉";
         display: flex;
         align-items: center;
         flex-shrink: 0;
-        /* Each group is exactly 50% of the track so -50% translateX wraps perfectly */
-        padding-right: 0; /* separator after last item provides the gap */
+        gap: 2.5rem;
     }
 
     .marquee__item {
-        padding: 0 1.25rem;
         white-space: nowrap;
     }
 
@@ -113,7 +113,7 @@ const SEPARATOR = "◉";
             transform: translateX(0);
         }
         to {
-            transform: translateX(-50%);
+            transform: translateX(-100%);
         }
     }
 
