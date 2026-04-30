@@ -6,7 +6,7 @@ import "../styles/base.css";
 
 <main class="landing">
   <a href="/home"><img src="/images/eyes.gif" alt="DTB Eyes"  /></a>
-  <a href="/home">[DRAW THE BLOCK]</a>
+  <a href="/home">[ DRAW THE BLOCK ]</a>
 </main>
 
 <style>
@@ -34,6 +34,14 @@ import "../styles/base.css";
 
   .landing a {
     text-decoration: none;
+  }
+
+  .landing a:not(:has(img)) {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: inherit;
+    font-size: clamp(28px, 6vw, 56px);
   }
 </style>
 

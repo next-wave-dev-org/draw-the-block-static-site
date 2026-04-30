@@ -8,10 +8,21 @@
     * to tune per-page. Default values match the original About-page
     * placement that we tuned visually together.
     *
-    * The `side` prop chooses which side band she lives in. When set to
-    * "right", the asset is mirrored via CSS transform — handy for
-    * variant assets, but also works with a single source asset that's
-    * been drawn for one side.
+    * The `side` prop chooses which side band she lives in AND picks
+    * the matching asset:
+    *   - side="left"  → mascot_peek_left.png   (default)
+    *   - side="right" → mascot_peek_right.png
+    *
+    * Each side has its own asset, drawn for that side. There is no
+    * mirroring — if you force the wrong asset onto the wrong side via
+    * the `src` prop, you'll get a mascot facing away from the column.
+    * Use the `mirror` prop to flip an asset onto the opposite side
+    * (e.g. if you want to use the left asset on the right edge as a
+    * fallback).
+    *
+    * Each side has its own per-breakpoint offset defaults, since the
+    * two assets have their hands drawn in different positions within
+    * their frames. Tune via the `offset` prop to override.
     *
     * Hidden below 960px (no side band space at narrow viewports). The
     * breakpoint is per-component, not global, so future variants can
@@ -26,15 +37,20 @@ export interface Props {
     width?: string;
     offset?: string;
     bottom?: string;
+    mirror?: boolean;
 }
 
 const {
-    src = "/images/mascot_peek.png",
+    src,
     side = "left",
     width = "280px",
     offset,
     bottom = "80px",
+    mirror = false,
 } = Astro.props;
+
+// If no explicit src, pick the side-appropriate asset.
+const resolvedSrc = src ?? `/images/mascot_peek_${side}.png`;
 
 // Build the inline style object so each instance can tune via props
 // while sharing the same scoped CSS rules below.
@@ -43,11 +59,15 @@ const styleVars = [
     offset ? `--peek-offset: ${offset}` : null,
     `--peek-bottom: ${bottom}`,
 ].join("; ");
+
+const classes = ["peek", `peek--${side}`, mirror ? "peek--mirrored" : null]
+    .filter(Boolean)
+    .join(" ");
 ---
 
 <img
-        class={`peek peek--${side}`}
-        src={src}
+        class={classes}
+        src={resolvedSrc}
         alt=""
         aria-hidden="true"
         loading="lazy"
@@ -64,18 +84,16 @@ const styleVars = [
      * of viewport. Pages can still override via the `offset` prop —
      * the inline style takes precedence.
      *
-     * The defaults below are calibrated assuming:
-     *   - Mascot rendered at ~280px width
-     *   - Asset has its character in the right ~50% of the frame
-     *   - Column edge should land where her hand is drawn
-     *
-     * If you swap to a different mascot asset, you'll likely need to
-     * re-tune the per-breakpoint offsets here.
+     * Per-side defaults: each asset has its hand drawn in a different
+     * position relative to its frame, so each side gets its own
+     * per-breakpoint default. Update the right-side values once we
+     * eyeball the new asset in place.
      */
     .peek {
-        /* Default offset — overridden inline by the offset prop, OR by
-           the breakpoint-specific defaults below if no prop is passed. */
-        --peek-offset-default: 15%;
+        /* Side-specific defaults. Each rule below sets these; the
+           per-side selector picks which one applies. */
+        --peek-offset-default-left: 15%;
+        --peek-offset-default-right: 15%;
 
         position: absolute;
         /* noinspection CssUnresolvedCustomProperty */
@@ -91,54 +109,73 @@ const styleVars = [
     .peek--left {
         right: 100%;
         /* Use the inline-set --peek-offset (from prop) if provided,
-           otherwise fall back to the breakpoint-aware default. */
+           otherwise fall back to the breakpoint-aware left default. */
         /* noinspection CssUnresolvedCustomProperty */
-        transform: translateX(var(--peek-offset, var(--peek-offset-default)));
+        transform: translateX(var(--peek-offset, var(--peek-offset-default-left)));
     }
 
     .peek--right {
         left: 100%;
+        /* Right-side translation pushes the asset leftward into the
+           band (negative X). No mirror — the right-drawn asset is
+           already correctly oriented. */
         /* noinspection CssUnresolvedCustomProperty */
-        transform: translateX(calc(var(--peek-offset, var(--peek-offset-default)) * -1)) scaleX(-1);
+        transform: translateX(calc(var(--peek-offset, var(--peek-offset-default-right)) * -1));
+    }
+
+    /* Optional flip — when `mirror` prop is true, scaleX(-1) is
+       applied on top of the position transform. Useful for forcing
+       the wrong-side asset onto a side as a fallback. */
+    .peek--left.peek--mirrored {
+        /* noinspection CssUnresolvedCustomProperty */
+        transform: translateX(var(--peek-offset, var(--peek-offset-default-left))) scaleX(-1);
+    }
+
+    .peek--right.peek--mirrored {
+        /* noinspection CssUnresolvedCustomProperty */
+        transform: translateX(calc(var(--peek-offset, var(--peek-offset-default-right)) * -1)) scaleX(-1);
     }
 
     /*
- * Peek mascot offset.
- *
- * Mascot is anchored to the .site-strip edge in BaseLayout, so her
- * offset from that edge SHOULD be constant regardless of viewport
- * width — the strip is her reference point, not the page width.
- *
- * In practice, the value is essentially 6.2em across all breakpoints,
- * with tiny rounding adjustments at edge cases. The 6.3em at 960px
- * compensates for subpixel rendering quirks at the column-min boundary;
- * the 6.22em at ultrawide handles a similar quirk further out.
- *
- * If you swap the mascot asset or change the rendered width (--peek-width
- * default of 280px), expect to re-tune. The 6.2em value is empirical to
- * the current 280px-wide mascot_peek.png asset.
- */
+     * Per-breakpoint offset defaults.
+     *
+     * Mascot is anchored to the .site-strip edge in BaseLayout, so her
+     * offset from that edge SHOULD be constant regardless of viewport
+     * width — the strip is her reference point, not the page width.
+     *
+     * The 6.2em value is empirical to the 280px-wide left asset.
+     * The right asset starts at 6.2em as a placeholder — tune once
+     * you eyeball it in place; her hand will land at a different
+     * frame position than the left asset's hand does.
+     *
+     * If you swap either asset or change the rendered width
+     * (--peek-width default of 280px), expect to re-tune.
+     */
     @media (min-width: 960px) {
         .peek {
-            --peek-offset-default: 6.3em;
+            --peek-offset-default-left: 6.3em;
+            --peek-offset-default-right: 6.3em;
         }
     }
 
     @media (min-width: 1025px) {
         .peek {
-            --peek-offset-default: 6.2em;
+            --peek-offset-default-left: 6.2em;
+            --peek-offset-default-right: 6.2em;
         }
     }
 
     @media (min-width: 1441px) {
         .peek {
-            --peek-offset-default: 6.2em;
+            --peek-offset-default-left: 6.2em;
+            --peek-offset-default-right: 6.2em;
         }
     }
 
     @media (min-width: 1921px) {
         .peek {
-            --peek-offset-default: 6.2em;
+            --peek-offset-default-left: 6.2em;
+            --peek-offset-default-right: 6.2em;
         }
     }
 
