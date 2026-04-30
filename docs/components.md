@@ -145,7 +145,7 @@ Events and subevents have different schemas — events have `featured`, subevent
 
 1.02x scale + hard yellow drop shadow (top-right offset, 6px / -6px, no blur). 180ms ease-out. Pure CSS, no JS.
 
-The shadow is fixed yellow rather than complementary to the card's image because the client controls event imagery via the CMS — there's no reliable way to pick a complementary color we don't know in advance. Yellow is the brand accent and works against any image.
+The shadow is fixed yellow (`#FFD400`) rather than complementary to the card's image because the client controls event imagery via the CMS — there's no reliable way to pick a complementary color we don't know in advance. Yellow is the brand's interactive accent across the site (also used on vendor section headings as link affordance and on the marquee separator), and works against any image.
 
 `prefers-reduced-motion` users get the shadow but not the scale.
 
@@ -251,13 +251,14 @@ on the about, events detail, and vendors pages.
 
 ### Props
 
-| Prop      | Type                  | Default                   | Description                                                                |
-| :-------- | :-------------------- | :------------------------ | :------------------------------------------------------------------------- |
-| `src`     | `string`              | `"/images/mascot_peek.png"` | Path to the mascot asset. Override per-page when using a variant.        |
-| `side`    | `"left" \| "right"`    | `"left"`                  | Which side band the mascot peeks from. Right side mirrors via CSS.       |
-| `width`   | `string` (CSS length) | `"280px"`                 | Rendered width.                                                            |
-| `offset`  | `string` (CSS length or %) | `"15%"`              | How much of the asset tucks behind the parent's edge to align the hand.  |
-| `bottom`  | `string` (CSS length) | `"80px"`                  | Distance from the bottom of the parent container.                          |
+| Prop      | Type                       | Default                                  | Description                                                                                                                |
+| :-------- | :------------------------- | :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------------- |
+| `src`     | `string`                   | `"/images/mascot_peek_${side}.png"`      | Path to the mascot asset. Defaults to the side-appropriate file. Override only when using a custom variant.                |
+| `side`    | `"left" \| "right"`        | `"left"`                                 | Which side band the mascot peeks from. Picks the matching asset by default — left → `mascot_peek_left.png`, right → `mascot_peek_right.png`. |
+| `width`   | `string` (CSS length)      | `"280px"`                                | Rendered width.                                                                                                            |
+| `offset`  | `string` (CSS length or %) | per-side breakpoint default              | How much of the asset tucks behind the parent's edge to align her hand. Defaults differ by side because each asset's hand sits at a different frame position. |
+| `bottom`  | `string` (CSS length)      | `"80px"`                                 | Distance from the bottom of the parent container.                                                                          |
+| `mirror`  | `boolean`                  | `false`                                  | Force a horizontal flip via `scaleX(-1)`. Used when you want the wrong-side asset on a side as a fallback.                 |
 
 ### Required parent setup
 
@@ -268,13 +269,35 @@ viewport instead of the page's content column.
 
 ### How the side variants work
 
-The asset is drawn for the left side band (mascot's right hand grips
-the column edge, body extends leftward). When `side="right"`, the
-component flips the asset horizontally with `transform: scaleX(-1)`.
-This works with any asset but won't be as clean as a dedicated flipped
-variant — the artist can subtly adjust facial features for each side.
+There are two distinct hand-drawn assets, one for each side:
 
-If you have a dedicated flipped asset, pass it via `src`:
+- `mascot_peek_left.png` — character peeks from the left side band,
+  hand reaching to the right.
+- `mascot_peek_right.png` — character peeks from the right side band,
+  hand reaching to the left.
+
+Setting `side` picks both the position AND the asset:
+
+```astro
+<PeekMascot side="left" />   {/* → uses mascot_peek_left.png  */}
+<PeekMascot side="right" />  {/* → uses mascot_peek_right.png */}
+```
+
+No mirroring happens by default — each asset is already drawn
+correctly for its side. The `mirror` prop is a fallback for the
+edge case where you want to force one asset onto the wrong side
+(e.g. only the left asset is available but the design calls for a
+right-side appearance):
+
+```astro
+<PeekMascot side="right" mirror src="/images/mascot_peek_left.png" />
+```
+
+Per-side offset defaults: each asset has its hand drawn at a
+different position within its frame, so the `--peek-offset-default-left`
+and `--peek-offset-default-right` CSS variables are tuned independently
+inside the component. If you swap an asset, expect to re-tune the
+matching side's defaults.
 
 ```astro
 <PeekMascot src="/images/mascot_peek_right.png" side="right" />
@@ -324,11 +347,14 @@ But generally, the hide-below-960px rule is what you want.
 
 ### Variant support
 
-The component is designed for asset variants. Three likely scenarios:
+The component supports asset variants beyond the two side-default
+assets. Likely scenarios:
 
-1. **Different expressions** (smiling, thinking, etc.) — pass via `src`.
-2. **Flipped pose for opposite side** — pass via `src` plus `side="right"`.
-3. **Different mascot character** for a specific page — pass via `src`.
+1. **Different expressions** (smiling, thinking, etc.) — pass via `src`,
+   keep `side` matching the position you want.
+2. **Different mascot character** for a specific page — pass via `src`.
+3. **Forced wrong-side use** (e.g. only have the left asset, need a
+   right-side appearance) — pass `mirror` plus an explicit `src`.
 
 The CSS variables (`--peek-width`, `--peek-offset`, `--peek-bottom`)
 are set inline from props, so each instance is fully independent.
@@ -374,7 +400,7 @@ Cart UI, product detail pages on this site, filtering, variants, real-time inven
 The components above don't exist in isolation. A few worth knowing about together:
 
 - **EventCard and ProductCard are intentionally siblings.** They look the same on hover, share the yellow accent, and appear in the same grid pattern across pages. If you change the hover on one, change both — there's a comment in ProductCard's CSS reminding future-you of this.
-- **PeekMascot appears on multiple pages with shared logic.** About, events detail, and vendors all use the same component with per-page prop overrides. If you ever change the breakpoint, sizing math, or mirror logic, the change is component-local and applies everywhere. The home page does NOT use PeekMascot — its mascot is part of a larger composition with the DRAW/THE/BLOCK wordmark and lives directly in `home.astro`.
+- **PeekMascot appears on multiple pages with shared logic.** About, events detail, and vendors all use the same component with per-page prop overrides. If you ever change the breakpoint, sizing math, or per-side offset defaults, the change is component-local and applies everywhere. The home page does NOT use PeekMascot — its mascot is part of a larger composition with the DRAW/THE/BLOCK wordmark and lives directly in `home.astro`.
 - **BaseLayout's marquee resolution and the Marquee component are tightly coupled but the seam is clean.** Marquee just renders a list of strings. BaseLayout decides which list to pass. New scopes (e.g. "shop") would require editing `MarqueeScope` in BaseLayout *and* the schema in `config.ts` *and* the Decap CMS config in `public/admin/config.yml`. Three coordinated edits — keep them in lockstep.
 - **Breadcrumb and EventCard are layout siblings.** Breadcrumb sits at the top of detail pages where EventCard appears at the top of list pages. They're visual peers in a hierarchy.
 

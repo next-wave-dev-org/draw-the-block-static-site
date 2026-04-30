@@ -1,3 +1,15 @@
+/**
+ * base.css — Foundational layout rules
+ *
+ * Defines the central .site-strip column that wraps every page,
+ * plus a few small helpers (.stack for vertical rhythm, .prose for
+ * readable text widths).
+ *
+ * Column max-width steps at each breakpoint per the ladder defined
+ * in tokens.css. Padding scales with column size — narrower columns
+ * get tighter padding, wider columns get more generous padding.
+ */
+
 html,
 body {
     height: 100%;
@@ -9,6 +21,8 @@ body {
     color: var(--color-text);
     font-family: var(--font-display);
     font-weight: var(--fw-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -22,12 +36,34 @@ a:hover {
     text-decoration: underline;
 }
 
+/* ═════════════════════════════════════════════════════════════════
+ * SITE STRIP — the central black column that holds page content
+ *
+ * Width steps up at each breakpoint:
+ *   Mobile (≤480px)        → 100% (no cap)
+ *   Tablet (481-768px)     → 600px
+ *   Standard (769-1024px)  → 720px
+ *   Wide (1025-1440px)     → 880px
+ *   Ultrawide (1441-1920px)→ 1080px
+ *   Extra-wide (1921px+)   → 1200px
+ *
+ * Padding similarly steps up. The container is centered horizontally
+ * via margin-inline: auto.
+ *
+ * This rule is the SINGLE source of truth for content column behavior.
+ * No other rule in the codebase should redefine column width or padding
+ * — page-level rules should respect this column and size their content
+ * relative to it.
+ * ═════════════════════════════════════════════════════════════════ */
+
 .site-strip {
-    width: var(--content-fluid);
+    /* Mobile default — full viewport width, snug padding */
+    width: 100%;
     margin-inline: auto;
     min-height: 100vh;
     background: var(--color-strip);
-    padding: var(--pad-y) var(--pad-x);
+    padding: var(--space-4) var(--col-pad-mobile);
+    position: relative; /* needed for mascot peek */
 
     display: flex;
     flex-direction: column;
@@ -38,16 +74,54 @@ a:hover {
     box-shadow: none;
 }
 
-/* Simple vertical rhythm helper */
+@media (min-width: 481px) {
+    .site-strip {
+        max-width: var(--col-max-tablet);
+        padding: var(--space-5) var(--col-pad-tablet);
+    }
+}
+
+@media (min-width: 769px) {
+    .site-strip {
+        max-width: var(--col-max-standard);
+        padding: var(--space-5) var(--col-pad-standard);
+    }
+}
+
+@media (min-width: 1025px) {
+    .site-strip {
+        max-width: var(--col-max-wide);
+        padding: var(--space-6) var(--col-pad-wide);
+    }
+}
+
+@media (min-width: 1441px) {
+    .site-strip {
+        max-width: var(--col-max-ultrawide);
+        padding: var(--space-6) var(--col-pad-ultrawide);
+    }
+}
+
+@media (min-width: 1921px) {
+    .site-strip {
+        max-width: var(--col-max-extrawide);
+        padding: var(--space-7) var(--col-pad-extrawide);
+    }
+}
+
+/* ═════════════════════════════════════════════════════════════════
+ * UTILITY HELPERS
+ * ═════════════════════════════════════════════════════════════════ */
+
+/* Vertical rhythm — applies the --stack margin between adjacent siblings. */
 .stack > * + * {
     margin-top: var(--stack);
 }
 
-/* Text readability helper */
+/* Constrains prose to a comfortable reading width. */
 .prose {
     max-width: var(--text-max);
     text-align: center;
     font-size: var(--fs-body);
     line-height: var(--lh-body);
 }
-

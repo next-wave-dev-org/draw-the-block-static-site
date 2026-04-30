@@ -7,7 +7,7 @@ import { Image } from "astro:assets";
 const vendorSettings = await getEntry("vendorSettings", "vendors");
 const allVendors = await getCollection("vendors");
 const allEvents = await getCollection("events");
-import PeekMascot from "../components/PeekMascot.astro";
+
 
 const now = new Date();
 
@@ -100,7 +100,7 @@ const PAGE_SIZE = 9;
 const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
 ---
 
-<BaseLayout title="DRAW THE BLOCK — VENDORS" current="vendors">
+<BaseLayout title="DRAW THE BLOCK — VENDORS" current="vendors" peek={{ bottom: "200px" }}>
   <main class="vendorsPage">
 
     {/* ─── Vendor sections per upcoming event ─── */}
@@ -173,6 +173,43 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
               data-page-size={String(PAGE_SIZE)}
               data-total-pages={String(totalPages)}
           >
+            {totalPages > 1 && (
+                <nav class="pastCollaborators__pager pastCollaborators__pager--top" aria-label="Past collaborators pages (top)">
+                  <button
+                      type="button"
+                      class="pastCollaborators__arrow"
+                      data-pager-prev
+                      aria-label="Previous page"
+                  >
+                    ←
+                  </button>
+
+                  <ol class="pastCollaborators__pages" data-pager-pages>
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                        <li>
+                          <button
+                              type="button"
+                              class="pastCollaborators__pageBtn"
+                              data-pager-goto={String(i + 1)}
+                              aria-label={`Page ${i + 1}`}
+                          >
+                            {i + 1}
+                          </button>
+                        </li>
+                    ))}
+                  </ol>
+
+                  <button
+                      type="button"
+                      class="pastCollaborators__arrow"
+                      data-pager-next
+                      aria-label="Next page"
+                  >
+                    →
+                  </button>
+                </nav>
+            )}
+
             <div class="vendor-grid">
               {pastCollaborators.map((vendor, idx) => (
                   <article
@@ -222,43 +259,6 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
                   </article>
               ))}
             </div>
-
-            {totalPages > 1 && (
-                <nav class="pastCollaborators__pager" aria-label="Past collaborators pages">
-                  <button
-                      type="button"
-                      class="pastCollaborators__arrow"
-                      data-pager-prev
-                      aria-label="Previous page"
-                  >
-                    ←
-                  </button>
-
-                  <ol class="pastCollaborators__pages" data-pager-pages>
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                        <li>
-                          <button
-                              type="button"
-                              class="pastCollaborators__pageBtn"
-                              data-pager-goto={String(i + 1)}
-                              aria-label={`Page ${i + 1}`}
-                          >
-                            {i + 1}
-                          </button>
-                        </li>
-                    ))}
-                  </ol>
-
-                  <button
-                      type="button"
-                      class="pastCollaborators__arrow"
-                      data-pager-next
-                      aria-label="Next page"
-                  >
-                    →
-                  </button>
-                </nav>
-            )}
           </div>
         </section>
     )}
@@ -282,9 +282,6 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
         )}
       </div>
     </section>
-
-    <PeekMascot bottom="200px" offset="29%" />
-
   </main>
 </BaseLayout>
 
@@ -394,7 +391,6 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
 <style>
   .vendorsPage {
     width: 100%;
-    position: relative;
   }
 
   /* Each event section — the heading + grid block */
@@ -407,12 +403,17 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
     margin-top: 12px;
     margin-bottom: var(--space-3);
     text-decoration: none;
-    color: inherit;
-    transition: opacity 150ms ease-out;
+    color: #FFD400;
+    transition:
+        opacity 150ms ease-out,
+        text-decoration-color 150ms ease-out;
   }
 
   .vendorSection__heading:hover {
-    opacity: 0.75;
+    opacity: 1;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 
   .vendorsPage__empty {
@@ -431,6 +432,9 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
     gap: 60px 30px;
     justify-items: center;
     padding: 2rem 0;
+    max-width: 880px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .vendor-card {

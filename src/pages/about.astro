@@ -2,7 +2,6 @@
 // src/pages/about.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Kicker from "../components/Kicker.astro";
-import PeekMascot from "../components/PeekMascot.astro";
 import { getCollection, getEntry } from "astro:content";
 
 const team = (await getCollection("team"))
@@ -22,7 +21,7 @@ const quote = quoteEntry?.data?.quote?.trim() ?? null;
 const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
 ---
 
-<BaseLayout title="ABOUT — DRAW THE BLOCK" current="about">
+<BaseLayout title="ABOUT — DRAW THE BLOCK" current="about" peek={{}}>
   <section class="about">
 
     {/* MISSION */}
@@ -79,9 +78,6 @@ const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
         </blockquote>
     )}
 
-    {/* peeking mascot */}
-    <PeekMascot offset="15%" />
-
   </section>
 
   <style>
@@ -92,12 +88,10 @@ const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
 
     .about {
       width: 100%;
-      max-width: 520px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: var(--space-5);
-      position: relative;
     }
 
     /* MISSION
@@ -114,10 +108,10 @@ const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
     /* TEAM GRID */
     .about__teamGrid {
       width: 100%;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: var(--space-5);
-      justify-items: center;
       margin-top: var(--space-2);
     }
 
@@ -215,13 +209,6 @@ const attribution = quoteEntry?.data?.attribution?.trim() ?? null;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       opacity: 0.7;
-    }
-
-    /* Mobile collapse — single column for the team grid */
-    @media (max-width: 520px) {
-      .about__teamGrid {
-        grid-template-columns: 1fr;
-      }
     }
 
   </style>

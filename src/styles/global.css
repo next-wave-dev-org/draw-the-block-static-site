@@ -1,31 +1,58 @@
+/**
+ * global.css — Truly global rules that apply to every page.
+ *
+ * Most layout and chrome lives in base.css and component-scoped styles.
+ * This file is intentionally minimal — it's for rules that don't fit
+ * anywhere else and should apply unconditionally.
+ */
 
+/* Universal border-box sizing — padding and border are included in
+   any explicit width, so a "100%" element doesn't overflow when given
+   padding. This is the modern default and prevents a whole class of
+   "why is my element wider than its container" bugs. */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Reset margins and prevent horizontal overflow at the document root.
+   overflow-x: hidden on body+html is a defensive measure: even if a
+   descendant overflows its parent, the page won't scroll horizontally.
+   The actual overflow source should still be fixed at its origin, but
+   this ensures users never see horizontal scroll on phones. */
 html,
 body {
     margin: 0;
-    line-height: 1.5;
-    font-family: var(--font-display);
-    font-weight: var(--fw-body);
+    overflow-x: hidden;
+    max-width: 100vw;
 }
 
-header, footer {
-    padding: 16px;
-    /*border-bottom: 1px solid #ddd;*/
+/* Ensure html and body fill the viewport so .site-strip has somewhere
+   to anchor its min-height: 100vh. Without this, on short pages the
+   body collapses to content height and the blue background can show
+   below the strip. */
+html,
+body {
+    min-height: 100%;
 }
 
-footer {
-    /*border-top: 1px solid #ddd;*/
-    border-bottom: none;
+/* Make images responsive by default. Components can opt out via
+   their own width/height rules; this is just a sensible baseline. */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
-nav {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
+/* Honor user's reduced-motion preference globally for any animations
+   we forget to handle locally. Component-level rules can override. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
-
-/*main {*/
-/*    max-width: 900px;*/
-/*    margin: 0 auto;*/
-/*    padding: 32px 16px;*/
-
-/*}*/
