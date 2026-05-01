@@ -29,7 +29,26 @@ const errorMessage = errorCode ? errorMessages[errorCode] : null;
         </div>
     )}
 
-    <form class="newsletter-form" action="/api/subscribe" method="POST">
+    <!--
+      Form posts to /api/subscribe (a Netlify Function compiled from
+      src/pages/api/subscribe.ts). On success, the function redirects
+      the user to /thank-you — they end up at the pretty page with
+      the client's art.
+
+      The data-netlify and form-name attributes are kept as a fallback
+      option in case the Function approach is ever swapped for Netlify
+      Forms. They're inert when the action URL points at our API
+      endpoint, but harmless to leave in.
+    -->
+    <form
+        class="newsletter-form"
+        action="/api/subscribe"
+        method="POST"
+        data-netlify="true"
+        name="newsletter"
+    >
+      <input type="hidden" name="form-name" value="newsletter" />
+
       <div class="form-group">
         <label for="firstName">First Name</label>
         <input type="text" id="firstName" name="firstName" required />
