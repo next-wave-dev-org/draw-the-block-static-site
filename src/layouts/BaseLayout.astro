@@ -84,10 +84,29 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
       type="font/woff2"
       crossorigin
   />
-  <script
-      type="text/javascript"
-      src="https://identity.netlify.com/v1/netlify-identity-widget.js"
-  ></script>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script is:inline>
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", (user) => {
+        // If user just confirmed their invite, redirect to admin
+        if (!user) {
+          window.netlifyIdentity.on("login", () => {
+            document.location.href = "/admin/";
+          });
+        }
+      });
+
+      // Auto-open the modal if the URL has an invite or recovery token.
+      // Works around Astro's ClientRouter potentially racing with the
+      // widget's own URL-hash detection on first paint.
+      const hash = window.location.hash;
+      if (hash.includes("invite_token=") || hash.includes("recovery_token=")) {
+        window.netlifyIdentity.on("init", () => {
+          window.netlifyIdentity.open();
+        });
+      }
+    }
+  </script>
   <title>{title}</title>
   <ClientRouter/>
 </head>
