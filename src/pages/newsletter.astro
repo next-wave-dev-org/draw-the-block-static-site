@@ -1,18 +1,54 @@
 ---
+export const prerender = true;
+
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+// Pull error code from query string for inline display.
+const url = new URL(Astro.request.url);
+const errorCode = url.searchParams.get("error");
+
+const errorMessages: Record<string, string> = {
+  email: "Please enter a valid email address.",
+  config: "We're having trouble with our signup system. Please try again later.",
+  api: "Something went wrong. Please try again.",
+  network: "We couldn't reach our newsletter service. Please try again.",
+  invalid: "Form submission failed. Please try again.",
+};
+
+const errorMessage = errorCode ? errorMessages[errorCode] : null;
 ---
 
 <BaseLayout title="Newsletter | DRAW THE BLOCK" current="newsletter">
   <div class="stack prose">
     <h1>Join the Newsletter</h1>
     <p>Subscribe to stay updated on the latest DRAW THE BLOCK announcements, events, and drops.</p>
-    
-    <!-- 
-      Replace the action URL with your form provider (e.g., Mailchimp, Formspree).
-      If you host on Netlify, adding data-netlify="true" to the form will automatically capture submissions.
+
+    {errorMessage && (
+        <div class="form-error" role="alert">
+          {errorMessage}
+        </div>
+    )}
+
+    <!--
+      Form posts to /api/subscribe (a Netlify Function compiled from
+      src/pages/api/subscribe.ts). On success, the function redirects
+      the user to /thank-you — they end up at the pretty page with
+      the client's art.
+
+      The data-netlify and form-name attributes are kept as a fallback
+      option in case the Function approach is ever swapped for Netlify
+      Forms. They're inert when the action URL points at our API
+      endpoint, but harmless to leave in.
     -->
-    <form class="newsletter-form" action="/thank-you" method="POST" data-netlify="true" name="newsletter">
+    <form
+        class="newsletter-form"
+        action="/api/subscribe"
+        method="POST"
+        data-netlify="true"
+        name="newsletter"
+    >
       <input type="hidden" name="form-name" value="newsletter" />
+
       <div class="form-group">
         <label for="firstName">First Name</label>
         <input type="text" id="firstName" name="firstName" required />
@@ -27,6 +63,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         <label for="email">Email Address</label>
         <input type="email" id="email" name="email" required />
       </div>
+
+      <p class="form-note">
+        You'll receive a confirmation email to verify your subscription.
+      </p>
 
       <button type="submit" class="submit-btn">Subscribe</button>
     </form>
@@ -68,6 +108,22 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   .form-group input:focus {
     border-color: var(--color-text);
     outline: none;
+  }
+  .form-error {
+    max-width: 400px;
+    margin: var(--space-4) auto 0;
+    padding: var(--space-3);
+    border: 1px solid #FFD400;
+    color: #FFD400;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+  }
+  .form-note {
+    font-size: 12px;
+    opacity: 0.7;
+    text-align: center;
+    margin: 0;
   }
   .submit-btn {
     margin-top: var(--space-2);

@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
     // ... your existing config ...
@@ -7,4 +8,6 @@ export default defineConfig({
         '/sponsor': '/support#sponsor',
         '/donate': '/support#donate',
     },
+    output: 'server',
+    adapter: netlify(),
 });
