@@ -403,6 +403,9 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
       }
     }
 
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+
 
     left.style.transition = "none";
     right.style.transition = "none";
