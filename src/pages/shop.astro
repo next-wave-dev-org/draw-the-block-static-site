@@ -4,7 +4,7 @@
 // Catalog page. Pulls products at build time from Shopify Storefront API
 // (or mock data if env vars aren't set) and renders a card grid. Each card
 // links to the Shopify-hosted product page in a new tab.
-
+export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ProductCard from "../components/ProductCard.astro";
 import Kicker from "../components/Kicker.astro";
