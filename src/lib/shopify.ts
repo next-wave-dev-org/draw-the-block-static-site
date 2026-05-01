@@ -68,7 +68,7 @@ export function sizedImageUrl(url: string, width: number): string {
 export async function getProducts(): Promise<Product[]> {
     const domain = import.meta.env.SHOPIFY_STORE_DOMAIN;
     const token = import.meta.env.SHOPIFY_STOREFRONT_TOKEN;
-    const useMocks = import.meta.env.SHOPIFY_USE_MOCKS === "false";
+    const useMocks = import.meta.env.SHOPIFY_USE_MOCKS === "true";
 
     if (useMocks || !domain || !token) {
         return getMockProducts();
