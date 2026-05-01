@@ -77,6 +77,13 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+      rel="preload"
+      href="/fonts/HelveticaNeue-CondensedBold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+  />
   <title>{title}</title>
   <ClientRouter/>
 </head>
@@ -402,9 +409,6 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
         /* non-fatal */
       }
     }
-
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
 
 
     left.style.transition = "none";
