@@ -72,12 +72,14 @@ const priceLabel = formatPrice(price.amount, price.currency);
                 box-shadow 180ms ease-out;
     }
 
-    .productLink:hover .productImgFrame {
-        transform: scale(1.02);
-        box-shadow: 6px -6px 0 0 #287feb;
+    @media (hover: hover) {
+        .productLink:hover .productImgFrame {
+            transform: scale(1.02);
+            box-shadow: 6px -6px 0 0 #287feb;
+        }
     }
 
-    @media (prefers-reduced-motion: reduce) {
+    @media (hover: hover) and (prefers-reduced-motion: reduce) {
         .productImgFrame {
             transition: box-shadow 180ms ease-out;
         }
