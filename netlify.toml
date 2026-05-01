@@ -2,9 +2,6 @@
   command = "npm run build"
   publish = "dist"
 
-[[plugins]]
-  package = "@astrojs/netlify"
-
 # Default headers for every page. Cache headers for static assets are
 # handled by Astro/Netlify automatically; this section is for global
 # security headers.
