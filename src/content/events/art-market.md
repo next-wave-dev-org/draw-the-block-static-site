@@ -1,5 +1,5 @@
 ---
-featured: false
+featured: true
 startDate: 2026-01-31T10:00:00-08:00
 endDate: 2026-02-01T18:00:00-08:00
 kind: main
