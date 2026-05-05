@@ -21,8 +21,10 @@
     "messages": []
   },
   "vendors": {
-    "enabled": false,
-    "messages": []
+    "enabled": true,
+    "messages": [
+      "APPLY BELOW!"
+    ]
   },
   "support": {
     "enabled": false,
