@@ -23,8 +23,10 @@
   "vendors": {
     "enabled": true,
     "messages": [
-      "APPLY BELOW!"
-    ]
+      "APPLY BELOW!",
+      "OPEN NOW!"
+    ],
+    "speed": 30
   },
   "support": {
     "enabled": false,
