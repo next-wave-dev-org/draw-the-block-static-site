@@ -1,21 +1,5 @@
 ---
-export const prerender = true;
-
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-// Pull error code from query string for inline display.
-const url = new URL(Astro.request.url);
-const errorCode = url.searchParams.get("error");
-
-const errorMessages: Record<string, string> = {
-  email: "Please enter a valid email address.",
-  config: "We're having trouble with our signup system. Please try again later.",
-  api: "Something went wrong. Please try again.",
-  network: "We couldn't reach our newsletter service. Please try again.",
-  invalid: "Form submission failed. Please try again.",
-};
-
-const errorMessage = errorCode ? errorMessages[errorCode] : null;
 ---
 
 <BaseLayout title="Newsletter | DRAW THE BLOCK" current="newsletter">
@@ -23,22 +7,16 @@ const errorMessage = errorCode ? errorMessages[errorCode] : null;
     <h1>Join the Newsletter</h1>
     <p>Subscribe to stay updated on the latest DRAW THE BLOCK announcements, events, and drops.</p>
 
-    {errorMessage && (
-        <div class="form-error" role="alert">
-          {errorMessage}
-        </div>
-    )}
+    <div class="form-error" role="alert" data-error-banner hidden>
+      <span data-error-text></span>
+    </div>
 
     <!--
       Form posts to /api/subscribe (a Netlify Function compiled from
       src/pages/api/subscribe.ts). On success, the function redirects
-      the user to /thank-you — they end up at the pretty page with
-      the client's art.
-
-      The data-netlify and form-name attributes are kept as a fallback
-      option in case the Function approach is ever swapped for Netlify
-      Forms. They're inert when the action URL points at our API
-      endpoint, but harmless to leave in.
+      the user to /thank-you. On failure, it redirects back here with
+      ?error=<code> which a client-side script reads to show the
+      banner above.
     -->
     <form
         class="newsletter-form"
@@ -119,6 +97,9 @@ const errorMessage = errorCode ? errorMessages[errorCode] : null;
     font-size: 14px;
     text-align: center;
   }
+  .form-error[hidden] {
+    display: none;
+  }
   .form-note {
     font-size: 12px;
     opacity: 0.7;
@@ -144,3 +125,36 @@ const errorMessage = errorCode ? errorMessages[errorCode] : null;
     opacity: 0.8;
   }
 </style>
+
+<script>
+  // Read the error code from the URL on the client side and show
+  // a banner with the appropriate message. We do this client-side
+  // because Astro.url.searchParams was unreliable in our SSR setup.
+  function showErrorIfPresent() {
+    const params = new URLSearchParams(window.location.search);
+    const errorCode = params.get("error");
+
+    const errorMessages: Record<string, string> = {
+      email: "Please enter a valid email address.",
+      config: "We're having trouble with our signup system. Please try again later.",
+      api: "Something went wrong. Please try again.",
+      network: "We couldn't reach our newsletter service. Please try again.",
+      invalid: "Form submission failed. Please try again.",
+    };
+
+    const banner = document.querySelector<HTMLElement>("[data-error-banner]");
+    const textEl = document.querySelector<HTMLElement>("[data-error-text]");
+
+    if (!banner || !textEl) return;
+
+    if (errorCode && errorMessages[errorCode]) {
+      textEl.textContent = errorMessages[errorCode];
+      banner.removeAttribute("hidden");
+    } else {
+      banner.setAttribute("hidden", "");
+    }
+  }
+
+  showErrorIfPresent();
+  document.addEventListener("astro:page-load", showErrorIfPresent);
+</script>
