@@ -4,7 +4,7 @@ featured: false
 startDate: 2026-04-26T12:00:00.000-07:00
 endTime: 6 PM
 endDate: ""
-location: Paper Pushers Print Shop
+location: 1200 5th Ave Seattle Wa 98101
 description: Come get drawn!
 image: /uploads/add_a_heading.png
 ---
