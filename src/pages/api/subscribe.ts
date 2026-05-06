@@ -87,6 +87,11 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         }
 
         console.error('Mailchimp error:', title, data?.detail);
+
+        if (title === 'Invalid Resource') {
+            return redirect('/newsletter?error=email', 303);
+        }
+
         return redirect('/newsletter?error=api', 303);
     } catch (err) {
         console.error('Subscribe endpoint network error:', err);
