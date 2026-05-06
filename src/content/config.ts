@@ -21,7 +21,10 @@ const events = defineCollection({
     schema: z.object({
         title: z.string(),
         startDate: z.coerce.date(),
-        endDate: z.coerce.date().optional(),
+        endDate: z.preprocess(
+            (val) => val === "" ? undefined : val,
+            z.coerce.date().optional()
+        ),
         endTime: z.string().optional(),
         location: z.string().optional(),
         description: z.string().optional(),
@@ -40,7 +43,10 @@ const subevents = defineCollection({
             .default("other"),
         title: z.string(),
         startDate: z.coerce.date(),
-        endDate: z.coerce.date().optional(),
+        endDate: z.preprocess(
+            (val) => val === "" ? undefined : val,
+            z.coerce.date().optional()
+        ),
         endTime: z.string().optional(),
         location: z.string().optional(),
         description: z.string().optional(),
