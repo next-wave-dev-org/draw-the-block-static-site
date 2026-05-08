@@ -39,7 +39,7 @@ const subevents = defineCollection({
     schema: z.object({
         parentEvent: z.string(),
         category: z
-            .enum(["liveShowcases", "gamesAndActivities", "contests", "other"])
+            .enum(["liveShowcases", "gamesAndActivities", "contests", "popUps", "collaborations", "other"])
             .default("other"),
         title: z.string(),
         startDate: z.coerce.date(),
