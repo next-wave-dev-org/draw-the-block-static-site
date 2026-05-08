@@ -144,7 +144,7 @@ const vendorSettings = defineCollection({
 const marqueeScopeSchema = z.object({
     enabled: z.boolean().default(false),
     messages: z.array(z.string().min(1)).default([]),
-    speed: z.number().positive().optional(),
+    speed: z.coerce.number().positive().optional(),
 });
 
 const marqueeSettings = defineCollection({

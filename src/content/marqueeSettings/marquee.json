@@ -13,8 +13,10 @@
     "messages": []
   },
   "about": {
-    "enabled": false,
-    "messages": []
+    "enabled": true,
+    "messages": [
+      "test"
+    ]
   },
   "events": {
     "enabled": false,
