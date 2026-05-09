@@ -5,6 +5,8 @@ import "../styles/base.css";
 import { getCollection, getEntry } from "astro:content";
 import { ClientRouter } from 'astro:transitions';
 import Marquee from "../components/Marquee.astro";
+import { Image } from 'astro:assets';
+import logo from '../assets/images/logo.png';
 import PeekMascot, { type Props as PeekProps } from "../components/PeekMascot.astro";
 
 type NavKey = "home" | "about" | "events" | "vendors" | "shop" | "support" | "faq" | "newsletter";
@@ -92,7 +94,7 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
 <body>
 <main class="site-strip" aria-label="Main content">
 
-  <img class="strip-logo" src="/images/logo.png" alt="Draw The Block logo" transition:persist />
+  <Image class="strip-logo" src={logo} alt="Draw The Block logo" transition:persist />
 
   <header class="strip-header" aria-label="Site header">
     <nav class="strip-nav" aria-label="Primary navigation" data-bt-nav>
