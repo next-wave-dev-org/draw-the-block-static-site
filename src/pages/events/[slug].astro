@@ -115,7 +115,7 @@ const formatDateTime = (d: Date) =>
       {event.data.description && <p class="eventMeta">{event.data.description}</p>}
 
       <p class="eventMeta">
-        <small>
+        <span>
           {formatDateTime(event.data.startDate)}
           {event.data.endDate
               ? ` – ${formatDateTime(event.data.endDate)}`
@@ -124,7 +124,7 @@ const formatDateTime = (d: Date) =>
                   : ""}
           {event.data.location && <br />}
           {event.data.location && <span>{event.data.location}</span>}
-        </small>
+        </span>
       </p>
 
       {event.data.eventUrl && (
