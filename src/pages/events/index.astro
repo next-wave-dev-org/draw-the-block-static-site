@@ -88,6 +88,7 @@ const past = sorted.filter((e: EventEntry) =>
       display: grid;
       grid-template-columns: 1fr;
       gap: var(--space-4);
+      margin-top: var(--space-2);
       /* Scale-up hover needs breathing room so the shadow doesn't clip. */
       padding: 8px;
     }
@@ -100,7 +101,7 @@ const past = sorted.filter((e: EventEntry) =>
     }
 
     .eventMeta {
-      margin: 0;
+      margin-top: var(--space-2);
       font-size: 11px;
       letter-spacing: 0.02em;
       opacity: 0.95;
