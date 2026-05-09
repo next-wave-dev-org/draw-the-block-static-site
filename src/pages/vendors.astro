@@ -4,6 +4,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Kicker from "../components/Kicker.astro";
 import { getCollection, getEntry } from "astro:content";
 import { Image } from "astro:assets";
+import websiteIcon from "../assets/images/website.png";
+import instagramIcon from "../assets/images/instagram.png";
+import xIcon from "../assets/images/x.png";
+import blueskyIcon from "../assets/images/bluesky.png";
 
 const vendorSettings = await getEntry("vendorSettings", "vendors");
 const allVendors = await getCollection("vendors");
@@ -135,22 +139,22 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
                       <div class="social-links">
                         {vendor.data.websiteUrl && (
                             <a href={vendor.data.websiteUrl} target="_blank" rel="noopener noreferrer">
-                              <img src="/images/website.png" alt="Website" class="social-icon" />
+                              <Image src={websiteIcon} alt="Website" class="social-icon" />
                             </a>
                         )}
                         {vendor.data.instagramUrl && (
                             <a href={vendor.data.instagramUrl} target="_blank" rel="noopener noreferrer">
-                              <img src="/images/instagram.png" alt="Instagram" class="social-icon" />
+                              <Image src={instagramIcon} alt="Instagram" class="social-icon" />
                             </a>
                         )}
                         {vendor.data.twitterUrl && (
                             <a href={vendor.data.twitterUrl} target="_blank" rel="noopener noreferrer">
-                              <img src="/images/x.png" alt="X" class="social-icon x-logo" />
+                              <Image src={xIcon} alt="X" class="social-icon x-logo" />
                             </a>
                         )}
                         {vendor.data.bskyUrl && (
                             <a href={vendor.data.bskyUrl} target="_blank" rel="noopener noreferrer">
-                              <img src="/images/bluesky.png" alt="Bluesky" class="social-icon" />
+                              <Image src={blueskyIcon} alt="Bluesky" class="social-icon" />
                             </a>
                         )}
                       </div>
@@ -238,22 +242,22 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
                     <div class="social-links">
                       {vendor.data.websiteUrl && (
                           <a href={vendor.data.websiteUrl} target="_blank" rel="noopener noreferrer">
-                            <img src="/images/website.png" alt="Website" class="social-icon" />
+                            <Image src={websiteIcon} alt="Website" class="social-icon" />
                           </a>
                       )}
                       {vendor.data.instagramUrl && (
                           <a href={vendor.data.instagramUrl} target="_blank" rel="noopener noreferrer">
-                            <img src="/images/instagram.png" alt="Instagram" class="social-icon" />
+                            <Image src={instagramIcon} alt="Instagram" class="social-icon" />
                           </a>
                       )}
                       {vendor.data.twitterUrl && (
                           <a href={vendor.data.twitterUrl} target="_blank" rel="noopener noreferrer">
-                            <img src="/images/x.png" alt="X" class="social-icon x-logo" />
+                            <Image src={xIcon} alt="X" class="social-icon x-logo" />
                           </a>
                       )}
                       {vendor.data.bskyUrl && (
                           <a href={vendor.data.bskyUrl} target="_blank" rel="noopener noreferrer">
-                            <img src="/images/bluesky.png" alt="Bluesky" class="social-icon" />
+                            <Image src={blueskyIcon} alt="Bluesky" class="social-icon" />
                           </a>
                       )}
                     </div>

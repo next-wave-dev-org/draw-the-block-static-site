@@ -1,13 +1,15 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { Image } from 'astro:assets';
+import thumbsup from '../assets/images/thumbsup.png';
 ---
 
 <BaseLayout title="Thank You | DRAW THE BLOCK" current="">
     <div class="stack prose">
         <h1>You're In.</h1>
-        <img
-                src="/images/thumbsup.png"
+        <Image
+                src={thumbsup}
                 alt=""
                 class="thanks-thumbsup"
         />

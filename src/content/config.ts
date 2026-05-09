@@ -39,7 +39,7 @@ const subevents = defineCollection({
     schema: z.object({
         parentEvent: z.string(),
         category: z
-            .enum(["liveShowcases", "gamesAndActivities", "contests", "other"])
+            .enum(["liveShowcases", "gamesAndActivities", "contests", "popUps", "collaborations", "other"])
             .default("other"),
         title: z.string(),
         startDate: z.coerce.date(),
@@ -144,7 +144,7 @@ const vendorSettings = defineCollection({
 const marqueeScopeSchema = z.object({
     enabled: z.boolean().default(false),
     messages: z.array(z.string().min(1)).default([]),
-    speed: z.number().positive().optional(),
+    speed: z.coerce.number().positive().optional(),
 });
 
 const marqueeSettings = defineCollection({

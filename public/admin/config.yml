@@ -37,7 +37,7 @@ collections:
         search_fields: ["title"]
         value_field: "{{slug}}"
         display_fields: ["title"]
-      - { label: "Category", name: "category", widget: "select", options: ["liveShowcases", "gamesAndActivities", "contests", "other"], default: "other" }
+      - { label: "Category", name: "category", widget: "select", options: ["liveShowcases", "gamesAndActivities", "contests", "popUps", "collaborations", "other"], default: "other" }
       - { label: "Title", name: "title", widget: "string", hint: "Keep under 20 characters so the title fits on one line on event cards. Longer titles will be truncated with an ellipsis." }
       - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
       - { label: "End Time (same-day)", name: "endTime", widget: "string", required: false, hint: "Use for same-day end time. If event ends on a different day, use End Date/Time instead." }
@@ -164,7 +164,12 @@ collections:
             fields:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: true, hint: "Turn off to hide the marquee site-wide (unless a page has its own override)." }
               - { label: "Messages", name: "messages", widget: "list", field: { label: "Message", name: "message", widget: "string" }, hint: "Each line becomes one scrolling message. Keep them short and punchy." }
-              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false, hint: "Optional. Higher number = slower scroll. Leave blank for default." }
+              - label: "Scroll Speed (seconds per loop)"
+                name: "speed"
+                widget: "string"
+                required: false
+                pattern: [ '^[1-9][0-9]*$', 'Whole numbers only (1 or higher)' ]
+                hint: "Optional. Higher number = slower scroll. Leave blank for default."
           - label: "Home — Override"
             name: "home"
             widget: "object"
@@ -173,7 +178,12 @@ collections:
             fields:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Home page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
-              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+              - label: "Scroll Speed (seconds per loop)"
+                name: "speed"
+                widget: "string"
+                required: false
+                pattern: [ '^[1-9][0-9]*$', 'Whole numbers only (1 or higher)' ]
+                hint: "Optional. Higher number = slower scroll. Leave blank for default."
           - label: "About — Override"
             name: "about"
             widget: "object"
@@ -182,7 +192,12 @@ collections:
             fields:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the About page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
-              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+              - label: "Scroll Speed (seconds per loop)"
+                name: "speed"
+                widget: "string"
+                required: false
+                pattern: [ '^[1-9][0-9]*$', 'Whole numbers only (1 or higher)' ]
+                hint: "Optional. Higher number = slower scroll. Leave blank for default."
           - label: "Events — Override"
             name: "events"
             widget: "object"
@@ -191,7 +206,12 @@ collections:
             fields:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Events page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
-              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+              - label: "Scroll Speed (seconds per loop)"
+                name: "speed"
+                widget: "string"
+                required: false
+                pattern: [ '^[1-9][0-9]*$', 'Whole numbers only (1 or higher)' ]
+                hint: "Optional. Higher number = slower scroll. Leave blank for default."
           - label: "Vendors — Override"
             name: "vendors"
             widget: "object"
@@ -200,7 +220,12 @@ collections:
             fields:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Vendors page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
-              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+              - label: "Scroll Speed (seconds per loop)"
+                name: "speed"
+                widget: "string"
+                required: false
+                pattern: [ '^[1-9][0-9]*$', 'Whole numbers only (1 or higher)' ]
+                hint: "Optional. Higher number = slower scroll. Leave blank for default."
           - label: "Support — Override"
             name: "support"
             widget: "object"
@@ -209,7 +234,12 @@ collections:
             fields:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Support page (donate + sponsor). Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
-              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+              - label: "Scroll Speed (seconds per loop)"
+                name: "speed"
+                widget: "string"
+                required: false
+                pattern: [ '^[1-9][0-9]*$', 'Whole numbers only (1 or higher)' ]
+                hint: "Optional. Higher number = slower scroll. Leave blank for default."
           - label: "FAQ — Override"
             name: "faq"
             widget: "object"
@@ -218,5 +248,10 @@ collections:
             fields:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the FAQ page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
-              - { label: "Scroll Speed (seconds per loop)", name: "speed", widget: "number", value_type: "float", required: false }
+              - label: "Scroll Speed (seconds per loop)"
+                name: "speed"
+                widget: "string"
+                required: false
+                pattern: [ '^[1-9][0-9]*$', 'Whole numbers only (1 or higher)' ]
+                hint: "Optional. Higher number = slower scroll. Leave blank for default."
 
