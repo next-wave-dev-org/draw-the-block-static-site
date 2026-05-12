@@ -15,10 +15,12 @@ const {
   title = "DRAW THE BLOCK",
   current,
   peek = false,
+  description,
 } = Astro.props as {
   title?: string;
   current?: NavKey;
   peek?: PeekProps | false;
+  description?: string;
 };
 
 const socialSettings = await getEntry("settings", "social");
