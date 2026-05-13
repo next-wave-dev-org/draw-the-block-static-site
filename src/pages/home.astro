@@ -41,7 +41,10 @@ const taglineImage = taglineEntry?.data?.taglineImage ?? null;
 const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
 ---
 
-<BaseLayout title="DRAW THE BLOCK — HOME" current="home">
+<BaseLayout
+    title="DRAW THE BLOCK — HOME"
+    current="home"
+    description="Draw The Block is a Seattle-based art collective hosting community art markets, vendor pop-ups, and creative events. Find upcoming events and meet our featured artists.">
   <div class="home">
 
     {/* TAGLINE — image first, text fallback, nothing if neither set. */}
@@ -71,6 +74,7 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
               endDate={singleFeatured.data.endDate}
               endTime={singleFeatured.data.endTime}
               location={singleFeatured.data.location}
+              eager={true}
           />
         </section>
     )}
@@ -80,7 +84,7 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
           <Kicker label="FEATURED EVENTS" />
 
           <div class="eventsList">
-            {featuredDisplay.map((event) => (
+            {featuredDisplay.map((event, index) => (
                 <EventCard
                     href={`/events/${event.slug}`}
                     title={event.data.title}
@@ -90,6 +94,7 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
                     endDate={event.data.endDate}
                     endTime={event.data.endTime}
                     location={event.data.location}
+                    eager={index === 0}
                 />
             ))}
           </div>
