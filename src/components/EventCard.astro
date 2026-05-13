@@ -10,9 +10,26 @@ export interface Props {
     endDate?: Date;
     endTime?: string;
     location?: string;
+    /**
+     * When true, the card's image is loaded eagerly with high fetch priority.
+     * Set this on the LCP candidate (the first featured card on home/events
+     * index) — leave it off everywhere else so below-the-fold cards stay
+     * lazy. Defaults to false.
+     */
+    eager?: boolean;
 }
 
-const { href, title, image, description, startDate, endDate, endTime, location } = Astro.props;
+const {
+    href,
+    title,
+    image,
+    description,
+    startDate,
+    endDate,
+    endTime,
+    location,
+    eager = false,
+} = Astro.props;
 
 const formatDateTime = (d: Date) =>
     d.toLocaleString(undefined, {
@@ -39,7 +56,9 @@ if (endDate) {
                             class="cardImg"
                             src={image}
                             alt={title}
-                            loading="lazy"
+                            loading={eager ? "eager" : "lazy"}
+                            fetchpriority={eager ? "high" : "auto"}
+                            decoding={eager ? "sync" : "async"}
                     />
                 </div>
         )}

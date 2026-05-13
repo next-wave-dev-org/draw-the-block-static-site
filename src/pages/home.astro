@@ -74,6 +74,7 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
               endDate={singleFeatured.data.endDate}
               endTime={singleFeatured.data.endTime}
               location={singleFeatured.data.location}
+              eager={true}
           />
         </section>
     )}
@@ -83,7 +84,7 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
           <Kicker label="FEATURED EVENTS" />
 
           <div class="eventsList">
-            {featuredDisplay.map((event) => (
+            {featuredDisplay.map((event, index) => (
                 <EventCard
                     href={`/events/${event.slug}`}
                     title={event.data.title}
@@ -93,6 +94,7 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
                     endDate={event.data.endDate}
                     endTime={event.data.endTime}
                     location={event.data.location}
+                    eager={index === 0}
                 />
             ))}
           </div>

@@ -39,7 +39,7 @@ const past = sorted.filter((e: EventEntry) =>
 
       {upcoming.length > 0 ? (
           <div class="eventsList">
-            {upcoming.map((event: EventEntry) => (
+            {upcoming.map((event: EventEntry, index: number) => (
                 <EventCard
                     href={`/events/${event.slug}`}
                     title={event.data.title}
@@ -49,6 +49,7 @@ const past = sorted.filter((e: EventEntry) =>
                     endDate={event.data.endDate}
                     endTime={event.data.endTime}
                     location={event.data.location}
+                    eager={index === 0}
                 />
             ))}
           </div>
