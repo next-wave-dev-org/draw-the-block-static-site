@@ -174,6 +174,10 @@ const pageContent = defineCollection({
             // Used by the quote entry (about page, below team)
             quote: z.string().optional(),
             attribution: z.string().optional(),
+
+            backgroundMode: z.enum(["color", "image"]).default("color"),
+            backgroundColor: z.string().default("#287feb"),
+            backgroundImage: z.string().optional(),
         }),
 });
 

@@ -151,6 +151,32 @@ collections:
   - name: "pageContent"
     label: "Page Content"
     files:
+      - file: "src/content/pageContent/background.json"
+        label: "Site Background"
+        name: "background"
+        fields:
+          - label: "Background Mode"
+            name: "backgroundMode"
+            widget: "select"
+            options:
+              - { label: "Solid Color", value: "color" }
+              - { label: "Image", value: "image" }
+            default: "color"
+            hint: "Choose 'Solid Color' to use a flat color, or 'Image' to upload a background photo. Switching modes preserves both values so you can switch back without re-entering."
+          - label: "Background Color"
+            name: "backgroundColor"
+            widget: "color"
+            default: "#287feb"
+            hint: "Used when Background Mode is set to 'Solid Color'."
+          - label: "Background Image"
+            name: "backgroundImage"
+            widget: "image"
+            required: false
+            media_library:
+              config:
+                max_file_size: 6291456
+            hint: "Used when Background Mode is set to 'Image'. Recommended: 2000–3000px wide, 2–3MB. Max 6MB. The image covers the full screen behind the content column — visible only on wider screens."
+
       - file: "src/content/pageContent/tagline.json"
         label: "Tagline"
         name: "tagline"

@@ -26,6 +26,17 @@ const {
 const socialSettings = await getEntry("settings", "social");
 const { discordUrl, instagramUrl } = socialSettings?.data || {};
 
+// Site background — CMS-controlled color or image.
+// Falls back to the hardcoded token value if the entry doesn't exist yet.
+const backgroundEntry = await getEntry("pageContent", "background");
+const bgMode = backgroundEntry?.data.backgroundMode ?? "color";
+const bgColor = backgroundEntry?.data.backgroundColor ?? "#287feb";
+const bgImage = backgroundEntry?.data.backgroundImage;
+const bodyBackground =
+    bgMode === "image" && bgImage
+        ? `url('${bgImage}') center center / cover no-repeat fixed`
+        : bgColor;
+
 
 type MarqueeScope = "home" | "about" | "events" | "vendors" | "support" | "faq" | "global";
 
@@ -90,6 +101,7 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   />
   <link rel="icon" href="/public/favicon.ico" />
   <title>{title}</title>
+  <style set:html={`body { background: ${bodyBackground}; }`}></style>
   <ClientRouter/>
 </head>
 
