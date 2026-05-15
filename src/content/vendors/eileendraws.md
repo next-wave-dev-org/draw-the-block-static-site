@@ -5,4 +5,6 @@ instagramUrl: https://www.instagram.com/eileendraws/
 image: /uploads/5380bf16-03df-4c08-be6f-1125b0d7fe6f_l0_001-1_23_2026-1_41_45-pm.jpg
 events:
   - art-market-day-2
+  - draw-the-block-portrait-party
+  - dtb-pull-up-at-the-park
 ---
