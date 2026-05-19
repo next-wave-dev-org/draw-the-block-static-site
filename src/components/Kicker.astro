@@ -102,12 +102,18 @@ const effectiveFormat: KickerFormat = ja ? format : "plain";
      */
     .kicker {
         font-family: var(--font-display), system-ui, sans-serif;
-        font-size: 28px;
+        font-size: clamp(16px, calc(1.4vw + 12px), 28px);
         letter-spacing: 0.10em;
         text-transform: uppercase;
         opacity: 0.9;
         display: inline-flex;
         align-items: center;
+    }
+
+    @media (max-width: 480px) {
+        .kicker {
+            letter-spacing: 0.06em;
+        }
     }
 
     /* Brackets are slightly larger and use line-height: 1 to prevent
@@ -120,6 +126,7 @@ const effectiveFormat: KickerFormat = ja ? format : "plain";
         display: inline-flex;
         align-items: center;
         margin-bottom: 6px;
+        padding-inline: 0.15em;
     }
 
     .kicker--stacked,

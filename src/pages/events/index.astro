@@ -39,18 +39,23 @@ const past = sorted.filter((e: EventEntry) =>
 
       {upcoming.length > 0 ? (
           <div class="eventsList">
-            {upcoming.map((event: EventEntry, index: number) => (
-                <EventCard
-                    href={`/events/${event.slug}`}
-                    title={event.data.title}
-                    image={event.data.image}
-                    description={event.data.description}
-                    startDate={event.data.startDate}
-                    endDate={event.data.endDate}
-                    endTime={event.data.endTime}
-                    location={event.data.location}
-                    eager={index === 0}
-                />
+            {upcoming.map((event: EventEntry, index: number, arr: EventEntry[]) => (
+                <>
+                  <EventCard
+                      href={`/events/${event.slug}`}
+                      title={event.data.title}
+                      image={event.data.image}
+                      description={event.data.description}
+                      startDate={event.data.startDate}
+                      endDate={event.data.endDate}
+                      endTime={event.data.endTime}
+                      location={event.data.location}
+                      eager={index === 0}
+                  />
+                  {index + 1 < arr.length && (
+                      <hr class={`rowDivider${(index + 1) % 2 === 0 ? " rowDivider--rowEnd" : ""}`} />
+                  )}
+                </>
             ))}
           </div>
       ) : (
@@ -63,17 +68,22 @@ const past = sorted.filter((e: EventEntry) =>
 
       {past.length > 0 ? (
           <div class="eventsList">
-            {past.slice().reverse().map((event: EventEntry) => (
-                <EventCard
-                    href={`/events/${event.slug}`}
-                    title={event.data.title}
-                    image={event.data.image}
-                    description={event.data.description}
-                    startDate={event.data.startDate}
-                    endDate={event.data.endDate}
-                    endTime={event.data.endTime}
-                    location={event.data.location}
-                />
+            {past.slice().reverse().map((event: EventEntry, index: number, arr: EventEntry[]) => (
+                <>
+                  <EventCard
+                      href={`/events/${event.slug}`}
+                      title={event.data.title}
+                      image={event.data.image}
+                      description={event.data.description}
+                      startDate={event.data.startDate}
+                      endDate={event.data.endDate}
+                      endTime={event.data.endTime}
+                      location={event.data.location}
+                  />
+                  {index + 1 < arr.length && (
+                      <hr class={`rowDivider${(index + 1) % 2 === 0 ? " rowDivider--rowEnd" : ""}`} />
+                  )}
+                </>
             ))}
           </div>
       ) : (
@@ -103,6 +113,12 @@ const past = sorted.filter((e: EventEntry) =>
         grid-template-columns: 1fr 1fr;
         align-items: start;
       }
+      /* On the 2-column desktop grid, only keep dividers that fall at
+         the end of a row (after every 2nd card). Mid-row dividers would
+         appear between the two cards of the same row, which is wrong. */
+      .rowDivider:not(.rowDivider--rowEnd) {
+        display: none;
+      }
     }
 
     .eventMeta {
@@ -110,6 +126,15 @@ const past = sorted.filter((e: EventEntry) =>
       font-size: 14px;
       letter-spacing: 0.02em;
       opacity: 0.95;
+    }
+
+    .rowDivider {
+      grid-column: 1 / -1;
+      width: 66%;
+      margin-inline: auto;
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.40);
+      margin-block: var(--space-2);
     }
 
   </style>
