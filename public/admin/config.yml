@@ -20,7 +20,14 @@ collections:
       - { label: "End Date/Time (multi-day)", name: "endDate", widget: "datetime", required: false }
       - { label: "Location", name: "location", widget: "string", required: false }
       - { label: "Description", name: "description", widget: "text" }
-      - { label: "Featured Image", name: "image", widget: "image", required: false }
+      - label: "Featured Image"
+        name: "image"
+        widget: "image"
+        required: false
+        media_library:
+          config:
+            max_file_size: 4194304
+        hint: "Recommended: 1500–2500px wide, under 2MB. Max 4MB — larger files will be rejected at upload."
       - { label: "Event Link", name: "eventUrl", widget: "string", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
@@ -44,7 +51,14 @@ collections:
       - { label: "End Date/Time (multi-day)", name: "endDate", widget: "datetime", required: false }
       - { label: "Location", name: "location", widget: "string", required: false }
       - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Image", name: "image", widget: "image", required: false }
+      - label: "Image"
+        name: "image"
+        widget: "image"
+        required: false
+        media_library:
+          config:
+            max_file_size: 4194304
+        hint: "Recommended: 1500–2500px wide, under 2MB. Max 4MB — larger files will be rejected at upload."
       - { label: "Link", name: "eventUrl", widget: "string", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
@@ -58,7 +72,13 @@ collections:
     fields:
       - { label: "Name", name: "name", widget: "string" }
       - { label: "Role", name: "role", widget: "string" }
-      - { label: "Image (portrait, 3:4 ratio, min 300x400px)", name: "image", widget: "image" }
+      - label: "Image"
+        name: "image"
+        widget: "image"
+        media_library:
+          config:
+            max_file_size: 1048576
+        hint: "Portrait, 3:4 ratio, min 300x400px. Recommended: 600–1000px, under 500KB. Max 1MB — larger files will be rejected at upload."
       - { label: "Display Order", name: "displayOrder", widget: "number", value_type: "int", min: 0 }
       - { label: "Website", name: "website", widget: "string", required: false }
 
@@ -73,7 +93,14 @@ collections:
       - { label: "Instagram", name: "instagramUrl", widget: "string", required: false }
       - { label: "Twitter / X", name: "twitterUrl", widget: "string", required: false }
       - { label: "Bluesky", name: "bskyUrl", widget: "string", required: false }
-      - { label: "Logo/Image (square, min 400x400px)", name: "image", widget: "image", required: false }
+      - label: "Logo / Image"
+        name: "image"
+        widget: "image"
+        required: false
+        media_library:
+          config:
+            max_file_size: 512000
+        hint: "Square, min 400x400px. Small images load fastest. Max 500KB — larger files will be rejected at upload."
       - label: "Events Attending"
         name: "events"
         widget: "relation"
@@ -102,7 +129,14 @@ collections:
     slug: "sponsor"
     fields:
       - { label: "Stripe URL", name: "stripeUrl", widget: "string" }
-      - { label: "Poster Image", name: "poster", widget: "image", required: false }
+      - label: "Poster Image"
+        name: "poster"
+        widget: "image"
+        required: false
+        media_library:
+          config:
+            max_file_size: 4194304
+        hint: "Recommended: 1500–2500px wide, under 2MB. Max 4MB — larger files will be rejected at upload."
       - { label: "Intro / Description", name: "description", widget: "text", required: false, hint: "Short paragraph shown above the Stripe button on the Support page." }
 
   - name: "donate"
@@ -117,11 +151,44 @@ collections:
   - name: "pageContent"
     label: "Page Content"
     files:
+      - file: "src/content/pageContent/background.json"
+        label: "Site Background"
+        name: "background"
+        fields:
+          - label: "Background Mode"
+            name: "backgroundMode"
+            widget: "select"
+            options:
+              - { label: "Solid Color", value: "color" }
+              - { label: "Image", value: "image" }
+            default: "color"
+            hint: "Choose 'Solid Color' to use a flat color, or 'Image' to upload a background photo. Switching modes preserves both values so you can switch back without re-entering."
+          - label: "Background Color"
+            name: "backgroundColor"
+            widget: "color"
+            default: "#287feb"
+            hint: "Used when Background Mode is set to 'Solid Color'."
+          - label: "Background Image"
+            name: "backgroundImage"
+            widget: "image"
+            required: false
+            media_library:
+              config:
+                max_file_size: 6291456
+            hint: "Used when Background Mode is set to 'Image'. Recommended: 2000–3000px wide, 2–3MB. Max 6MB. The image covers the full screen behind the content column — visible only on wider screens."
+
       - file: "src/content/pageContent/tagline.json"
         label: "Tagline"
         name: "tagline"
         fields:
-          - { label: "Tagline Image", name: "taglineImage", widget: "image", required: false, hint: "..." }
+          - label: "Tagline Image"
+            name: "taglineImage"
+            widget: "image"
+            required: false
+            media_library:
+              config:
+                max_file_size: 2097152
+            hint: "Recommended: 1500–2000px wide, under 1MB. Max 2MB — larger files will be rejected at upload."
           - { label: "Tagline Text (fallback)", name: "taglineText", widget: "string", required: false, hint: "..." }
 
       - file: "src/content/pageContent/mission.json"
@@ -254,4 +321,3 @@ collections:
                 required: false
                 pattern: [ '^[1-9][0-9]*$', 'Whole numbers only (1 or higher)' ]
                 hint: "Optional. Higher number = slower scroll. Leave blank for default."
-

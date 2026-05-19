@@ -140,29 +140,36 @@ const formatDateTime = (d: Date) =>
           </p>
       )}
 
-      <hr />
+      {subevents.length === 0 && <hr />}
 
       <Content />
+
+      {subevents.length > 0 && <hr />}
     </section>
 
     {subevents.length > 0 && (
         <section class="stack">
           {sections.map((section) => (
               <div class="stack">
-                <Kicker label={section.title} />
+                <Kicker label={section.title} format="stacked" />
 
                 <div class="eventsList">
-                  {section.items.map((s: SubEventEntry) => (
-                      <EventCard
-                          href={`/events/${event.slug}/${s.slug}`}
-                          title={s.data.title}
-                          image={s.data.image}
-                          description={s.data.description}
-                          startDate={s.data.startDate}
-                          endDate={s.data.endDate}
-                          endTime={s.data.endTime}
-                          location={s.data.location}
-                      />
+                  {section.items.map((s: SubEventEntry, index: number, arr: SubEventEntry[]) => (
+                      <>
+                        <EventCard
+                            href={`/events/${event.slug}/${s.slug}`}
+                            title={s.data.title}
+                            image={s.data.image}
+                            description={s.data.description}
+                            startDate={s.data.startDate}
+                            endDate={s.data.endDate}
+                            endTime={s.data.endTime}
+                            location={s.data.location}
+                        />
+                        {index + 1 < arr.length && (
+                            <hr class={`rowDivider${(index + 1) % 2 === 0 ? " rowDivider--rowEnd" : ""}`} />
+                        )}
+                      </>
                   ))}
                 </div>
               </div>
@@ -191,6 +198,21 @@ const formatDateTime = (d: Date) =>
         grid-template-columns: 1fr 1fr;
         align-items: start;
       }
+      /* On the 2-column desktop grid, only keep dividers that fall at
+         the end of a row (after every 2nd card). Mid-row dividers would
+         appear between the two cards of the same row, which is wrong. */
+      .rowDivider:not(.rowDivider--rowEnd) {
+        display: none;
+      }
+    }
+
+    .rowDivider {
+      grid-column: 1 / -1;
+      width: 66%;
+      margin-inline: auto;
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.40);
+      margin-block: var(--space-2);
     }
 
     /* Full-size image on the main event detail view */

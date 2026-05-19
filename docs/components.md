@@ -2,7 +2,7 @@
 
 A reference for the shared components in `src/components/`, the layout that wraps every page, and the small data-layer helper for the shop. Page-level files (`home.astro`, `events/index.astro`, `support.astro`, etc.) consume these but aren't documented here.
 
-The audience for this doc is whoever picks up the codebase next — not the client editing content. If you're looking for "how does the CMS work," see the relevant section in the main README.
+The audience for this doc is whoever picks up the codebase next — not the client editing content. If you're looking for "how does the CMS work," see [`docs/cms.md`](docs/cms.md).
 
 ---
 
@@ -14,10 +14,12 @@ Wraps every page. Owns the site chrome — logo, primary nav, marquee band, cont
 
 ### Props
 
-| Prop      | Type     | Default            | Description                                                                |
-| :-------- | :------- | :----------------- | :------------------------------------------------------------------------- |
-| `title`   | `string` | `"DRAW THE BLOCK"` | Browser tab title.                                                         |
-| `current` | `NavKey` | `undefined`        | Which nav item is the active page. Drives bracket-travel + marquee scope.  |
+| Prop          | Type              | Default            | Description                                                                |
+| :------------ | :---------------- | :----------------- | :------------------------------------------------------------------------- |
+| `title`       | `string`          | `"DRAW THE BLOCK"` | Browser tab title.                                                         |
+| `description` | `string`          | `undefined`        | `<meta name="description">` content. Pass a relevant page-level summary for SEO. |
+| `current`     | `NavKey`          | `undefined`        | Which nav item is the active page. Drives bracket-travel + marquee scope.  |
+| `peek`        | `PeekProps\|false`| `false`            | Pass a `PeekMascot` props object to render a peek mascot on this page, or omit/false to suppress. |
 
 `NavKey` is a union: `"home" | "about" | "events" | "vendors" | "shop" | "support" | "faq" | "newsletter"`. Add new keys here when you add a new top-level route.
 
@@ -59,6 +61,19 @@ The footer keeps the older `[BRACKETS]`-around-active-label pattern via the `foo
 - The DTB logo at the top has `transition:persist` so it stays mounted across client-side navigations. Avoids a logo flicker on every page change.
 - The footer's discord and instagram links read from the `settings/social` content entry. Both gracefully default to `#` if unset.
 - Global, tokens, and base CSS are imported at the top — every page gets these via the layout.
+
+### Site background
+
+`BaseLayout` reads `src/content/pageContent/background.json` at build time and injects an inline `<style>body { background: ... }</style>` into `<head>`. This is the only thing that sets `body` background — the `background: var(--color-bg)` rule has been removed from `base.css` to avoid a cascade conflict.
+
+Two modes, controlled by the `backgroundMode` field:
+
+- **`"color"`** — uses the `backgroundColor` hex value directly (e.g. `body { background: #287feb; }`).
+- **`"image"`** — uses the `backgroundImage` URL with `background-size: cover; background-position: center; background-attachment: fixed`.
+
+Fallback if the entry doesn't exist: `#287feb` (the original brand blue). The background is only visible in the side gutters at wider viewports — the `.site-strip` column sits on top of it. On mobile the strip is full-width and the background is never visible.
+
+`--color-bg` in `tokens.css` is kept as a reference token but is no longer used to set `body` background. Don't re-add `background: var(--color-bg)` to `base.css`.
 
 ---
 
@@ -136,6 +151,7 @@ The card used for event listings on `/`, `/events`, and `/events/[slug]` (subeve
 | `endDate`     | `Date`     | No       | Multi-day end. Renders as ` – {endDate}` after start.             |
 | `endTime`     | `string`   | No       | Same-day end (e.g. `"6:00 PM"`). Renders as ` – {endTime}`. Ignored if `endDate` is set. |
 | `location`    | `string`   | No       | Location text rendered on its own line.                           |
+| `eager`       | `boolean`  | No (`false`) | When `true`, sets `loading="eager"` and `fetchpriority="high"` on the card image. Pass `eager={index === 0}` (or `eager={true}` for a single featured card) on the LCP-eligible first card. Leave unset for all below-the-fold cards. |
 
 ### Why primitive props?
 
@@ -412,3 +428,6 @@ If you're adding a new top-level route, the checklist is roughly:
 4. Add a new scope to the marquee schema in `src/content/config.ts`.
 5. Add the matching scope to the Decap config (`public/admin/config.yml`) so the client can edit it.
 6. Run `npx astro sync` after schema changes.
+7. If the page needs a description meta tag, pass `description="..."` to `<BaseLayout>`.
+
+If you're adding a new `pageContent` collection entry (like `background.json`): create the JSON file in `src/content/pageContent/` with the required fields, add the corresponding `file:` entry in `public/admin/config.yml` under the `pageContent` collection, and extend the `pageContent` schema in `config.ts`. Run `npx astro sync` after.

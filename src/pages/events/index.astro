@@ -22,9 +22,18 @@ const now = new Date();
 const upcoming = sorted.filter((e: EventEntry) =>
     e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now
 );
-const past = sorted.filter((e: EventEntry) =>
-    e.data.endDate ? e.data.endDate < now : e.data.startDate < now
-);
+
+// All past events newest-first.
+const pastAll = sorted
+    .filter((e: EventEntry) =>
+        e.data.endDate ? e.data.endDate < now : e.data.startDate < now
+    )
+    .slice()
+    .reverse();
+
+const PAST_PREVIEW = 4;
+const past         = pastAll.slice(0, PAST_PREVIEW);
+const hasMore      = pastAll.length > PAST_PREVIEW;
 ---
 
 <BaseLayout
@@ -39,18 +48,23 @@ const past = sorted.filter((e: EventEntry) =>
 
       {upcoming.length > 0 ? (
           <div class="eventsList">
-            {upcoming.map((event: EventEntry, index: number) => (
-                <EventCard
-                    href={`/events/${event.slug}`}
-                    title={event.data.title}
-                    image={event.data.image}
-                    description={event.data.description}
-                    startDate={event.data.startDate}
-                    endDate={event.data.endDate}
-                    endTime={event.data.endTime}
-                    location={event.data.location}
-                    eager={index === 0}
-                />
+            {upcoming.map((event: EventEntry, index: number, arr: EventEntry[]) => (
+                <>
+                  <EventCard
+                      href={`/events/${event.slug}`}
+                      title={event.data.title}
+                      image={event.data.image}
+                      description={event.data.description}
+                      startDate={event.data.startDate}
+                      endDate={event.data.endDate}
+                      endTime={event.data.endTime}
+                      location={event.data.location}
+                      eager={index === 0}
+                  />
+                  {index + 1 < arr.length && (
+                      <hr class={`rowDivider${(index + 1) % 2 === 0 ? " rowDivider--rowEnd" : ""}`} />
+                  )}
+                </>
             ))}
           </div>
       ) : (
@@ -62,20 +76,35 @@ const past = sorted.filter((e: EventEntry) =>
       <Kicker label="PAST EVENTS" />
 
       {past.length > 0 ? (
-          <div class="eventsList">
-            {past.slice().reverse().map((event: EventEntry) => (
-                <EventCard
-                    href={`/events/${event.slug}`}
-                    title={event.data.title}
-                    image={event.data.image}
-                    description={event.data.description}
-                    startDate={event.data.startDate}
-                    endDate={event.data.endDate}
-                    endTime={event.data.endTime}
-                    location={event.data.location}
-                />
-            ))}
-          </div>
+          <>
+            <div class="eventsList">
+              {past.map((event: EventEntry, index: number, arr: EventEntry[]) => (
+                  <>
+                    <EventCard
+                        href={`/events/${event.slug}`}
+                        title={event.data.title}
+                        image={event.data.image}
+                        description={event.data.description}
+                        startDate={event.data.startDate}
+                        endDate={event.data.endDate}
+                        endTime={event.data.endTime}
+                        location={event.data.location}
+                    />
+                    {index + 1 < arr.length && (
+                        <hr class={`rowDivider${(index + 1) % 2 === 0 ? " rowDivider--rowEnd" : ""}`} />
+                    )}
+                  </>
+              ))}
+            </div>
+
+            {hasMore && (
+                <div class="pastEvents__more">
+                  <a class="pastEvents__archiveLink" href="/events/archive">
+                    see all past events →
+                  </a>
+                </div>
+            )}
+          </>
       ) : (
           <p class="eventMeta">No past events yet.</p>
       )}
@@ -103,6 +132,12 @@ const past = sorted.filter((e: EventEntry) =>
         grid-template-columns: 1fr 1fr;
         align-items: start;
       }
+      /* On the 2-column desktop grid, only keep dividers that fall at
+         the end of a row (after every 2nd card). Mid-row dividers would
+         appear between the two cards of the same row, which is wrong. */
+      .rowDivider:not(.rowDivider--rowEnd) {
+        display: none;
+      }
     }
 
     .eventMeta {
@@ -112,5 +147,36 @@ const past = sorted.filter((e: EventEntry) =>
       opacity: 0.95;
     }
 
+    .rowDivider {
+      grid-column: 1 / -1;
+      width: 66%;
+      margin-inline: auto;
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.40);
+      margin-block: var(--space-2);
+    }
+
+    /* ── "See all past events" link ── */
+    .pastEvents__more {
+      margin-top: var(--space-3);
+      text-align: right;
+    }
+
+    .pastEvents__archiveLink {
+      font-family: var(--font-display);
+      font-size: var(--fs-kicker);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: inherit;
+      opacity: 0.7;
+      transition: opacity 150ms ease-out;
+    }
+
+    @media (hover: hover) {
+      .pastEvents__archiveLink:hover {
+        opacity: 1;
+      }
+    }
   </style>
 </BaseLayout>

@@ -1,0 +1,436 @@
+---
+// src/pages/events/archive.astro
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Kicker from "../../components/Kicker.astro";
+import EventCard from "../../components/EventCard.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+type EventEntry = CollectionEntry<"events">;
+
+const events = (await getCollection("events")) as EventEntry[];
+const now = new Date();
+
+// All past events, newest first.
+const past = events
+    .filter((e: EventEntry) =>
+        e.data.endDate ? e.data.endDate < now : e.data.startDate < now
+    )
+    .sort((a: EventEntry, b: EventEntry) =>
+        b.data.startDate.getTime() - a.data.startDate.getTime()
+    );
+
+// Group by "YYYY-MM" key, preserving newest-month-first order.
+type MonthGroup = {
+    key: string;        // e.g. "2024-08"  — used for anchor IDs
+    label: string;      // e.g. "AUGUST 2024"  — displayed in nav + heading
+    events: EventEntry[];
+};
+
+const MONTHS = [
+    "JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE",
+    "JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER",
+];
+
+const groupMap = new Map<string, EventEntry[]>();
+for (const event of past) {
+    const d = event.data.startDate;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (!groupMap.has(key)) groupMap.set(key, []);
+    groupMap.get(key)!.push(event);
+}
+
+// Map preserves insertion order (past is already newest-first, so months are too).
+const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) => {
+    const [year, month] = key.split("-");
+    const label = `${MONTHS[parseInt(month, 10) - 1]} ${year}`;
+    return { key, label, events: evts };
+});
+---
+
+<BaseLayout
+        title="DRAW THE BLOCK — PAST EVENTS"
+        current="events"
+        description="Archive of all past Draw The Block events. Art markets, contests, pop-ups, and collaborations in Seattle, browsed by month."
+>
+    <div class="archivePage">
+
+        {/* ── Page header ── */}
+        <div class="archivePage__header">
+            <a class="archivePage__back" href="/events">← back to events</a>
+            <Kicker label="PAST EVENTS" />
+        </div>
+
+        {past.length === 0 ? (
+                <p class="archivePage__empty">No past events yet.</p>
+        ) : (
+                <div class="archivePage__body">
+
+                    {/* ── Mobile jump-to-month dropdown ── */}
+                    <div class="archiveNav archiveNav--mobile" aria-label="Jump to month">
+                        <select
+                                class="archiveNav__select"
+                                aria-label="Jump to month"
+                                id="archiveMonthSelect"
+                        >
+                            <option value="">— JUMP TO MONTH —</option>
+                            {groups.map((g) => (
+                                    <option value={`#month-${g.key}`}>{g.label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* ── Desktop left-rail + main column wrapper ── */}
+                    <div class="archivePage__layout">
+
+                        {/* ── Desktop sticky left-rail ── */}
+                        <nav class="archiveNav archiveNav--rail" aria-label="Jump to month">
+                            <p class="archiveNav__heading">BY MONTH</p>
+                            <ul class="archiveNav__list">
+                                {groups.map((g) => (
+                                        <li>
+                                            <a
+                                                    class="archiveNav__link"
+                                                    href={`#month-${g.key}`}
+                                                    data-month-link={g.key}
+                                            >
+                                                {g.label}
+                                            </a>
+                                        </li>
+                                ))}
+                            </ul>
+                        </nav>
+
+                        {/* ── Month-grouped event cards ── */}
+                        <main class="archiveMain">
+                            {groups.map((g) => (
+                                    <section
+                                            class="archiveMonth"
+                                            id={`month-${g.key}`}
+                                            data-month-section={g.key}
+                                    >
+                                        <Kicker label={g.label} format="plain" />
+
+                                        <div class="eventsList">
+                                            {g.events.map((event: EventEntry, index: number, arr: EventEntry[]) => (
+                                                    <>
+                                                        <EventCard
+                                                                href={`/events/${event.slug}`}
+                                                                title={event.data.title}
+                                                                image={event.data.image}
+                                                                description={event.data.description}
+                                                                startDate={event.data.startDate}
+                                                                endDate={event.data.endDate}
+                                                                endTime={event.data.endTime}
+                                                                location={event.data.location}
+                                                        />
+                                                        {index + 1 < arr.length && (
+                                                                <hr class={`rowDivider${(index + 1) % 2 === 0 ? " rowDivider--rowEnd" : ""}`} />
+                                                        )}
+                                                    </>
+                                            ))}
+                                        </div>
+                                    </section>
+                            ))}
+                        </main>
+
+                    </div>{/* /.archivePage__layout */}
+                </div>
+        )}
+
+    </div>{/* /.archivePage */}
+
+    <style>
+        /* ════════════════════════════════════════════════════════════
+         * PAGE SHELL
+         * ════════════════════════════════════════════════════════════ */
+        .archivePage {
+            width: 100%;
+            text-align: left;
+            padding-top: var(--space-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+        }
+
+        .archivePage__header {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .archivePage__back {
+            font-family: var(--font-display);
+            font-size: var(--fs-kicker);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: inherit;
+            opacity: 0.7;
+            transition: opacity 150ms ease-out;
+        }
+
+        @media (hover: hover) {
+            .archivePage__back:hover {
+                opacity: 1;
+            }
+        }
+
+        /* Hide the kicker on mobile — back link + dropdown give enough context */
+        @media (max-width: 719px) {
+            .archivePage__header :global(.kicker) {
+                display: none;
+            }
+        }
+
+        .archivePage__empty {
+            font-size: 14px;
+            letter-spacing: 0.02em;
+            opacity: 0.95;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+         * MOBILE DROPDOWN NAV
+         * Hidden on desktop — shown only below 720px.
+         * ════════════════════════════════════════════════════════════ */
+        .archiveNav--mobile {
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: var(--space-2) 0 var(--space-3);
+            /* Opaque background so it occludes content behind it when sticky */
+            background: #000;
+        }
+
+        .archiveNav__select {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            font-family: var(--font-display);
+            font-size: var(--fs-kicker);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 10px 36px 10px 12px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            /* Chevron via inline SVG */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+         * TWO-COLUMN LAYOUT  (desktop: rail + main)
+         * ════════════════════════════════════════════════════════════ */
+        .archivePage__layout {
+            display: flex;
+            gap: var(--space-6);
+            align-items: flex-start;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+         * DESKTOP LEFT-RAIL NAV
+         * Hidden on mobile — shown only at 720px+.
+         * ════════════════════════════════════════════════════════════ */
+        .archiveNav--rail {
+            display: none;
+            flex-shrink: 0;
+            width: 148px;
+            position: sticky;
+            top: var(--space-4);
+        }
+
+        .archiveNav__heading {
+            font-family: var(--font-display);
+            font-size: var(--fs-meta);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            opacity: 0.5;
+            margin: 0 0 var(--space-3);
+        }
+
+        .archiveNav__list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .archiveNav__link {
+            display: block;
+            font-family: var(--font-display);
+            font-size: var(--fs-kicker);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: inherit;
+            opacity: 0.55;
+            transition: opacity 150ms ease-out;
+            line-height: 1.3;
+        }
+
+        @media (hover: hover) {
+            .archiveNav__link:hover {
+                opacity: 1;
+            }
+        }
+
+        .archiveNav__link[data-active] {
+            opacity: 1;
+            font-weight: 700;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+         * MAIN CONTENT COLUMN
+         * ════════════════════════════════════════════════════════════ */
+        .archiveMain {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-7);
+        }
+
+        .archiveMonth {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            /* Offset anchor so the sticky header (mobile) doesn't obscure it */
+            scroll-margin-top: var(--space-6);
+        }
+
+        @media (max-width: 719px) {
+            .archiveMonth :global(.kicker) {
+                font-size: clamp(22px, calc(4vw + 12px), 32px);
+            }
+        }
+
+        /* ════════════════════════════════════════════════════════════
+         * EVENT GRID  (mirrors events/index.astro exactly)
+         * ════════════════════════════════════════════════════════════ */
+        .eventsList {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-4);
+            margin-top: var(--space-2);
+            padding: 8px;
+        }
+
+        @media (min-width: 720px) {
+            .eventsList {
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+            .rowDivider:not(.rowDivider--rowEnd) {
+                display: none;
+            }
+        }
+
+        .rowDivider {
+            grid-column: 1 / -1;
+            width: 66%;
+            margin-inline: auto;
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.40);
+            margin-block: var(--space-2);
+        }
+
+        /* ════════════════════════════════════════════════════════════
+         * RESPONSIVE BREAKPOINTS
+         * ════════════════════════════════════════════════════════════ */
+        @media (max-width: 719px) {
+            .archiveNav--mobile { display: block; }
+            /* Push the layout below the sticky dropdown */
+            .archivePage__layout { margin-top: var(--space-4); }
+        }
+
+        @media (min-width: 720px) {
+            .archiveNav--rail { display: block; }
+        }
+    </style>
+
+    <script>
+        /**
+         * Archive page — two behaviours:
+         *
+         * 1. Mobile select: navigate to the chosen month anchor on change.
+         *    Uses scrollIntoView for a smooth jump rather than a raw hash swap.
+         *
+         * 2. Desktop rail: IntersectionObserver highlights the currently-visible
+         *    month link. Fires on astro:page-load so it survives ClientRouter
+         *    navigations.
+         */
+        function initArchive() {
+            // ── Mobile dropdown ──────────────────────────────────────
+            const sel = document.getElementById("archiveMonthSelect") as HTMLSelectElement | null;
+            if (sel) {
+                sel.value = ""; // reset on nav (ClientRouter may persist DOM)
+                sel.addEventListener("change", () => {
+                    const hash = sel.value; // e.g. "#month-2024-08"
+                    if (!hash) return;
+                    const target = document.querySelector<HTMLElement>(hash);
+                    if (target) {
+                        target.scrollIntoView({ behavior: "smooth", block: "start" });
+                        sel.value = ""; // reset so re-selecting the same month works
+                    }
+                });
+            }
+
+            // ── Desktop rail — active highlight via IntersectionObserver ──
+            const sections = document.querySelectorAll<HTMLElement>("[data-month-section]");
+            const links    = document.querySelectorAll<HTMLElement>("[data-month-link]");
+            if (sections.length === 0 || links.length === 0) return;
+
+            const linkMap = new Map<string, HTMLElement>();
+            links.forEach((l) => {
+                const key = l.getAttribute("data-month-link");
+                if (key) linkMap.set(key, l);
+            });
+
+            let activeKey: string | null = null;
+
+            function setActive(key: string | null) {
+                if (key === activeKey) return;
+                if (activeKey) linkMap.get(activeKey)?.removeAttribute("data-active");
+                if (key)        linkMap.get(key)?.setAttribute("data-active", "");
+                activeKey = key;
+            }
+
+            // When ≥1 month section is in view, highlight the topmost one.
+            const visible = new Set<string>();
+
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        const key = (entry.target as HTMLElement).getAttribute("data-month-section");
+                        if (!key) return;
+                        if (entry.isIntersecting) {
+                            visible.add(key);
+                        } else {
+                            visible.delete(key);
+                        }
+                    });
+
+                    // Pick the first visible month (DOM order = newest-first).
+                    let topKey: string | null = null;
+                    sections.forEach((s) => {
+                        const k = s.getAttribute("data-month-section")!;
+                        if (visible.has(k) && topKey === null) topKey = k;
+                    });
+
+                    setActive(topKey);
+                },
+                { rootMargin: "0px 0px -60% 0px", threshold: 0 }
+            );
+
+            sections.forEach((s) => observer.observe(s));
+        }
+
+        document.addEventListener("astro:page-load", initArchive);
+    </script>
+</BaseLayout>

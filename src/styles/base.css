@@ -17,7 +17,7 @@ body {
 
 body {
     margin: 0;
-    background: var(--color-bg);
+    /* background is set by BaseLayout.astro via CMS-controlled inline <style> */
     color: var(--color-text);
     font-family: var(--font-display);
     font-weight: var(--fw-body);

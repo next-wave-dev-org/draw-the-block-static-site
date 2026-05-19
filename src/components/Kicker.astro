@@ -73,24 +73,24 @@ const effectiveFormat: KickerFormat = ja ? format : "plain";
 ---
 
 {effectiveFormat === "plain" && (
-<div class="kicker">[ {label} ]</div>
+<div class="kicker"><span class="kicker__bracket">[</span> {label} <span class="kicker__bracket">]</span></div>
     )}
 
 {effectiveFormat === "stacked" && (
 <div class="kicker kicker--stacked">
-    <div class="kicker__en">[ {label} ]</div>
+    <div class="kicker__en"><span class="kicker__bracket">[</span> {label} <span class="kicker__bracket">]</span></div>
     <div class="kicker__ja">【 {ja} 】</div>
 </div>
     )}
 
 {effectiveFormat === "inline" && (
-<div class="kicker kicker--inline">[ {label} / {ja} ]</div>
+<div class="kicker kicker--inline"><span class="kicker__bracket">[</span> {label} / {ja} <span class="kicker__bracket">]</span></div>
     )}
 
 {effectiveFormat === "stacked-bracket" && (
 <div class="kicker kicker--stacked-bracket">
-    <div class="kicker__en">[ {label} ]</div>
-    <div class="kicker__ja">[ {ja} ]</div>
+    <div class="kicker__en"><span class="kicker__bracket">[</span> {label} <span class="kicker__bracket">]</span></div>
+    <div class="kicker__ja"><span class="kicker__bracket">[</span> {ja} <span class="kicker__bracket">]</span></div>
 </div>
     )}
 
@@ -102,10 +102,31 @@ const effectiveFormat: KickerFormat = ja ? format : "plain";
      */
     .kicker {
         font-family: var(--font-display), system-ui, sans-serif;
-        font-size: 14px;
-        letter-spacing: 0.12em;
+        font-size: clamp(16px, calc(1.4vw + 12px), 28px);
+        letter-spacing: 0.10em;
         text-transform: uppercase;
         opacity: 0.9;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    @media (max-width: 480px) {
+        .kicker {
+            letter-spacing: 0.06em;
+        }
+    }
+
+    /* Brackets are slightly larger and use line-height: 1 to prevent
+       the font's natural ascender metrics from pushing them upward.
+       The result is brackets that sit centered on the text cap-height
+       rather than floating above it. */
+    .kicker__bracket {
+        font-size: 1.15em;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 6px;
+        padding-inline: 0.15em;
     }
 
     .kicker--stacked,
