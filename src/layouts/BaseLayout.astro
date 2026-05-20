@@ -14,17 +14,33 @@ type NavKey = "home" | "about" | "events" | "vendors" | "shop" | "support" | "fa
 const {
   title = "DRAW THE BLOCK",
   current,
-  peek = false,
+  peekKey,
   description,
 } = Astro.props as {
   title?: string;
   current?: NavKey;
-  peek?: PeekProps | false;
+  /** CMS peek key — one of the keys in src/content/peekSettings/peek-settings.json */
+  peekKey?: string;
   description?: string;
 };
 
 const socialSettings = await getEntry("settings", "social");
 const { discordUrl, instagramUrl } = socialSettings?.data || {};
+
+// CMS-driven peek: load the single peek-settings entry and index by peekKey.
+// If the entry is missing or the key is unset, no mascot renders.
+let resolvedPeek: PeekProps | false = false;
+if (peekKey) {
+  const peekDoc = await getEntry("peekSettings", "peek-settings").catch(() => null);
+  const pagePeek = peekDoc?.data?.[peekKey as keyof typeof peekDoc.data];
+  if (pagePeek?.peekEnabled) {
+    resolvedPeek = {
+      src: `/images/peek_${pagePeek.peekVariant}_${pagePeek.peekSide}.png`,
+      side: pagePeek.peekSide,
+      bottom: pagePeek.peekBottom,
+    };
+  }
+}
 
 // Site background — CMS-controlled color or image.
 // Falls back to the hardcoded token value if the entry doesn't exist yet.
@@ -199,7 +215,7 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
       </p>
     </div>
   </footer>
-  {peek && <PeekMascot {...peek} />}
+  {resolvedPeek && <PeekMascot {...resolvedPeek} />}
 </main>
 
 <style>

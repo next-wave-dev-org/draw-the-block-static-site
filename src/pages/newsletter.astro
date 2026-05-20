@@ -5,6 +5,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 <BaseLayout
     title="Newsletter | DRAW THE BLOCK"
     current="newsletter"
+    peekKey="newsletter"
     description="Subscribe to the Draw The Block newsletter for updates on upcoming events, new vendors, and exclusive drops."
 >
   <div class="stack prose">
@@ -26,7 +27,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         class="newsletter-form"
         action="/api/subscribe"
         method="POST"
+        data-netlify="true"
+        name="newsletter"
     >
+      <input type="hidden" name="form-name" value="newsletter" />
+
       <div class="form-group">
         <label for="firstName">First Name</label>
         <input type="text" id="firstName" name="firstName" required />

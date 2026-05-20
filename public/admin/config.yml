@@ -204,6 +204,85 @@ collections:
           - { label: "Quote", name: "quote", widget: "text", required: true, hint: "A short quote shown below the team grid on the About page. Don't include the dash and attribution here — use the field below for that." }
           - { label: "Attribution", name: "attribution", widget: "string", required: false, hint: "Who said it. e.g. \"Kenji\" — the dash will be added automatically when displayed." }
 
+
+      - file: "src/content/peekSettings/peek-settings.json"
+        label: "Peek Mascot"
+        name: "peek-settings"
+        fields:
+          - label: "Home"
+            name: "home"
+            widget: "object"
+            collapsed: true
+            fields: &peek_page_fields
+              - { label: "Show Peek Mascot", name: "peekEnabled", widget: "boolean", default: false }
+              - label: "Expression"
+                name: "peekVariant"
+                widget: "select"
+                options:
+                  - { label: "Default", value: "default" }
+                  - { label: "Smile",   value: "smile"   }
+                  - { label: "Anger",   value: "anger"   }
+                  - { label: "Shock",   value: "shock"   }
+                default: "default"
+              - label: "Side"
+                name: "peekSide"
+                widget: "select"
+                options:
+                  - { label: "Left",  value: "left"  }
+                  - { label: "Right", value: "right" }
+                default: "left"
+              - { label: "Vertical Position", name: "peekBottom", widget: "string", default: "80px", hint: "Distance from the bottom of the content column. CSS units, e.g. 80px or 200px." }
+          - label: "About"
+            name: "about"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+          - label: "Events Home"
+            name: "eventsHome"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+          - label: "Event Detail"
+            name: "eventsDetail"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+          - label: "Sub-event Detail"
+            name: "eventsSubevent"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+          - label: "Events Archive"
+            name: "eventsArchive"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+          - label: "Vendors"
+            name: "vendors"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+          - label: "Shop"
+            name: "shop"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+          - label: "FAQ"
+            name: "faq"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+          - label: "Support"
+            name: "support"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+          - label: "Newsletter"
+            name: "newsletter"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
+
   - name: "settings"
     label: "Settings"
     files:

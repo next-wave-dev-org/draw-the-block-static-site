@@ -1,0 +1,68 @@
+{
+  "eventsArchive": {
+    "peekEnabled": false,
+    "peekVariant": "default",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  },
+  "eventsDetail": {
+    "peekEnabled": true,
+    "peekVariant": "smile",
+    "peekSide": "right",
+    "peekBottom": "200px"
+  },
+  "vendors": {
+    "peekEnabled": true,
+    "peekVariant": "smile",
+    "peekSide": "left",
+    "peekBottom": "200px"
+  },
+  "about": {
+    "peekEnabled": true,
+    "peekVariant": "default",
+    "peekSide": "left",
+    "peekBottom": "200px"
+  },
+  "support": {
+    "peekEnabled": false,
+    "peekVariant": "default",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  },
+  "eventsSubevent": {
+    "peekEnabled": false,
+    "peekVariant": "default",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  },
+  "shop": {
+    "peekEnabled": true,
+    "peekVariant": "anger",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  },
+  "faq": {
+    "peekEnabled": false,
+    "peekVariant": "default",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  },
+  "eventsHome": {
+    "peekEnabled": false,
+    "peekVariant": "default",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  },
+  "newsletter": {
+    "peekEnabled": false,
+    "peekVariant": "default",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  },
+  "home": {
+    "peekEnabled": false,
+    "peekVariant": "default",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  }
+}
