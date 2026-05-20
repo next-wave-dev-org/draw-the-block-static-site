@@ -84,6 +84,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
             return redirect('/newsletter?error=email', 303);
         }
 
+        // remove these later
         console.error('MailerLite error — status:', response.status);
         console.error('MailerLite error — body:', JSON.stringify(data));
         console.error('MailerLite error — groupId present:', !!groupId, '— apiKey present:', !!apiKey);
