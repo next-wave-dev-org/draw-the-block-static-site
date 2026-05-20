@@ -84,7 +84,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
             return redirect('/newsletter?error=email', 303);
         }
 
-        console.error('MailerLite error:', response.status, data);
+        console.error('MailerLite error — status:', response.status);
+        console.error('MailerLite error — body:', JSON.stringify(data));
+        console.error('MailerLite error — groupId present:', !!groupId, '— apiKey present:', !!apiKey);
         return redirect('/newsletter?error=api', 303);
     } catch (err) {
         console.error('Subscribe endpoint network error:', err);
