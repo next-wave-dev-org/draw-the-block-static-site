@@ -26,11 +26,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         class="newsletter-form"
         action="/api/subscribe"
         method="POST"
-        data-netlify="true"
-        name="newsletter"
     >
-      <input type="hidden" name="form-name" value="newsletter" />
-
       <div class="form-group">
         <label for="firstName">First Name</label>
         <input type="text" id="firstName" name="firstName" required />
