@@ -79,6 +79,17 @@ const vendors = defineCollection({
     }),
 });
 
+const neighbors = defineCollection({
+    type: "content",
+    schema: z.object({
+        name: z.string(),
+        tagline: z.string().optional(),
+        url: optionalUrlField,
+        image: z.string().optional(),
+        displayOrder: z.number().int().default(0),
+    }),
+});
+
 const faq = defineCollection({
     type: "content",
     schema: z.object({
@@ -155,6 +166,7 @@ const marqueeSettings = defineCollection({
         about: marqueeScopeSchema,
         events: marqueeScopeSchema,
         vendors: marqueeScopeSchema,
+        partners: marqueeScopeSchema,
         support: marqueeScopeSchema,
         faq: marqueeScopeSchema,
     }),
@@ -182,7 +194,7 @@ const pageContent = defineCollection({
 
 
 /**
- * Peek mascot settings (new).
+ * Peek mascot settings.
  *
  * A single entry (peek-settings.json) holds all per-page peek config.
  * BaseLayout reads this once and indexes by page key. All peek controls
@@ -205,6 +217,7 @@ const peekSettings = defineCollection({
         eventsSubevent: peekPageSchema,
         eventsArchive:  peekPageSchema,
         vendors:        peekPageSchema,
+        partners:       peekPageSchema,
         shop:           peekPageSchema,
         faq:            peekPageSchema,
         support:        peekPageSchema,
@@ -217,6 +230,7 @@ export const collections = {
     subevents,
     team,
     vendors,
+    neighbors,
     faq,
     sponsor,
     donate,

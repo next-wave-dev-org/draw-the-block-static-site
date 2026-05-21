@@ -23,12 +23,6 @@
     "peekSide": "left",
     "peekBottom": "200px"
   },
-  "support": {
-    "peekEnabled": false,
-    "peekVariant": "default",
-    "peekSide": "left",
-    "peekBottom": "80px"
-  },
   "eventsSubevent": {
     "peekEnabled": false,
     "peekVariant": "default",
@@ -38,6 +32,18 @@
   "shop": {
     "peekEnabled": true,
     "peekVariant": "anger",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  },
+  "support": {
+    "peekEnabled": false,
+    "peekVariant": "default",
+    "peekSide": "left",
+    "peekBottom": "80px"
+  },
+  "partners": {
+    "peekEnabled": false,
+    "peekVariant": "default",
     "peekSide": "left",
     "peekBottom": "80px"
   },

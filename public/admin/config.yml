@@ -112,6 +112,26 @@ collections:
         required: false
         hint: "Select which events this vendor is attending. Vendors with no events selected won't appear on the public Vendors page until at least one event is assigned."
 
+  - name: "neighbors"
+    label: "Partners (DTB Neighbors)"
+    folder: "src/content/neighbors"
+    create: true
+    slug: "{{name | slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Tagline", name: "tagline", widget: "string", required: false, hint: "One-liner shown under the name on the Partners page." }
+      - { label: "Link URL", name: "url", widget: "string", required: false, hint: "The page this card links to when clicked, e.g. https://example.com or an Instagram profile." }
+      - label: "Logo / Image"
+        name: "image"
+        widget: "image"
+        required: false
+        media_library:
+          config:
+            max_file_size: 512000
+        hint: "Square logo recommended, min 240x240px. Max 500KB. If left blank, the partner name will display as a text placeholder."
+      - { label: "Display Order", name: "displayOrder", widget: "number", value_type: "int", default: 0, hint: "Lower numbers appear first. Use 0, 1, 2... to control order." }
+      - { label: "Description", name: "body", widget: "markdown", required: false, hint: "Optional extended description shown on the Partners page." }
+
   - name: "faq"
     label: "FAQ"
     folder: "src/content/faq"
@@ -282,6 +302,11 @@ collections:
             widget: "object"
             collapsed: true
             fields: *peek_page_fields
+          - label: "Partners"
+            name: "partners"
+            widget: "object"
+            collapsed: true
+            fields: *peek_page_fields
 
   - name: "settings"
     label: "Settings"
@@ -393,6 +418,20 @@ collections:
             required: false
             fields:
               - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the FAQ page. Enable with empty messages to hide the marquee on this page." }
+              - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
+              - label: "Scroll Speed (seconds per loop)"
+                name: "speed"
+                widget: "string"
+                required: false
+                pattern: [ '^[1-9][0-9]*$', 'Whole numbers only (1 or higher)' ]
+                hint: "Optional. Higher number = slower scroll. Leave blank for default."
+          - label: "Partners — Override"
+            name: "partners"
+            widget: "object"
+            collapsed: true
+            required: false
+            fields:
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: false, hint: "Turn on to override the Global marquee on the Partners page. Enable with empty messages to hide the marquee on this page." }
               - { label: "Messages", name: "messages", widget: "list", required: false, field: { label: "Message", name: "message", widget: "string" } }
               - label: "Scroll Speed (seconds per loop)"
                 name: "speed"

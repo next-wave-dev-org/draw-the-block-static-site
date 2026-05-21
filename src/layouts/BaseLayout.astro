@@ -9,7 +9,7 @@ import { Image } from 'astro:assets';
 import logo from '../assets/images/logo.png';
 import PeekMascot, { type Props as PeekProps } from "../components/PeekMascot.astro";
 
-type NavKey = "home" | "about" | "events" | "vendors" | "shop" | "support" | "faq" | "newsletter";
+type NavKey = "home" | "about" | "events" | "vendors" | "partners" | "shop" | "support" | "faq" | "newsletter";
 
 const {
   title = "DRAW THE BLOCK",
@@ -54,7 +54,7 @@ const bodyBackground =
         : bgColor;
 
 
-type MarqueeScope = "home" | "about" | "events" | "vendors" | "support" | "faq" | "global";
+type MarqueeScope = "home" | "about" | "events" | "vendors" | "partners" | "support" | "faq" | "global";
 
 const pageScope: MarqueeScope | null =
     current && current !== "newsletter" ? (current as MarqueeScope) : null;
@@ -95,6 +95,7 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   { key: "about", href: "/about", label: "ABOUT" },
   { key: "events", href: "/events", label: "EVENTS" },
   { key: "vendors", href: "/vendors", label: "VENDORS" },
+  { key: "partners", href: "/partners", label: "PARTNERS" },
   { key: "shop", href: "/shop", label: "SHOP" },
   { key: "support", href: "/support", label: "SUPPORT" },
 ];
