@@ -24,6 +24,7 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
 <BaseLayout
         title="DRAW THE BLOCK — SUPPORT"
         current="support"
+        peekKey="support"
         description="Support Draw The Block. Sponsor an event or donate to help us keep building Seattle's independent art community."
 >
     <main class="support">
@@ -188,19 +189,20 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
         .support__posterLink {
             display: block;
             width: 100%;
-            max-width: 100%;
+            /* Match Ko-fi card width so donate and sponsor columns align */
+            max-width: 412px;
             transition: opacity 180ms ease-out;
         }
 
         .support__posterLink:hover {
-                   opacity: 0.85;
-               }
+            opacity: 0.85;
+        }
 
-               @media (prefers-reduced-motion: reduce) {
-                       .support__posterLink {
-                           transition: none;
-                       }
-               }
+        @media (prefers-reduced-motion: reduce) {
+            .support__posterLink {
+                transition: none;
+            }
+        }
 
         .support__poster {
             max-width: 100%;

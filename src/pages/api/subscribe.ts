@@ -1,28 +1,29 @@
 import type { APIRoute } from 'astro';
 
 /**
- * Mailchimp newsletter subscribe endpoint.
+ * MailerLite newsletter subscribe endpoint.
  *
  * Receives form-encoded POST from /newsletter. Validates input,
- * submits to Mailchimp with double-opt-in (status: "pending"),
- * redirects on success or error.
+ * submits to MailerLite v3 API, redirects on success or error.
  *
  * Compiled to a Netlify Function by @astrojs/netlify. Lives at
  * /api/subscribe in production; runs server-side, not pre-rendered.
  *
- * Note on double-opt-in: status "pending" tells Mailchimp to send a
- * confirmation email. The subscriber is not added to the active list
- * until they click the confirmation link. To switch to single
- * opt-in (subscriber added immediately, no confirmation), change
- * "pending" to "subscribed".
+ * Double opt-in is configured at the account level in MailerLite —
+ * no status flag needed here. MailerLite will send the confirmation
+ * email automatically. The subscriber is not active until they click
+ * the confirmation link.
+ *
+ * Env vars required (set in Netlify dashboard):
+ *   MAILERLITE_API_KEY   — MailerLite v3 API token
+ *   MAILERLITE_GROUP_ID  — Target group ID (from MailerLite Groups)
  */
 export const POST: APIRoute = async ({ request, redirect }) => {
-    const apiKey = import.meta.env.MAILCHIMP_API_KEY;
-    const audienceId = import.meta.env.MAILCHIMP_AUDIENCE_ID;
-    const serverPrefix = import.meta.env.MAILCHIMP_SERVER_PREFIX;
+    const apiKey = import.meta.env.MAILERLITE_API_KEY;
+    const groupId = import.meta.env.MAILERLITE_GROUP_ID;
 
-    if (!apiKey || !audienceId || !serverPrefix) {
-        console.error('Missing Mailchimp environment variables');
+    if (!apiKey || !groupId) {
+        console.error('Missing MailerLite environment variables');
         return redirect('/newsletter?error=config', 303);
     }
 
@@ -43,55 +44,50 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         return redirect('/newsletter?error=email', 303);
     }
 
-    // Mailchimp API call
-    const url = `https://${serverPrefix}.api.mailchimp.com/3.0/lists/${audienceId}/members`;
-
-    // Mailchimp uses HTTP Basic auth: any username + the API key as
-    // password. The "anystring" username is convention; Mailchimp
-    // ignores it but requires it to be present. "anystring" is what
-    // their docs use.
-    const auth = Buffer.from(`anystring:${apiKey}`).toString('base64');
+    // MailerLite v3 API call
+    const url = 'https://connect.mailerlite.com/api/subscribers';
 
     try {
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                Authorization: `Basic ${auth}`,
+                Authorization: `Bearer ${apiKey}`,
                 'Content-Type': 'application/json',
+                Accept: 'application/json',
             },
             body: JSON.stringify({
-                email_address: email,
-                status: 'pending', // double-opt-in
-                merge_fields: {
-                    FNAME: firstName,
-                    LNAME: lastName,
+                email,
+                fields: {
+                    name: firstName,
+                    last_name: lastName,
                 },
+                groups: [groupId],
             }),
         });
 
+        // 200 = existing subscriber updated, 201 = new subscriber created.
+        // Both are success — send to thank-you page.
         if (response.ok) {
-            // Success — user lands at the pretty /thank-you page.
             return redirect('/thank-you', 303);
         }
 
-        // Mailchimp returned an error. Common cases:
-        // - "Member Exists": subscriber already on list. We treat this
-        //   as success — user signed up, mission accomplished, no need
-        //   to surface the duplicate to them.
-        // - "Invalid Resource": malformed email or other validation issue.
         const data = await response.json().catch(() => ({}));
-        const title = data?.title ?? 'Unknown';
 
-        if (title === 'Member Exists') {
+        // 409 = subscriber already exists with no changes needed.
+        // Treat as success — mission accomplished.
+        if (response.status === 409) {
             return redirect('/thank-you', 303);
         }
 
-        console.error('Mailchimp error:', title, data?.detail);
-
-        if (title === 'Invalid Resource') {
+        // 422 = validation error (malformed email, etc.)
+        if (response.status === 422) {
             return redirect('/newsletter?error=email', 303);
         }
 
+        // remove these later
+        console.error('MailerLite error — status:', response.status);
+        console.error('MailerLite error — body:', JSON.stringify(data));
+        console.error('MailerLite error — groupId present:', !!groupId, '— apiKey present:', !!apiKey);
         return redirect('/newsletter?error=api', 303);
     } catch (err) {
         console.error('Subscribe endpoint network error:', err);
@@ -99,7 +95,6 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     }
 };
 
-// This endpoint must run server-side. The previous patch added
-// `prerender = true` to every existing page; we explicitly opt OUT
-// here so Astro/Netlify compile this route to a Function.
+// This endpoint must run server-side. Explicitly opt OUT of
+// pre-rendering so Astro/Netlify compile this route to a Function.
 export const prerender = false;

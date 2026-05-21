@@ -49,7 +49,7 @@ const {
 } = Astro.props;
 
 // If no explicit src, pick the side-appropriate asset.
-const resolvedSrc = src ?? `/images/mascot_peek_${side}.png`;
+const resolvedSrc = src ?? `/images/peek_default_${side}.png`;
 
 // Build the inline style object so each instance can tune via props
 // while sharing the same scoped CSS rules below.

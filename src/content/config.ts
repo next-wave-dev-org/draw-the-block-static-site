@@ -162,23 +162,54 @@ const marqueeSettings = defineCollection({
 
 const pageContent = defineCollection({
     type: "data",
-    schema: ({ image }) =>
-        z.object({
-            // Used by the tagline entry (home page hero)
-            taglineImage: z.string().optional(),
-            taglineText: z.string().optional(),
+    schema: z.object({
+        // Used by the tagline entry (home page hero)
+        taglineImage: z.string().optional(),
+        taglineText: z.string().optional(),
 
-            // Used by the mission entry (about page intro)
-            mission: z.string().optional(),
+        // Used by the mission entry (about page intro)
+        mission: z.string().optional(),
 
-            // Used by the quote entry (about page, below team)
-            quote: z.string().optional(),
-            attribution: z.string().optional(),
+        // Used by the quote entry (about page, below team)
+        quote: z.string().optional(),
+        attribution: z.string().optional(),
 
-            backgroundMode: z.enum(["color", "image"]).default("color"),
-            backgroundColor: z.string().default("#287feb"),
-            backgroundImage: z.string().optional(),
-        }),
+        backgroundMode: z.enum(["color", "image"]).default("color"),
+        backgroundColor: z.string().default("#287feb"),
+        backgroundImage: z.string().optional(),
+    }),
+});
+
+
+/**
+ * Peek mascot settings (new).
+ *
+ * A single entry (peek-settings.json) holds all per-page peek config.
+ * BaseLayout reads this once and indexes by page key. All peek controls
+ * live here so the client can adjust every page in one CMS save.
+ */
+const peekPageSchema = z.object({
+    peekEnabled: z.boolean().default(false),
+    peekVariant: z.enum(["default", "smile", "anger", "shock"]).default("default"),
+    peekSide: z.enum(["left", "right"]).default("left"),
+    peekBottom: z.string().default("80px"),
+});
+
+const peekSettings = defineCollection({
+    type: "data",
+    schema: z.object({
+        home:           peekPageSchema,
+        about:          peekPageSchema,
+        eventsHome:     peekPageSchema,
+        eventsDetail:   peekPageSchema,
+        eventsSubevent: peekPageSchema,
+        eventsArchive:  peekPageSchema,
+        vendors:        peekPageSchema,
+        shop:           peekPageSchema,
+        faq:            peekPageSchema,
+        support:        peekPageSchema,
+        newsletter:     peekPageSchema,
+    }),
 });
 
 export const collections = {
@@ -193,4 +224,5 @@ export const collections = {
     vendorSettings,
     marqueeSettings,
     pageContent,
+    peekSettings,
 };
