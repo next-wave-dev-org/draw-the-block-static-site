@@ -189,7 +189,8 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
         .support__posterLink {
             display: block;
             width: 100%;
-            max-width: 100%;
+            /* Match Ko-fi card width so donate and sponsor columns align */
+            max-width: 412px;
             transition: opacity 180ms ease-out;
         }
 

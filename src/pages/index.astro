@@ -4,6 +4,8 @@ import "../styles/global.css";
 import "../styles/tokens.css";
 import "../styles/base.css";
 ---
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" is:inline></script>
 <script is:inline>
@@ -19,8 +21,19 @@ import "../styles/base.css";
 </script>
 
 <main class="landing">
-  <a href="/home"><img src="/images/eyes_white.gif" alt="DTB Eyes"  /></a>
-  <a href="/home">[ DRAW THE BLOCK ]</a>
+  <a href="/home" class="landing__eyesLink">
+    <img src="/images/eyes_white.gif" alt="DTB Eyes" class="landing__eyes" />
+  </a>
+
+  <div class="landing__textRow">
+    <a href="/home" class="landing__textLink">[ DRAW THE BLOCK ]</a>
+    <img
+        src="/images/click.gif"
+        alt=""
+        aria-hidden="true"
+        class="landing__click"
+    />
+  </div>
 </main>
 
 <style>
@@ -42,35 +55,52 @@ import "../styles/base.css";
     align-items: center;
   }
 
-  .landing img {
+  /* Eyes GIF — large hero treatment */
+  .landing__eyes {
     max-width: 520px;
     width: 100%;
     height: auto;
   }
 
-  .landing a {
-    text-decoration: none;
+  /* Row that holds the text link + click hint as siblings.
+     Inline-flex so the row sizes to the text link's width. */
+  .landing__textRow {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
   }
 
-  .landing a:not(:has(img)) {
+  .landing__textLink {
     font-family: var(--font-display), sans-serif;
     font-weight: 700;
     letter-spacing: 0.02em;
     color: inherit;
     font-size: clamp(28px, 6vw, 56px);
+    text-decoration: none;
+  }
+
+  /* Click hint GIF — positioned under "BLOCK" */
+  .landing__click {
+    width: 50px;
+    height: 60px;
+    position: absolute;
+    /* Roughly under the word BLOCK — right side of the text row */
+    bottom: -2.4rem;
+    right: 2.5rem;
+    pointer-events: none;
+    animation: clickHint 3s ease-in-out infinite;
+  }
+
+  @keyframes clickHint {
+    0%   { opacity: 0; }
+    15%  { opacity: 1; }
+    70%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landing__click {
+      display: none;
+    }
   }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
