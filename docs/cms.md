@@ -45,6 +45,7 @@ The shape of the content model (see `config.yml` for fields):
 | `subevents`     | folder     | Children of events. References parent via `parentEvent` (slug). |
 | `team`          | folder     | Team member profiles (YAML format, not markdown).   |
 | `vendors`       | folder     | Vendors and their event associations.               |
+| `neighbors`     | folder     | Partners / DTB Neighbors. One markdown file per partner. Rendered on `/partners`. |
 | `faq`           | folder     | FAQ entries, manually ordered.                      |
 | `sponsor`       | folder     | Singleton: sponsor page content.                    |
 | `donate`        | folder     | Singleton: donate page content.                     |
@@ -70,6 +71,7 @@ Current limits:
 | Tagline image                  | 2 MB  | 1500–2000px, under 1MB       |
 | Team photo                     | 1 MB  | 600–1000px, under 500KB      |
 | Vendor logo                    | 500 KB| Square, min 400×400px        |
+| Partner logo                   | 500 KB| Square recommended, min 240×240px |
 
 The pattern in `config.yml`:
 
@@ -99,10 +101,10 @@ CMS-driven images are loaded as raw `<img>` elements in the site code, not Astro
 
 The marquee is unusual in two ways and worth flagging because it's the most complex part of the CMS:
 
-1. **Per-page overrides.** A single file (`src/content/marqueeSettings/marquee.json`) holds a global config plus six per-page overrides (home, about, events, vendors, support, faq). Each override is its own collapsed object in the admin UI, so the client can toggle a page-specific marquee without touching global.
+1. **Per-page overrides.** A single file (`src/content/marqueeSettings/marquee.json`) holds a global config plus seven per-page overrides (home, about, events, vendors, partners, support, faq). Each override is its own collapsed object in the admin UI, so the client can toggle a page-specific marquee without touching global.
 2. **Speed validation via regex pattern, not number widget.** The `speed` field uses `widget: "string"` with `pattern: ['^[1-9][0-9]*$', '...']` instead of `widget: "number"`. This was deliberate: the number widget allowed alphanumeric input ("abc") to save and break the marquee on the next build. The string-plus-pattern approach rejects non-integer input at save-time.
 
-If a future page needs a marquee override, add a new per-page object alongside the existing six. Mirror the pattern exactly — Decap doesn't have a shared-anchor concept that survives well in the admin UI.
+If a future page needs a marquee override, add a new per-page object alongside the existing seven. Mirror the pattern exactly — Decap doesn't have a shared-anchor concept that survives well in the admin UI.
 
 ---
 
@@ -153,7 +155,7 @@ The form is hardcoded — not CMS-edited. What lives in the CMS is nothing; the 
 
 Per-page peek assignment is CMS-driven. A single `peekSettings` collection (`src/content/peekSettings/peek-settings.json`) holds config for all pages in one file. The CMS entry is under **Page Content → Peek Mascot** with a collapsible section per page.
 
-**Pages with peek support:** home, about, eventsHome, eventsDetail, eventsSubevent, eventsArchive, vendors, shop, faq, support, newsletter, neighbors.
+**Pages with peek support:** home, about, eventsHome, eventsDetail, eventsSubevent, eventsArchive, vendors, partners, shop, faq, support, newsletter.
 
 **Fields per page:**
 
@@ -175,12 +177,6 @@ When adding a new page that needs peek support: add a key to the `peekSettings` 
 ## Future CMS work
 
 These are planned but not yet built.
-
-### DTB Neighbors / Partners page
-
-New `neighbors` collection for partner shout-outs (NextWaveDev, On the Block, 11:11, etc.). See GitHub issue `feat/dtb-neighbors` for full spec. Folder collection, one markdown file per partner, all fields optional except `name`.
-
----
 
 ## Gotchas worth knowing
 
