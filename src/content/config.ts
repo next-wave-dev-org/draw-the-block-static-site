@@ -162,23 +162,22 @@ const marqueeSettings = defineCollection({
 
 const pageContent = defineCollection({
     type: "data",
-    schema: ({ image }) =>
-        z.object({
-            // Used by the tagline entry (home page hero)
-            taglineImage: z.string().optional(),
-            taglineText: z.string().optional(),
+    schema: z.object({
+        // Used by the tagline entry (home page hero)
+        taglineImage: z.string().optional(),
+        taglineText: z.string().optional(),
 
-            // Used by the mission entry (about page intro)
-            mission: z.string().optional(),
+        // Used by the mission entry (about page intro)
+        mission: z.string().optional(),
 
-            // Used by the quote entry (about page, below team)
-            quote: z.string().optional(),
-            attribution: z.string().optional(),
+        // Used by the quote entry (about page, below team)
+        quote: z.string().optional(),
+        attribution: z.string().optional(),
 
-            backgroundMode: z.enum(["color", "image"]).default("color"),
-            backgroundColor: z.string().default("#287feb"),
-            backgroundImage: z.string().optional(),
-        }),
+        backgroundMode: z.enum(["color", "image"]).default("color"),
+        backgroundColor: z.string().default("#287feb"),
+        backgroundImage: z.string().optional(),
+    }),
 });
 
 

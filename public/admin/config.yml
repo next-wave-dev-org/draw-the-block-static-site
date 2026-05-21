@@ -214,7 +214,7 @@ collections:
             widget: "object"
             collapsed: true
             fields: &peek_page_fields
-              - { label: "Show Peek Mascot", name: "peekEnabled", widget: "boolean", default: false }
+              - { label: "Show Peek Mascot", name: "peekEnabled", widget: "boolean" }
               - label: "Expression"
                 name: "peekVariant"
                 widget: "select"
