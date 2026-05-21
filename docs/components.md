@@ -19,9 +19,9 @@ Wraps every page. Owns the site chrome — logo, primary nav, marquee band, cont
 | `title`       | `string`          | `"DRAW THE BLOCK"` | Browser tab title.                                                         |
 | `description` | `string`          | `undefined`        | `<meta name="description">` content. Pass a relevant page-level summary for SEO. |
 | `current`     | `NavKey`          | `undefined`        | Which nav item is the active page. Drives bracket-travel + marquee scope.  |
-| `peek`        | `PeekProps\|false`| `false`            | Pass a `PeekMascot` props object to render a peek mascot on this page, or omit/false to suppress. |
+| `peekKey`     | `string`          | `undefined`        | CMS lookup key — reads `src/content/peekSettings/peek-settings.json` and renders the mascot if `peekEnabled` is true for that page. Pass the page's key (e.g. `"about"`, `"eventsHome"`). |
 
-`NavKey` is a union: `"home" | "about" | "events" | "vendors" | "shop" | "support" | "faq" | "newsletter"`. Add new keys here when you add a new top-level route.
+`NavKey` is a union: `"home" | "about" | "events" | "vendors" | "shop" | "support" | "faq" | "newsletter" | "neighbors"`. Add new keys here when you add a new top-level route.
 
 ### Bracket-travel nav
 
@@ -58,7 +58,7 @@ The footer keeps the older `[BRACKETS]`-around-active-label pattern via the `foo
 
 ### Misc structural details
 
-- The DTB logo at the top has `transition:persist` so it stays mounted across client-side navigations. Avoids a logo flicker on every page change.
+- The DTB logo at the top has `transition:persist="site-logo"` so it stays mounted across client-side navigations. Avoids a logo flicker on every page change.
 - The footer's discord and instagram links read from the `settings/social` content entry. Both gracefully default to `#` if unset.
 - Global, tokens, and base CSS are imported at the top — every page gets these via the layout.
 
@@ -416,7 +416,7 @@ Cart UI, product detail pages on this site, filtering, variants, real-time inven
 The components above don't exist in isolation. A few worth knowing about together:
 
 - **EventCard and ProductCard are intentionally siblings.** They look the same on hover, share the yellow accent, and appear in the same grid pattern across pages. If you change the hover on one, change both — there's a comment in ProductCard's CSS reminding future-you of this.
-- **PeekMascot appears on multiple pages with shared logic.** About, events detail, and vendors all use the same component with per-page prop overrides. If you ever change the breakpoint, sizing math, or per-side offset defaults, the change is component-local and applies everywhere. The home page does NOT use PeekMascot — its mascot is part of a larger composition with the DRAW/THE/BLOCK wordmark and lives directly in `home.astro`.
+- **PeekMascot is now CMS-driven.** Per-page assignment (variant, side, vertical position) is configured in Decap under Page Content → Peek Mascot. `BaseLayout` reads `src/content/peekSettings/peek-settings.json` once and indexes by the `peekKey` prop each page passes. Pages pass `peekKey="<pageKey>"` to `<BaseLayout>` — no `peek={{}}` prop directly. The home page does NOT use PeekMascot — its mascot is part of a larger composition with the DRAW/THE/BLOCK wordmark and lives directly in `home.astro`. Asset naming convention: `peek_{variant}_{side}.png` (e.g. `peek_smile_left.png`).
 - **BaseLayout's marquee resolution and the Marquee component are tightly coupled but the seam is clean.** Marquee just renders a list of strings. BaseLayout decides which list to pass. New scopes (e.g. "shop") would require editing `MarqueeScope` in BaseLayout *and* the schema in `config.ts` *and* the Decap CMS config in `public/admin/config.yml`. Three coordinated edits — keep them in lockstep.
 - **Breadcrumb and EventCard are layout siblings.** Breadcrumb sits at the top of detail pages where EventCard appears at the top of list pages. They're visual peers in a hierarchy.
 
@@ -429,5 +429,8 @@ If you're adding a new top-level route, the checklist is roughly:
 5. Add the matching scope to the Decap config (`public/admin/config.yml`) so the client can edit it.
 6. Run `npx astro sync` after schema changes.
 7. If the page needs a description meta tag, pass `description="..."` to `<BaseLayout>`.
+8. Add a `peekKey` to the `peekSettings` schema in `config.ts`, seed a disabled entry in `src/content/peekSettings/peek-settings.json`, and add a matching object to the `peek-settings` entry in `public/admin/config.yml`.
+
+**Current top-level routes:** home, about, events, vendors, shop, support, faq, newsletter, neighbors.
 
 If you're adding a new `pageContent` collection entry (like `background.json`): create the JSON file in `src/content/pageContent/` with the required fields, add the corresponding `file:` entry in `public/admin/config.yml` under the `pageContent` collection, and extend the `pageContent` schema in `config.ts`. Run `npx astro sync` after.

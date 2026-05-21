@@ -50,6 +50,8 @@ The shape of the content model (see `config.yml` for fields):
 | `donate`        | folder     | Singleton: donate page content.                     |
 | `pageContent`   | file       | Per-page content blocks: tagline, mission, quote.   |
 | `settings`      | file       | Site-wide settings: social links, vendor app, marquee. |
+| `peekSettings`  | file       | Single entry (`peek-settings.json`) — per-page peek mascot config for all 11+ pages. CMS entry lives under Page Content → Peek Mascot. |
+| `neighbors`     | folder     | DTB Neighbors / Partners. One markdown file per partner. |
 
 Singletons (sponsor, donate) use `create: false` and a fixed slug so the client can edit but not duplicate them. File collections (`pageContent`, `settings`) are explicit lists rather than folders because their content is small and structurally fixed.
 
@@ -131,27 +133,52 @@ Every CMS save commits to `main`. Netlify watches `main` and auto-rebuilds on ev
 
 ---
 
+## Newsletter subscription
+
+The newsletter form (`src/pages/newsletter.astro`) posts to the `/api/subscribe` Astro API route, which is compiled to a Netlify Function. The handler calls the MailerLite v3 API.
+
+- **Endpoint:** `POST https://connect.mailerlite.com/api/subscribers`
+- **Auth:** `Authorization: Bearer $MAILERLITE_API_KEY`
+- **Payload:** `{ email, fields: { name, last_name }, groups: ["$MAILERLITE_GROUP_ID"] }`
+- **Double opt-in:** configured at the account level in MailerLite — no status flag in the API call. MailerLite sends the confirmation email automatically.
+- **Env vars:** `MAILERLITE_API_KEY` and `MAILERLITE_GROUP_ID` (set in Netlify dashboard under Site configuration → Environment variables)
+- **Already-subscribed:** 200/201 = success, 409 = already subscribed → both redirect to `/thank-you`
+- **Fields collected:** First name, last name, email. No other fields.
+
+The form is hardcoded — not CMS-edited. What lives in the CMS is nothing; the subscription behavior is entirely in `subscribe.ts` and the Netlify env vars.
+
+---
+
+## Peek mascot
+
+Per-page peek assignment is CMS-driven. A single `peekSettings` collection (`src/content/peekSettings/peek-settings.json`) holds config for all pages in one file. The CMS entry is under **Page Content → Peek Mascot** with a collapsible section per page.
+
+**Pages with peek support:** home, about, eventsHome, eventsDetail, eventsSubevent, eventsArchive, vendors, shop, faq, support, newsletter, neighbors.
+
+**Fields per page:**
+
+| Field | Widget | Description |
+|---|---|---|
+| `peekEnabled` | boolean | Show or hide the mascot on this page |
+| `peekVariant` | select | Expression: `default`, `smile`, `anger`, `shock` |
+| `peekSide` | select | Which side: `left` or `right` |
+| `peekBottom` | string | Distance from bottom of content column, e.g. `80px` |
+
+**Asset naming convention:** `peek_{variant}_{side}.png` — all 8 assets live in `public/images/`. `BaseLayout` assembles the path from the variant and side values at runtime.
+
+**How pages wire in:** each page passes `peekKey="<key>"` to `<BaseLayout>`. BaseLayout reads the single JSON entry and indexes into it by that key. No `peek={{}}` prop — that pattern is retired.
+
+When adding a new page that needs peek support: add a key to the `peekSettings` schema in `config.ts`, seed a disabled entry in `peek-settings.json`, add a matching object under the Peek Mascot entry in `config.yml`.
+
+---
+
 ## Future CMS work
 
-These are planned features that will land in `config.yml` and need accompanying updates here when they ship.
+These are planned but not yet built.
 
-### Background art via CMS
+### DTB Neighbors / Partners page
 
-Client wants to upload a background image (or set a solid color) via the CMS. Likely shape: a new `siteSettings` collection or entry under `pageContent` with `backgroundImage` / `backgroundColor` / `backgroundMode` fields. `BaseLayout.astro` reads the entry and injects the value into `body { background: ... }`.
-
-Open design questions: per-page or global, image-vs-color toggle, readability overlay, mobile/desktop variants. Worth a client conversation before building.
-
-When this lands, the new image field needs a `max_file_size` of its own — probably larger than the 4MB event cap since it's full-bleed, but still aggressively constrained. Add a row to the upload guardrails table above.
-
-### CMS-driven Mascot Peek assignment
-
-Library curation stays developer-side (the Peek assets are version-controlled to maintain visual consistency), but per-page assignment moves to the CMS. Each `pageContent` entry gets a `peekVariant` (select widget enumerating the library) and `peekSide` (left | right | none). Vertical position is a stretch goal.
-
-This affects `pageContent` collection structure significantly. The shared field group pattern doesn't exist in Decap; the simplest path is duplicating the peek fields onto each `pageContent` file entry, accepting the verbosity.
-
-### MailerLite migration
-
-Newsletter is currently wired to Mailchimp. The migration to MailerLite is planned but not started. Note that the newsletter form itself isn't a CMS-edited piece — it's hardcoded in `src/pages/newsletter.astro`. What changes is the API endpoint and credentials, not the form.
+New `neighbors` collection for partner shout-outs (NextWaveDev, On the Block, 11:11, etc.). See GitHub issue `feat/dtb-neighbors` for full spec. Folder collection, one markdown file per partner, all fields optional except `name`.
 
 ---
 
