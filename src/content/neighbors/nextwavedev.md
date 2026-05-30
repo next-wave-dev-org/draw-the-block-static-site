@@ -1,7 +1,7 @@
 ---
 name: NextWaveDev
 tagline: The team behind drawtheblock.org
-websiteUrl: www.nextwavedev.org
+
 url: www.nextwavedev.org
 image: /uploads/nextwavedev_final_small_transparent.png
 displayOrder: 0

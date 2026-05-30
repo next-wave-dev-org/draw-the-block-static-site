@@ -7,7 +7,7 @@ location: "Seattle, WA"
 
 description: "Showcase your cosplay on stage and celebrate creativity."
 eventUrl: "https://example.com/rsvp"
-image: "/images/events/Balloon-345.jpg"
+image: ""
 ---
 
 Full description goes here. This is the event detail page content.
