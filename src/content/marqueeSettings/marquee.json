@@ -32,6 +32,10 @@
     "enabled": false,
     "messages": []
   },
+  "partners": {
+    "enabled": false,
+    "messages": []
+  },
   "faq": {
     "enabled": false,
     "messages": []

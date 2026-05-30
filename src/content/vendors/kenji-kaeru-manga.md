@@ -1,6 +1,6 @@
 ---
 name: Kenji Kaeru Manga
-websiteUrl: kkmanga,com
+websiteUrl: https://kkmanga.com
 instagramUrl: https://www.instagram.com/kk_mangaa/
 image: /uploads/pfpclip.png
 events:
