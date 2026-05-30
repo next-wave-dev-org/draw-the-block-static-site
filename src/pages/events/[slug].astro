@@ -151,7 +151,7 @@ const formatDateTime = (d: Date) =>
         <section class="stack">
           {sections.map((section) => (
               <div class="stack">
-                <Kicker label={section.title} format="stacked" />
+                <Kicker label={section.title} format="plain" />
 
                 <div class="eventsList">
                   {section.items.map((s: SubEventEntry, index: number, arr: SubEventEntry[]) => (
