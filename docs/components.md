@@ -2,7 +2,7 @@
 
 A reference for the shared components in `src/components/`, the layout that wraps every page, and the small data-layer helper for the shop. Page-level files (`home.astro`, `events/index.astro`, `support.astro`, etc.) consume these but aren't documented here.
 
-The audience for this doc is whoever picks up the codebase next — not the client editing content. If you're looking for "how does the CMS work," see [`docs/cms.md`](docs/cms.md).
+The audience for this doc is whoever picks up the codebase next — not the client editing content. If you're looking for "how does the CMS work," see the relevant section in the main README.
 
 ---
 
@@ -14,14 +14,15 @@ Wraps every page. Owns the site chrome — logo, primary nav, marquee band, cont
 
 ### Props
 
-| Prop          | Type              | Default            | Description                                                                |
-| :------------ | :---------------- | :----------------- | :------------------------------------------------------------------------- |
-| `title`       | `string`          | `"DRAW THE BLOCK"` | Browser tab title.                                                         |
-| `description` | `string`          | `undefined`        | `<meta name="description">` content. Pass a relevant page-level summary for SEO. |
-| `current`     | `NavKey`          | `undefined`        | Which nav item is the active page. Drives bracket-travel + marquee scope.  |
-| `peekKey`     | `string`          | `undefined`        | CMS lookup key — reads `src/content/peekSettings/peek-settings.json` and renders the mascot if `peekEnabled` is true for that page. Pass the page's key (e.g. `"about"`, `"eventsHome"`). |
+| Prop      | Type     | Default            | Description                                                                |
+| :-------- | :------- | :----------------- | :------------------------------------------------------------------------- |
+| `title`   | `string` | `"DRAW THE BLOCK"` | Browser tab title.                                                         |
+| `current` | `NavKey` | `undefined`        | Which nav item is the active page. Drives bracket-travel + marquee scope.  |
+| `peekKey` | `PeekKey` | `undefined`       | Identifies which entry in the `peekSettings` JSON to read for this page's mascot config. If unset, no mascot renders. |
 
-`NavKey` is a union: `"home" | "about" | "events" | "vendors" | "shop" | "support" | "faq" | "newsletter" | "neighbors"`. Add new keys here when you add a new top-level route.
+`NavKey` is a union: `"home" | "about" | "events" | "vendors" | "partners" | "shop" | "support" | "faq" | "newsletter"`. Add new keys here when you add a new top-level route.
+
+`PeekKey` is the set of page identifiers used to look up peek mascot config in `src/content/peekSettings/peek-settings.json`. See the PeekMascot section below for the current list of supported keys and how the lookup works.
 
 ### Bracket-travel nav
 
@@ -39,7 +40,7 @@ The implementation is JS-driven because variable link widths and responsive layo
 
 ### Marquee resolution
 
-The marquee band below the nav is conditionally rendered based on a small fallback chain. All marquee config lives in `src/content/marqueeSettings/marquee.json` with one nested object per scope (`global`, `home`, `about`, `events`, `vendors`, `support`, `faq`).
+The marquee band below the nav is conditionally rendered based on a small fallback chain. All marquee config lives in `src/content/marqueeSettings/marquee.json` with one nested object per scope (`global`, `home`, `about`, `events`, `vendors`, `partners`, `support`, `faq`).
 
 The rules:
 
@@ -58,22 +59,9 @@ The footer keeps the older `[BRACKETS]`-around-active-label pattern via the `foo
 
 ### Misc structural details
 
-- The DTB logo at the top has `transition:persist="site-logo"` so it stays mounted across client-side navigations. Avoids a logo flicker on every page change.
+- The DTB logo at the top has `transition:persist="site-logo"` so it stays mounted across client-side navigations. Avoids a logo flicker on every page change. The named persist key (rather than bare `transition:persist`) ensures Astro matches the element across routes even when the surrounding markup differs.
 - The footer's discord and instagram links read from the `settings/social` content entry. Both gracefully default to `#` if unset.
 - Global, tokens, and base CSS are imported at the top — every page gets these via the layout.
-
-### Site background
-
-`BaseLayout` reads `src/content/pageContent/background.json` at build time and injects an inline `<style>body { background: ... }</style>` into `<head>`. This is the only thing that sets `body` background — the `background: var(--color-bg)` rule has been removed from `base.css` to avoid a cascade conflict.
-
-Two modes, controlled by the `backgroundMode` field:
-
-- **`"color"`** — uses the `backgroundColor` hex value directly (e.g. `body { background: #287feb; }`).
-- **`"image"`** — uses the `backgroundImage` URL with `background-size: cover; background-position: center; background-attachment: fixed`.
-
-Fallback if the entry doesn't exist: `#287feb` (the original brand blue). The background is only visible in the side gutters at wider viewports — the `.site-strip` column sits on top of it. On mobile the strip is full-width and the background is never visible.
-
-`--color-bg` in `tokens.css` is kept as a reference token but is no longer used to set `body` background. Don't re-add `background: var(--color-bg)` to `base.css`.
 
 ---
 
@@ -151,7 +139,6 @@ The card used for event listings on `/`, `/events`, and `/events/[slug]` (subeve
 | `endDate`     | `Date`     | No       | Multi-day end. Renders as ` – {endDate}` after start.             |
 | `endTime`     | `string`   | No       | Same-day end (e.g. `"6:00 PM"`). Renders as ` – {endTime}`. Ignored if `endDate` is set. |
 | `location`    | `string`   | No       | Location text rendered on its own line.                           |
-| `eager`       | `boolean`  | No (`false`) | When `true`, sets `loading="eager"` and `fetchpriority="high"` on the card image. Pass `eager={index === 0}` (or `eager={true}` for a single featured card) on the LCP-eligible first card. Leave unset for all below-the-fold cards. |
 
 ### Why primitive props?
 
@@ -161,7 +148,7 @@ Events and subevents have different schemas — events have `featured`, subevent
 
 1.02x scale + hard yellow drop shadow (top-right offset, 6px / -6px, no blur). 180ms ease-out. Pure CSS, no JS.
 
-The shadow is fixed yellow (`#FFD400`) rather than complementary to the card's image because the client controls event imagery via the CMS — there's no reliable way to pick a complementary color we don't know in advance. Yellow is the brand's interactive accent across the site (also used on vendor section headings as link affordance and on the marquee separator), and works against any image.
+The shadow is fixed yellow rather than complementary to the card's image because the client controls event imagery via the CMS — there's no reliable way to pick a complementary color we don't know in advance. Yellow is the brand accent and works against any image.
 
 `prefers-reduced-motion` users get the shadow but not the scale.
 
@@ -263,85 +250,76 @@ The component uses `<nav>` + `<ol>` semantics with `aria-label="Breadcrumb"` so 
 
 A decorative mascot character that peeks from the side band of a
 page, her hand resting on the central column edge. Currently used
-on the about, events detail, and vendors pages.
+on about, events (index, detail, subevent, archive), vendors,
+partners, shop, faq, support, and newsletter pages.
 
-### Props
+### CMS-driven configuration
 
-| Prop      | Type                       | Default                                  | Description                                                                                                                |
-| :-------- | :------------------------- | :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------------- |
-| `src`     | `string`                   | `"/images/mascot_peek_${side}.png"`      | Path to the mascot asset. Defaults to the side-appropriate file. Override only when using a custom variant.                |
-| `side`    | `"left" \| "right"`        | `"left"`                                 | Which side band the mascot peeks from. Picks the matching asset by default — left → `mascot_peek_left.png`, right → `mascot_peek_right.png`. |
-| `width`   | `string` (CSS length)      | `"280px"`                                | Rendered width.                                                                                                            |
-| `offset`  | `string` (CSS length or %) | per-side breakpoint default              | How much of the asset tucks behind the parent's edge to align her hand. Defaults differ by side because each asset's hand sits at a different frame position. |
-| `bottom`  | `string` (CSS length)      | `"80px"`                                 | Distance from the bottom of the parent container.                                                                          |
-| `mirror`  | `boolean`                  | `false`                                  | Force a horizontal flip via `scaleX(-1)`. Used when you want the wrong-side asset on a side as a fallback.                 |
+Per-page peek behavior is no longer set by passing props directly to
+`<PeekMascot>`. Pages instead pass a `peekKey` to `<BaseLayout>`;
+BaseLayout reads the corresponding entry from
+`src/content/peekSettings/peek-settings.json`, assembles the asset
+path from the `peekVariant` + `peekSide` values, and forwards
+`src`/`side`/`bottom` down to `<PeekMascot>` itself.
+
+The component still accepts `src`, `side`, `bottom`, `offset`, and
+`width` props — but in practice only BaseLayout sets them. Pages
+should never invoke `<PeekMascot>` directly unless they're doing
+something deliberately outside the CMS pattern (the home page is the
+only current example; its mascot is part of a larger composition
+with the DRAW/THE/BLOCK wordmark and lives directly in `home.astro`).
+
+### Pages with peek support
+
+`home`, `about`, `eventsHome`, `eventsDetail`, `eventsSubevent`,
+`eventsArchive`, `vendors`, `partners`, `shop`, `faq`, `support`,
+`newsletter`. Each gets its own collapsible object under the **Page
+Content → Peek Mascot** entry in the CMS.
+
+### Asset naming convention
+
+All peek assets live in `public/images/` and follow the pattern:
+
+```
+peek_{variant}_{side}.png
+```
+
+Where `variant` is one of `default`, `smile`, `anger`, `shock` and
+`side` is `left` or `right`. Eight assets total. BaseLayout
+assembles the path at runtime from the CMS values — no `src` lookup
+table, no per-page imports.
+
+When adding a new expression variant, add the asset pair (left +
+right) to `public/images/` and extend the `peekVariant` select
+options in both `src/content/config.ts` and
+`public/admin/config.yml`.
+
+### Component props (still in the API, set by BaseLayout)
+
+| Prop      | Type                  | Default                   | Description                                                                |
+| :-------- | :-------------------- | :------------------------ | :------------------------------------------------------------------------- |
+| `src`     | `string`              | `"/images/mascot_peek.png"` | Path to the mascot asset. BaseLayout constructs this from `peek_{variant}_{side}.png`. |
+| `side`    | `"left" \| "right"`    | `"left"`                  | Which side band the mascot peeks from. Right side mirrors via CSS.       |
+| `width`   | `string` (CSS length) | `"280px"`                 | Rendered width. Currently fixed; not CMS-driven.                          |
+| `offset`  | `string` (CSS length or %) | `"15%"`              | How much of the asset tucks behind the parent's edge. Currently fixed; not CMS-driven. |
+| `bottom`  | `string` (CSS length) | `"80px"`                  | Distance from the bottom of the parent container. CMS-driven via `peekBottom`. |
 
 ### Required parent setup
 
 The mascot is absolutely positioned. **The parent container must have
 `position: relative`** for it to anchor correctly. This is non-optional
 — without it, she'll position relative to the document body or
-viewport instead of the page's content column.
+viewport instead of the page's content column. Easy to forget when
+adding peek support to a new page.
 
 ### How the side variants work
 
-There are two distinct hand-drawn assets, one for each side:
-
-- `mascot_peek_left.png` — character peeks from the left side band,
-  hand reaching to the right.
-- `mascot_peek_right.png` — character peeks from the right side band,
-  hand reaching to the left.
-
-Setting `side` picks both the position AND the asset:
-
-```astro
-<PeekMascot side="left" />   {/* → uses mascot_peek_left.png  */}
-<PeekMascot side="right" />  {/* → uses mascot_peek_right.png */}
-```
-
-No mirroring happens by default — each asset is already drawn
-correctly for its side. The `mirror` prop is a fallback for the
-edge case where you want to force one asset onto the wrong side
-(e.g. only the left asset is available but the design calls for a
-right-side appearance):
-
-```astro
-<PeekMascot side="right" mirror src="/images/mascot_peek_left.png" />
-```
-
-Per-side offset defaults: each asset has its hand drawn at a
-different position within its frame, so the `--peek-offset-default-left`
-and `--peek-offset-default-right` CSS variables are tuned independently
-inside the component. If you swap an asset, expect to re-tune the
-matching side's defaults.
-
-```astro
-<PeekMascot src="/images/mascot_peek_right.png" side="right" />
-```
-
-The `side="right"` is still needed — it tells the component to anchor
-to the parent's right edge instead of the left.
-
-### Tuning per page
-
-Each page has different content height and visual context. Default
-values match the about page, but other pages will likely need overrides:
-
-```astro
-{/* About — original tuning */}
-<PeekMascot offset="15%" />
-
-{/* Events detail — content runs deep, lift her up */}
-<PeekMascot bottom="120px" />
-
-{/* Vendors — clear the application section at the bottom */}
-<PeekMascot bottom="200px" offset="29%" />
-```
-
-The `offset` value differs across pages because each parent container
-has a different width and position. The percentage is calculated from
-the mascot's own width, but the visual anchor depends on parent
-geometry — so tuning per page is expected.
+The default-named asset is drawn for the left side band (mascot's
+right hand grips the column edge, body extends leftward). When
+`side="right"`, the component flips horizontally with `transform:
+scaleX(-1)`. With the `peek_{variant}_{side}.png` naming, dedicated
+right-side assets exist for every variant — the flip is now a
+fallback rather than the primary mechanism.
 
 ### Hidden on narrow viewports
 
@@ -361,20 +339,16 @@ the page's CSS:
 
 But generally, the hide-below-960px rule is what you want.
 
-### Variant support
+### Tuning per page
 
-The component supports asset variants beyond the two side-default
-assets. Likely scenarios:
+Tuning happens in the CMS, not in Astro props. Under **Page Content →
+Peek Mascot**, each page has fields for `peekEnabled`, `peekVariant`,
+`peekSide`, and `peekBottom`. The client (or a developer in the
+admin UI) can adjust any of these without touching code.
 
-1. **Different expressions** (smiling, thinking, etc.) — pass via `src`,
-   keep `side` matching the position you want.
-2. **Different mascot character** for a specific page — pass via `src`.
-3. **Forced wrong-side use** (e.g. only have the left asset, need a
-   right-side appearance) — pass `mirror` plus an explicit `src`.
-
-The CSS variables (`--peek-width`, `--peek-offset`, `--peek-bottom`)
-are set inline from props, so each instance is fully independent.
-No global state, no coordination between instances.
+If a page needs sizing or offset tweaks beyond what the CMS exposes
+(`width`, `offset`), those are still component-level concerns —
+either extend the schema and CMS config, or accept the defaults.
 
 ---
 
@@ -416,7 +390,7 @@ Cart UI, product detail pages on this site, filtering, variants, real-time inven
 The components above don't exist in isolation. A few worth knowing about together:
 
 - **EventCard and ProductCard are intentionally siblings.** They look the same on hover, share the yellow accent, and appear in the same grid pattern across pages. If you change the hover on one, change both — there's a comment in ProductCard's CSS reminding future-you of this.
-- **PeekMascot is now CMS-driven.** Per-page assignment (variant, side, vertical position) is configured in Decap under Page Content → Peek Mascot. `BaseLayout` reads `src/content/peekSettings/peek-settings.json` once and indexes by the `peekKey` prop each page passes. Pages pass `peekKey="<pageKey>"` to `<BaseLayout>` — no `peek={{}}` prop directly. The home page does NOT use PeekMascot — its mascot is part of a larger composition with the DRAW/THE/BLOCK wordmark and lives directly in `home.astro`. Asset naming convention: `peek_{variant}_{side}.png` (e.g. `peek_smile_left.png`).
+- **PeekMascot appears on most content pages and is configured entirely through the CMS.** Pages just declare `peekKey="<key>"` on `<BaseLayout>`; BaseLayout looks up the entry in `peek-settings.json` and forwards the right asset/side/bottom values to the component. If you change the breakpoint, sizing math, or mirror logic, the change is component-local and applies everywhere. The home page is the one exception — its mascot is part of a larger composition with the DRAW/THE/BLOCK wordmark and lives directly in `home.astro`, not driven by `peekKey`.
 - **BaseLayout's marquee resolution and the Marquee component are tightly coupled but the seam is clean.** Marquee just renders a list of strings. BaseLayout decides which list to pass. New scopes (e.g. "shop") would require editing `MarqueeScope` in BaseLayout *and* the schema in `config.ts` *and* the Decap CMS config in `public/admin/config.yml`. Three coordinated edits — keep them in lockstep.
 - **Breadcrumb and EventCard are layout siblings.** Breadcrumb sits at the top of detail pages where EventCard appears at the top of list pages. They're visual peers in a hierarchy.
 
@@ -428,9 +402,24 @@ If you're adding a new top-level route, the checklist is roughly:
 4. Add a new scope to the marquee schema in `src/content/config.ts`.
 5. Add the matching scope to the Decap config (`public/admin/config.yml`) so the client can edit it.
 6. Run `npx astro sync` after schema changes.
-7. If the page needs a description meta tag, pass `description="..."` to `<BaseLayout>`.
-8. Add a `peekKey` to the `peekSettings` schema in `config.ts`, seed a disabled entry in `src/content/peekSettings/peek-settings.json`, and add a matching object to the `peek-settings` entry in `public/admin/config.yml`.
+7. If the page should support the peek mascot: add the key to the `peekSettings` schema in `src/content/config.ts`.
+8. Seed a disabled entry for the new key in `src/content/peekSettings/peek-settings.json`.
+9. Add a matching collapsible object under the **Peek Mascot** entry in `public/admin/config.yml`.
+10. Pass `peekKey="<key>"` to `<BaseLayout>` in the new page. Make sure the page's main content container has `position: relative` so the mascot anchors correctly.
 
-**Current top-level routes:** home, about, events, vendors, shop, support, faq, newsletter, neighbors.
+### Current top-level routes
 
-If you're adding a new `pageContent` collection entry (like `background.json`): create the JSON file in `src/content/pageContent/` with the required fields, add the corresponding `file:` entry in `public/admin/config.yml` under the `pageContent` collection, and extend the `pageContent` schema in `config.ts`. Run `npx astro sync` after.
+For reference, the current set of top-level routes (and their `NavKey` values):
+
+| Route          | NavKey         | Notes                                                        |
+| :------------- | :------------- | :----------------------------------------------------------- |
+| `/`            | `home`         | Home. Mascot is part of the home composition, not `peekKey`. |
+| `/about`       | `about`        |                                                              |
+| `/events`      | `events`       | Plus `/events/[slug]` and `/events/[slug]/[subSlug]`.        |
+| `/events/archive` | `events`    | Past events archive. Shares the `events` nav key.            |
+| `/vendors`     | `vendors`      |                                                              |
+| `/partners`    | `partners`     | DTB Neighbors. Collection is `neighbors`; route + nav are `partners`. |
+| `/shop`        | `shop`         |                                                              |
+| `/support`     | `support`      |                                                              |
+| `/faq`         | `faq`          |                                                              |
+| `/newsletter`  | `newsletter`   | Footer link, not in main nav. Falls through to global marquee. |
