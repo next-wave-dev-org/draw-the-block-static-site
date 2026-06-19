@@ -1,5 +1,5 @@
 ---
-title: Draw The Block @ On The Block
+title: Draw The Block @ On The Block Day 2
 featured: true
 startDate: 2026-07-11T12:00:00.000-07:00
 location: 1512 11th Ave, Seatle, WA 98122
