@@ -1,6 +1,6 @@
 ---
 title: "Draw The Block @ On The Block! "
-featured: true
+featured: false
 startDate: 2026-06-13T12:00:00.000-07:00
 endTime: "6: PM"
 description: >-
