@@ -197,7 +197,7 @@ collections:
                 max_file_size: 6291456
             hint: "Used when Background Mode is set to 'Image'. Recommended: 2000–3000px wide, 2–3MB. Max 6MB. The image covers the full screen behind the content column — visible only on wider screens."
 
-      - file: "src/content/pageContent/logoBackdrop.json"
+      - file: "src/content/pageContent/logo-backdrop.json"
         label: "Logo Backdrop"
         name: "logoBackdrop"
         fields:

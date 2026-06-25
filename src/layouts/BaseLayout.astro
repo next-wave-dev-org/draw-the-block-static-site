@@ -54,7 +54,7 @@ const bodyBackground =
         : bgColor;
 
 // Logo backdrop — CMS-controlled band behind the header logo.
-const backdropEntry = await getEntry("pageContent", "logoBackdrop");
+const backdropEntry = await getEntry("pageContent", "logo-backdrop");
 const backdropMode = backdropEntry?.data.backdropMode ?? "none";
 const backdropImage = backdropEntry?.data.backdropImage;
 const logoBackdropStyle =

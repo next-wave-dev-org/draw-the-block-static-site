@@ -67,7 +67,7 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
           <Kicker label="FEATURED EVENT" />
 
           <EventCard
-              href={`/events/${singleFeatured.slug}`}
+              href={`/events/${singleFeatured.id}`}
               title={singleFeatured.data.title}
               image={singleFeatured.data.image}
               description={singleFeatured.data.description}
@@ -87,7 +87,7 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
           <div class="eventsList">
             {featuredDisplay.map((event, index) => (
                 <EventCard
-                    href={`/events/${event.slug}`}
+                    href={`/events/${event.id}`}
                     title={event.data.title}
                     image={event.data.image}
                     description={event.data.description}

@@ -4,7 +4,7 @@ export const prerender = true;
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../../components/Breadcrumb.astro";
 import Kicker from "../../../components/Kicker.astro";
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection, render, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
 type SubEventEntry = CollectionEntry<"subevents">;
@@ -14,15 +14,15 @@ export async function getStaticPaths() {
   const subs = (await getCollection("subevents")) as SubEventEntry[];
 
   const validSubs = subs.filter((s) =>
-      events.some((e) => e.slug === s.data.parentEvent)
+      events.some((e) => e.id === s.data.parentEvent)
   );
 
   // Attach the parent event to props so the template can render a full
   // breadcrumb without a second collection fetch per request.
   return validSubs.map((s) => {
-    const parent = events.find((e) => e.slug === s.data.parentEvent)!;
+    const parent = events.find((e) => e.id === s.data.parentEvent)!;
     return {
-      params: { eventSlug: s.data.parentEvent, subSlug: s.slug },
+      params: { eventSlug: s.data.parentEvent, subSlug: s.id },
       props: { subevent: s, parent },
     };
   });
@@ -32,7 +32,7 @@ const { subevent, parent } = Astro.props as {
   subevent: SubEventEntry;
   parent: EventEntry;
 };
-const { Content } = await subevent.render();
+const { Content } = await render(subevent);
 
 const formatDateTime = (d: Date) =>
     d.toLocaleString(undefined, {
@@ -53,7 +53,7 @@ const formatDateTime = (d: Date) =>
   <main class="events stack">
     <Breadcrumb items={[
       { label: "EVENTS", href: "/events" },
-      { label: parent.data.title.toUpperCase(), href: `/events/${parent.slug}` },
+      { label: parent.data.title.toUpperCase(), href: `/events/${parent.id}` },
       { label: subevent.data.title.toUpperCase() }
     ]} />
 
