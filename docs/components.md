@@ -58,7 +58,7 @@ The footer keeps the older `[BRACKETS]`-around-active-label pattern via the `foo
 
 ### Misc structural details
 
-- The DTB logo at the top has `transition:persist` so it stays mounted across client-side navigations. Avoids a logo flicker on every page change.
+- The DTB logo at the top has `transition:persist` so it stays mounted across client-side navigations. Avoids a logo flicker on every page change. It is wrapped in `.logo-area` which hosts the optional CMS-controlled backdrop — see "Logo backdrop" below.
 - The footer's discord and instagram links read from the `settings/social` content entry. Both gracefully default to `#` if unset.
 - Global, tokens, and base CSS are imported at the top — every page gets these via the layout.
 
@@ -74,6 +74,19 @@ Two modes, controlled by the `backgroundMode` field:
 Fallback if the entry doesn't exist: `#287feb` (the original brand blue). The background is only visible in the side gutters at wider viewports — the `.site-strip` column sits on top of it. On mobile the strip is full-width and the background is never visible.
 
 `--color-bg` in `tokens.css` is kept as a reference token but is no longer used to set `body` background. Don't re-add `background: var(--color-bg)` to `base.css`.
+
+### Logo backdrop
+
+`BaseLayout` reads `src/content/pageContent/logoBackdrop.json` at build time and conditionally renders a `.logo-backdrop` div behind the header logo.
+
+Two modes, controlled by the `backdropMode` field:
+
+- **`"none"`** — no backdrop rendered (default).
+- **`"image"`** — renders the backdrop with the `backdropImage` URL at `cover` size, centered.
+
+The backdrop is wrapped in `.logo-area`, a flex container that bleeds to the full width of `.site-strip` using negative horizontal margins that counteract `.site-strip`'s padding at every breakpoint. The logo image sits above the backdrop via `position: relative; z-index: 1`. The backdrop's bottom edge is 5px above the nav, set by `padding-bottom: 5px` on `.logo-area`.
+
+The `.logo-backdrop` div is only rendered when `logoBackdropStyle` is non-empty — if `backdropMode` is `"none"` or `"image"` with no image uploaded, no element is added to the DOM.
 
 ---
 

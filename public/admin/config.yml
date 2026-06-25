@@ -197,6 +197,27 @@ collections:
                 max_file_size: 6291456
             hint: "Used when Background Mode is set to 'Image'. Recommended: 2000–3000px wide, 2–3MB. Max 6MB. The image covers the full screen behind the content column — visible only on wider screens."
 
+      - file: "src/content/pageContent/logoBackdrop.json"
+        label: "Logo Backdrop"
+        name: "logoBackdrop"
+        fields:
+          - label: "Backdrop Mode"
+            name: "backdropMode"
+            widget: "select"
+            options:
+              - { label: "None", value: "none" }
+              - { label: "Image", value: "image" }
+            default: "none"
+            hint: "Choose 'None' for no backdrop, or 'Image' to upload a photo behind the logo."
+          - label: "Backdrop Image"
+            name: "backdropImage"
+            widget: "image"
+            required: false
+            media_library:
+              config:
+                max_file_size: 6291456
+            hint: "Used when Backdrop Mode is set to 'Image'. The image appears behind the logo across the full page width. Recommended: 2000–3000px wide, under 2MB. Max 6MB."
+
       - file: "src/content/pageContent/tagline.json"
         label: "Tagline"
         name: "tagline"
