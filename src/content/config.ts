@@ -191,8 +191,7 @@ const pageContent = defineCollection({
         backgroundImage: z.string().optional(),
 
         // Used by the logoBackdrop entry (header logo band)
-        backdropMode: z.enum(["none", "color", "image"]).default("none"),
-        backdropColor: z.string().default("#000000"),
+        backdropMode: z.enum(["none", "image"]).default("none"),
         backdropImage: z.string().optional(),
     }),
 });

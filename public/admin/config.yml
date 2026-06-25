@@ -206,15 +206,9 @@ collections:
             widget: "select"
             options:
               - { label: "None", value: "none" }
-              - { label: "Solid Color", value: "color" }
               - { label: "Image", value: "image" }
             default: "none"
-            hint: "Choose 'None' for no backdrop, 'Solid Color' for a flat color, or 'Image' to upload a photo. Switching modes preserves both values so you can switch back without re-entering."
-          - label: "Backdrop Color"
-            name: "backdropColor"
-            widget: "color"
-            default: "#000000"
-            hint: "Used when Backdrop Mode is set to 'Solid Color'."
+            hint: "Choose 'None' for no backdrop, or 'Image' to upload a photo behind the logo."
           - label: "Backdrop Image"
             name: "backdropImage"
             widget: "image"

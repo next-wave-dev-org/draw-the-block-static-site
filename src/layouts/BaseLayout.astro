@@ -56,14 +56,11 @@ const bodyBackground =
 // Logo backdrop — CMS-controlled band behind the header logo.
 const backdropEntry = await getEntry("pageContent", "logoBackdrop");
 const backdropMode = backdropEntry?.data.backdropMode ?? "none";
-const backdropColor = backdropEntry?.data.backdropColor ?? "#000000";
 const backdropImage = backdropEntry?.data.backdropImage;
 const logoBackdropStyle =
     backdropMode === "image" && backdropImage
         ? `background: url('${backdropImage}') center center / cover no-repeat;`
-        : backdropMode === "color"
-            ? `background: ${backdropColor};`
-            : "";
+        : "";
 
 
 type MarqueeScope = "home" | "about" | "events" | "vendors" | "partners" | "support" | "faq" | "global";
