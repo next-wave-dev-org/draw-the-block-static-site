@@ -91,7 +91,7 @@ const formatDateTime = (d: Date) =>
     {subevent.data.description && <p class="eventMeta">{subevent.data.description}</p>}
 
     <p class="eventMeta">
-      <small>
+      <span>
         {formatDateTime(subevent.data.startDate)}
         {subevent.data.endDate
             ? ` – ${formatDateTime(subevent.data.endDate)}`
@@ -100,7 +100,7 @@ const formatDateTime = (d: Date) =>
                 : ""}
         {subevent.data.location && <br />}
         {subevent.data.location && <span>{subevent.data.location}</span>}
-      </small>
+      </span>
     </p>
 
     {subevent.data.eventUrl && (
@@ -225,7 +225,7 @@ const formatDateTime = (d: Date) =>
 
     .eventMeta {
       margin: 0;
-      font-size: 11px;
+      font-size: 14px;
       letter-spacing: 0.02em;
       opacity: 0.95;
     }
