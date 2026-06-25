@@ -1,13 +1,12 @@
 ---
 parentEvent: art-market
-title: "Cosplay Fashion Show"
-category: "liveShowcases"
+category: liveShowcases
+title: Cosplay Fashion Show
 startDate: 2026-01-31T18:00:00-08:00
-location: "Seattle, WA"
-
-description: "Showcase your cosplay on stage and celebrate creativity."
-eventUrl: "https://example.com/rsvp"
-image: "/images/events/Balloon-345.jpg"
+location: Seattle, WA
+description: Showcase your cosplay on stage and celebrate creativity.
+image: /uploads/Balloon-345.jpg
+eventUrl: https://example.com/rsvp
 ---
 
 Full description goes here. This is the event detail page content.

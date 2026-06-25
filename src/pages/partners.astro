@@ -1,0 +1,252 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Kicker from "../components/Kicker.astro";
+import { getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
+
+const allNeighbors = await getCollection("neighbors");
+
+const neighbors = allNeighbors.sort((a, b) => {
+    const orderDiff = a.data.displayOrder - b.data.displayOrder;
+    if (orderDiff !== 0) return orderDiff;
+    return a.data.name.localeCompare(b.data.name);
+});
+---
+
+<BaseLayout
+        title="DRAW THE BLOCK — PARTNERS"
+        current="partners"
+        peekKey="partners"
+        description="The people and groups DTB works alongside. Our neighbors, collaborators, and crew."
+>
+    <main class="partnersPage">
+        <div class="partnersPage__intro">
+            <Kicker label="DTB NEIGHBORS" format="plain" />
+            <p class="partnersPage__blurb">
+                These are the people and groups we're constantly building with.
+                Our neighbors, our collaborators, our crew.
+            </p>
+        </div>
+
+        <div class="neighbors-list">
+            {neighbors.map(async (neighbor) => {
+                const { Content } = await render(neighbor);
+                const Tag = neighbor.data.url ? "a" : "article";
+                const linkProps = neighbor.data.url
+                    ? { href: neighbor.data.url, target: "_blank", rel: "noopener noreferrer" }
+                    : {};
+                return (
+                        <Tag class="neighbor-row" {...linkProps}>
+                            <div class="neighbor-row__logo">
+                                {neighbor.data.image ? (
+                                        <Image
+                                                src={neighbor.data.image}
+                                                alt={neighbor.data.name}
+                                                width={120}
+                                                height={120}
+                                                format="webp"
+                                                class="neighbor-logo-img"
+                                        />
+                                ) : (
+                                        <div class="neighbor-logo-placeholder" aria-hidden="true">
+                  <span class="neighbor-logo-placeholder__text">
+                    {neighbor.data.name}
+                  </span>
+                                        </div>
+                                )}
+                            </div>
+
+                            <div class="neighbor-row__body">
+                                <h2 class="neighbor-name">[ {neighbor.data.name} ]</h2>
+
+                                {neighbor.data.tagline && (
+                                        <p class="neighbor-tagline">{neighbor.data.tagline}</p>
+                                )}
+
+                                <div class="neighbor-description prose">
+                                    <Content />
+                                </div>
+                            </div>
+                        </Tag>
+                );
+            })}
+        </div>
+
+        {neighbors.length === 0 && (
+                <p class="partnersPage__empty">No neighbors yet — check back soon.</p>
+        )}
+    </main>
+</BaseLayout>
+
+<style>
+    .partnersPage {
+        width: 100%;
+        padding-bottom: var(--space-8);
+    }
+
+    /* ═══════════════════════════════════════════
+     * INTRO
+     * ═══════════════════════════════════════════ */
+    .partnersPage__intro {
+        text-align: center;
+        padding: var(--space-6) 0 var(--space-5);
+    }
+
+    .partnersPage__blurb {
+        font-size: var(--fs-body);
+        opacity: 0.75;
+        max-width: 50ch;
+        margin: var(--space-3) auto 0;
+        line-height: var(--lh-body);
+        text-transform: lowercase;
+    }
+
+    .partnersPage__empty {
+        text-align: center;
+        opacity: 0.5;
+        font-size: var(--fs-body);
+        padding: var(--space-7) 0;
+    }
+
+    /* ═══════════════════════════════════════════
+     * NEIGHBORS LIST
+     * ═══════════════════════════════════════════ */
+    .neighbors-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+        width: 100%;
+    }
+
+    /* ═══════════════════════════════════════════
+     * NEIGHBOR ROW
+     * Renders as <a> when url is set, <article> otherwise.
+     * ═══════════════════════════════════════════ */
+    .neighbor-row {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: var(--space-5);
+        padding: var(--space-5);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        text-decoration: none;
+        color: inherit;
+        transition: background 200ms ease, border-color 200ms ease;
+    }
+
+    @media (hover: hover) {
+        a.neighbor-row:hover {
+            background: rgba(255, 255, 255, 0.11);
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+    }
+
+    /* ── Logo column ── */
+    .neighbor-row__logo {
+        flex: 0 0 120px;
+        width: 120px;
+        height: 120px;
+    }
+
+    .neighbor-logo-img {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        display: block;
+    }
+
+    .neighbor-logo-placeholder {
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-2);
+    }
+
+    .neighbor-logo-placeholder__text {
+        font-family: var(--font-display);
+        font-weight: var(--fw-display);
+        font-size: clamp(11px, 1.5vw, 15px);
+        letter-spacing: var(--ls-display);
+        text-transform: uppercase;
+        text-align: center;
+        line-height: 1.15;
+        word-break: break-word;
+        opacity: 0.7;
+    }
+
+    /* ── Body column ── */
+    .neighbor-row__body {
+        flex: 1 1 0;
+        min-width: 0;
+        text-align: left !important;
+    }
+
+    /* Override BaseLayout's inherited text-align: center on all children */
+    .neighbor-row__body :global(*) {
+        text-align: left !important;
+    }
+
+    .neighbor-name {
+        font-family: var(--font-display);
+        font-weight: var(--fw-display);
+        font-size: var(--fs-h3);
+        letter-spacing: var(--ls-display);
+        margin: 0 0 var(--space-2);
+        text-transform: uppercase;
+    }
+
+    .neighbor-tagline {
+        font-size: var(--fs-body);
+        opacity: 0.7;
+        margin: 0 0 var(--space-3);
+        line-height: var(--lh-body);
+    }
+
+    .neighbor-description {
+        font-size: var(--fs-body);
+        line-height: var(--lh-body);
+        opacity: 0.85;
+    }
+
+    .neighbor-description :global(p) {
+        margin: 0 0 var(--space-2);
+    }
+    .neighbor-description :global(p:last-child) {
+        margin-bottom: 0;
+    }
+    .neighbor-description:empty {
+        display: none;
+    }
+
+    /* ═══════════════════════════════════════════
+     * RESPONSIVE
+     * ═══════════════════════════════════════════ */
+    @media (max-width: 480px) {
+        .neighbor-row {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .neighbor-row__logo {
+            flex: none;
+        }
+
+        .neighbor-row__body {
+            width: 100%;
+            text-align: center !important;
+        }
+
+        .neighbor-row__body :global(*) {
+            text-align: center !important;
+        }
+
+        .neighbor-description {
+            display: none;
+        }
+    }
+</style>

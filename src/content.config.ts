@@ -1,4 +1,5 @@
 import { defineCollection, reference, z } from "astro:content";
+import { glob } from "astro/loaders";
 
 const optionalUrlField = z.union([z.string(), z.literal("")])
     .optional()
@@ -17,7 +18,7 @@ const requiredUrlField = z.string()
     .pipe(z.string().url());
 
 const events = defineCollection({
-    type: "content",
+    loader: glob({ pattern: "**/*.md", base: "./src/content/events" }),
     schema: z.object({
         title: z.string(),
         startDate: z.coerce.date(),
@@ -35,7 +36,7 @@ const events = defineCollection({
 });
 
 const subevents = defineCollection({
-    type: "content",
+    loader: glob({ pattern: "**/*.md", base: "./src/content/subevents" }),
     schema: z.object({
         parentEvent: z.string(),
         category: z
@@ -56,7 +57,7 @@ const subevents = defineCollection({
 });
 
 const team = defineCollection({
-    type: "data",
+    loader: glob({ pattern: "**/*.{json,yaml}", base: "./src/content/team" }),
     schema: z.object({
         name: z.string(),
         role: z.string(),
@@ -67,7 +68,7 @@ const team = defineCollection({
 });
 
 const vendors = defineCollection({
-    type: "content",
+    loader: glob({ pattern: "**/*.md", base: "./src/content/vendors" }),
     schema: z.object({
         name: z.string(),
         websiteUrl: optionalUrlField,
@@ -80,7 +81,7 @@ const vendors = defineCollection({
 });
 
 const neighbors = defineCollection({
-    type: "content",
+    loader: glob({ pattern: "**/*.md", base: "./src/content/neighbors" }),
     schema: z.object({
         name: z.string(),
         tagline: z.string().optional(),
@@ -91,22 +92,15 @@ const neighbors = defineCollection({
 });
 
 const faq = defineCollection({
-    type: "content",
+    loader: glob({ pattern: "**/*.md", base: "./src/content/faq" }),
     schema: z.object({
         question: z.string(),
         order: z.number().int().default(1),
     }),
 });
 
-/**
- * Sponsor collection.
- *
- * Now includes an optional `description` field used as the intro paragraph
- * on /support#sponsor. Lives under `support`'s SPONSOR section, no longer
- * its own page.
- */
 const sponsor = defineCollection({
-    type: "content",
+    loader: glob({ pattern: "**/*.md", base: "./src/content/sponsor" }),
     schema: z.object({
         stripeUrl: requiredUrlField,
         poster: z.string().optional(),
@@ -114,14 +108,8 @@ const sponsor = defineCollection({
     }),
 });
 
-/**
- * Donate collection (new).
- *
- * Previously the donate page hardcoded the Ko-fi URL. Moving it into a
- * collection so the client can swap handles without a deploy.
- */
 const donate = defineCollection({
-    type: "content",
+    loader: glob({ pattern: "**/*.md", base: "./src/content/donate" }),
     schema: z.object({
         kofiUrl: requiredUrlField,
         description: z.string().optional(),
@@ -129,7 +117,7 @@ const donate = defineCollection({
 });
 
 const settings = defineCollection({
-    type: "data",
+    loader: glob({ pattern: "**/*.{json,yaml}", base: "./src/content/settings" }),
     schema: z.object({
         discordUrl: optionalUrlField,
         instagramUrl: optionalUrlField,
@@ -137,21 +125,13 @@ const settings = defineCollection({
 });
 
 const vendorSettings = defineCollection({
-    type: "data",
+    loader: glob({ pattern: "**/*.{json,yaml}", base: "./src/content/vendorSettings" }),
     schema: z.object({
         vendorApplicationUrl: optionalUrlField,
         vendorAppInfo: z.string().optional(),
     }),
 });
 
-/**
- * Marquee settings.
- *
- * Sponsor and Donate have been consolidated into a single /support page,
- * so their per-page marquee scopes are merged into a new `support` scope.
- * If migrating from the previous schema, copy whichever of sponsor/donate
- * was enabled into the new support entry; both old keys are gone.
- */
 const marqueeScopeSchema = z.object({
     enabled: z.boolean().default(false),
     messages: z.array(z.string().min(1)).default([]),
@@ -159,7 +139,7 @@ const marqueeScopeSchema = z.object({
 });
 
 const marqueeSettings = defineCollection({
-    type: "data",
+    loader: glob({ pattern: "**/*.{json,yaml}", base: "./src/content/marqueeSettings" }),
     schema: z.object({
         global: marqueeScopeSchema,
         home: marqueeScopeSchema,
@@ -173,37 +153,21 @@ const marqueeSettings = defineCollection({
 });
 
 const pageContent = defineCollection({
-    type: "data",
+    loader: glob({ pattern: "**/*.{json,yaml}", base: "./src/content/pageContent" }),
     schema: z.object({
-        // Used by the tagline entry (home page hero)
         taglineImage: z.string().optional(),
         taglineText: z.string().optional(),
-
-        // Used by the mission entry (about page intro)
         mission: z.string().optional(),
-
-        // Used by the quote entry (about page, below team)
         quote: z.string().optional(),
         attribution: z.string().optional(),
-
         backgroundMode: z.enum(["color", "image"]).default("color"),
         backgroundColor: z.string().default("#287feb"),
         backgroundImage: z.string().optional(),
-
-        // Used by the logoBackdrop entry (header logo band)
         backdropMode: z.enum(["none", "image"]).default("none"),
         backdropImage: z.string().optional(),
     }),
 });
 
-
-/**
- * Peek mascot settings.
- *
- * A single entry (peek-settings.json) holds all per-page peek config.
- * BaseLayout reads this once and indexes by page key. All peek controls
- * live here so the client can adjust every page in one CMS save.
- */
 const peekPageSchema = z.object({
     peekEnabled: z.boolean().default(false),
     peekVariant: z.enum(["default", "smile", "anger", "shock"]).default("default"),
@@ -212,7 +176,7 @@ const peekPageSchema = z.object({
 });
 
 const peekSettings = defineCollection({
-    type: "data",
+    loader: glob({ pattern: "**/*.{json,yaml}", base: "./src/content/peekSettings" }),
     schema: z.object({
         home:           peekPageSchema,
         about:          peekPageSchema,

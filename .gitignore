@@ -25,3 +25,7 @@ pnpm-debug.log*
 # setting folder
 .idea/
 .vscode/
+
+# local session state and agent instructions (private, never committed)
+docs/SESSION_STATE.md
+CLAUDE.md

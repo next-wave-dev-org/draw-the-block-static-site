@@ -9,7 +9,7 @@ import { Image } from 'astro:assets';
 import logo from '../assets/images/logo.png';
 import PeekMascot, { type Props as PeekProps } from "../components/PeekMascot.astro";
 
-type NavKey = "home" | "about" | "events" | "vendors" | "shop" | "support" | "faq" | "newsletter";
+type NavKey = "home" | "about" | "events" | "vendors" | "partners" | "shop" | "support" | "faq" | "newsletter";
 
 const {
   title = "DRAW THE BLOCK",
@@ -53,8 +53,17 @@ const bodyBackground =
         ? `url('${bgImage}') center center / cover no-repeat fixed`
         : bgColor;
 
+// Logo backdrop — CMS-controlled band behind the header logo.
+const backdropEntry = await getEntry("pageContent", "logo-backdrop");
+const backdropMode = backdropEntry?.data.backdropMode ?? "none";
+const backdropImage = backdropEntry?.data.backdropImage;
+const logoBackdropStyle =
+    backdropMode === "image" && backdropImage
+        ? `background: url('${backdropImage}') center center / cover no-repeat;`
+        : "";
 
-type MarqueeScope = "home" | "about" | "events" | "vendors" | "support" | "faq" | "global";
+
+type MarqueeScope = "home" | "about" | "events" | "vendors" | "partners" | "support" | "faq" | "global";
 
 const pageScope: MarqueeScope | null =
     current && current !== "newsletter" ? (current as MarqueeScope) : null;
@@ -95,6 +104,7 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   { key: "about", href: "/about", label: "ABOUT" },
   { key: "events", href: "/events", label: "EVENTS" },
   { key: "vendors", href: "/vendors", label: "VENDORS" },
+  { key: "partners", href: "/partners", label: "PARTNERS" },
   { key: "shop", href: "/shop", label: "SHOP" },
   { key: "support", href: "/support", label: "SUPPORT" },
 ];
@@ -128,7 +138,12 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
 <body>
 <main class="site-strip" aria-label="Main content">
 
-  <Image class="strip-logo" src={logo} alt="Draw The Block logo" transition:persist="site-logo" />
+  <div class="logo-area">
+    {logoBackdropStyle && (
+      <div class="logo-backdrop" aria-hidden="true" style={logoBackdropStyle}></div>
+    )}
+    <Image class="strip-logo" src={logo} alt="Draw The Block logo" transition:persist="site-logo" />
+  </div>
 
   <header class="strip-header" aria-label="Site header">
     <nav class="strip-nav" aria-label="Primary navigation" data-bt-nav>
@@ -219,19 +234,76 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
 </main>
 
 <style>
+  .logo-area {
+    position: relative;
+    /* Bleed to the full width of .site-strip (counteract its horizontal padding) */
+    width: calc(100% + var(--col-pad-mobile) * 2);
+    margin-left: calc(var(--col-pad-mobile) * -1);
+    margin-right: calc(var(--col-pad-mobile) * -1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: var(--space-4);
+    padding-bottom: 5px;
+  }
+
+  @media (min-width: 481px) {
+    .logo-area {
+      width: calc(100% + var(--col-pad-tablet) * 2);
+      margin-left: calc(var(--col-pad-tablet) * -1);
+      margin-right: calc(var(--col-pad-tablet) * -1);
+    }
+  }
+
+  @media (min-width: 769px) {
+    .logo-area {
+      width: calc(100% + var(--col-pad-standard) * 2);
+      margin-left: calc(var(--col-pad-standard) * -1);
+      margin-right: calc(var(--col-pad-standard) * -1);
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .logo-area {
+      width: calc(100% + var(--col-pad-wide) * 2);
+      margin-left: calc(var(--col-pad-wide) * -1);
+      margin-right: calc(var(--col-pad-wide) * -1);
+    }
+  }
+
+  @media (min-width: 1441px) {
+    .logo-area {
+      width: calc(100% + var(--col-pad-ultrawide) * 2);
+      margin-left: calc(var(--col-pad-ultrawide) * -1);
+      margin-right: calc(var(--col-pad-ultrawide) * -1);
+    }
+  }
+
+  @media (min-width: 1921px) {
+    .logo-area {
+      width: calc(100% + var(--col-pad-extrawide) * 2);
+      margin-left: calc(var(--col-pad-extrawide) * -1);
+      margin-right: calc(var(--col-pad-extrawide) * -1);
+    }
+  }
+
+  .logo-backdrop {
+    position: absolute;
+    inset: 0;
+  }
+
   .strip-logo {
     width: 240px;
     height: auto;
     display: block;
-    margin: 0 auto;
-    padding-top: var(--space-4);
+    position: relative;
+    z-index: 1;
   }
 
   .strip-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: var(--space-4);
   }
 
   .site-strip > :global(.marquee) {

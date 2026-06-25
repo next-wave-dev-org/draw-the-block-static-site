@@ -1,6 +1,6 @@
 ---
 title: DTB Pull Up At The Park!
-featured: true
+featured: false
 startDate: 2026-05-31T14:00:00.000-07:00
 endTime: 8 PM
 location: 5900 Lake Washington Blvd S, Seattle, WA 98118
