@@ -346,4 +346,4 @@ The `onlineStoreUrl` field returned by the API reflects the customer-facing URL.
 The `availableForSale` field is true if *any* variant has stock. A product with 5 variants where 1 is in stock and 4 are sold out reads as available. Usually correct behavior; flag if it isn't.
 
 **Build fails after a previously-working setup:**
-Check whether the API version in `shopify.ts` (currently `2024-10`) has been deprecated by Shopify. They version their API quarterly; old versions sunset after about a year. Bump to the current quarterly version and re-test.
+Check whether the API version in `shopify.ts` has been deprecated by Shopify. They version their API quarterly; old versions sunset after about a year. The version is set by `STOREFRONT_API_VERSION` at the top of the file — bump it to the current quarterly version (`YYYY-MM` format) and re-test.

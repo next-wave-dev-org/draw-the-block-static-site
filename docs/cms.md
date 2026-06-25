@@ -45,11 +45,13 @@ The shape of the content model (see `config.yml` for fields):
 | `subevents`     | folder     | Children of events. References parent via `parentEvent` (slug). |
 | `team`          | folder     | Team member profiles (YAML format, not markdown).   |
 | `vendors`       | folder     | Vendors and their event associations.               |
+| `neighbors`     | folder     | Partners / DTB Neighbors. One markdown file per partner. Rendered on `/partners`. |
 | `faq`           | folder     | FAQ entries, manually ordered.                      |
 | `sponsor`       | folder     | Singleton: sponsor page content.                    |
 | `donate`        | folder     | Singleton: donate page content.                     |
-| `pageContent`   | file       | Per-page content blocks: tagline, mission, quote.   |
+| `pageContent`   | file       | Per-page content blocks: tagline, mission, quote, background (color/image), logo backdrop. |
 | `settings`      | file       | Site-wide settings: social links, vendor app, marquee. |
+| `peekSettings`  | file       | Single entry (`peek-settings.json`) — per-page peek mascot config for all 11+ pages. CMS entry lives under Page Content → Peek Mascot. |
 
 Singletons (sponsor, donate) use `create: false` and a fixed slug so the client can edit but not duplicate them. File collections (`pageContent`, `settings`) are explicit lists rather than folders because their content is small and structurally fixed.
 
@@ -68,6 +70,7 @@ Current limits:
 | Tagline image                  | 2 MB  | 1500–2000px, under 1MB       |
 | Team photo                     | 1 MB  | 600–1000px, under 500KB      |
 | Vendor logo                    | 500 KB| Square, min 400×400px        |
+| Partner logo                   | 500 KB| Square recommended, min 240×240px |
 
 The pattern in `config.yml`:
 
@@ -97,10 +100,10 @@ CMS-driven images are loaded as raw `<img>` elements in the site code, not Astro
 
 The marquee is unusual in two ways and worth flagging because it's the most complex part of the CMS:
 
-1. **Per-page overrides.** A single file (`src/content/marqueeSettings/marquee.json`) holds a global config plus six per-page overrides (home, about, events, vendors, support, faq). Each override is its own collapsed object in the admin UI, so the client can toggle a page-specific marquee without touching global.
+1. **Per-page overrides.** A single file (`src/content/marqueeSettings/marquee.json`) holds a global config plus seven per-page overrides (home, about, events, vendors, partners, support, faq). Each override is its own collapsed object in the admin UI, so the client can toggle a page-specific marquee without touching global.
 2. **Speed validation via regex pattern, not number widget.** The `speed` field uses `widget: "string"` with `pattern: ['^[1-9][0-9]*$', '...']` instead of `widget: "number"`. This was deliberate: the number widget allowed alphanumeric input ("abc") to save and break the marquee on the next build. The string-plus-pattern approach rejects non-integer input at save-time.
 
-If a future page needs a marquee override, add a new per-page object alongside the existing six. Mirror the pattern exactly — Decap doesn't have a shared-anchor concept that survives well in the admin UI.
+If a future page needs a marquee override, add a new per-page object alongside the existing seven. Mirror the pattern exactly — Decap doesn't have a shared-anchor concept that survives well in the admin UI.
 
 ---
 
@@ -127,39 +130,68 @@ Every CMS save commits to `main`. Netlify watches `main` and auto-rebuilds on ev
 4. Build runs `npm run build` → Astro processes content collections → outputs to `dist/`.
 5. Netlify deploys `dist/`. Site updates in 1–3 minutes after Save.
 
-**Build minutes matter.** Free Netlify tier is 300 minutes/month. Each build runs ~15 minutes. That's ~20 saves/month before the ceiling. A chatty editing session can burn through the budget fast. See REMAINING-WORK.md for the watchlist note and escalation options.
+**Build minutes matter.** Free Netlify tier is 300 minutes/month. Each build runs ~15 minutes. That's ~20 saves/month before the ceiling. A chatty editing session can burn through the budget fast.
+
+---
+
+## Newsletter subscription
+
+The newsletter form (`src/pages/newsletter.astro`) posts to the `/api/subscribe` Astro API route, which is compiled to a Netlify Function. The handler calls the MailerLite v3 API.
+
+- **Endpoint:** `POST https://connect.mailerlite.com/api/subscribers`
+- **Auth:** `Authorization: Bearer $MAILERLITE_API_KEY`
+- **Payload:** `{ email, fields: { name, last_name }, groups: ["$MAILERLITE_GROUP_ID"] }`
+- **Double opt-in:** configured at the account level in MailerLite — no status flag in the API call. MailerLite sends the confirmation email automatically.
+- **Env vars:** `MAILERLITE_API_KEY` and `MAILERLITE_GROUP_ID` (set in Netlify dashboard under Site configuration → Environment variables)
+- **Already-subscribed:** 200/201 = success, 409 = already subscribed → both redirect to `/thank-you`
+- **Fields collected:** First name, last name, email. No other fields.
+
+The form is hardcoded — not CMS-edited. What lives in the CMS is nothing; the subscription behavior is entirely in `subscribe.ts` and the Netlify env vars.
+
+---
+
+## Peek mascot
+
+Per-page peek assignment is CMS-driven. A single `peekSettings` collection (`src/content/peekSettings/peek-settings.json`) holds config for all pages in one file. The CMS entry is under **Page Content → Peek Mascot** with a collapsible section per page.
+
+**Pages with peek support:** home, about, eventsHome, eventsDetail, eventsSubevent, eventsArchive, vendors, partners, shop, faq, support, newsletter.
+
+**Fields per page:**
+
+| Field | Widget | Description |
+|---|---|---|
+| `peekEnabled` | boolean | Show or hide the mascot on this page |
+| `peekVariant` | select | Expression: `default`, `smile`, `anger`, `shock` |
+| `peekSide` | select | Which side: `left` or `right` |
+| `peekBottom` | string | Distance from bottom of content column, e.g. `80px` |
+
+**Asset naming convention:** `peek_{variant}_{side}.png` — all 8 assets live in `public/images/`. `BaseLayout` assembles the path from the variant and side values at runtime.
+
+**How pages wire in:** each page passes `peekKey="<key>"` to `<BaseLayout>`. BaseLayout reads the single JSON entry and indexes into it by that key. No `peek={{}}` prop — that pattern is retired.
+
+When adding a new page that needs peek support: add a key to the `peekSettings` schema in `config.ts`, seed a disabled entry in `peek-settings.json`, add a matching object under the Peek Mascot entry in `config.yml`.
 
 ---
 
 ## Future CMS work
 
-These are planned features that will land in `config.yml` and need accompanying updates here when they ship.
+### ✅ Newsletter / MailerLite integration — Complete
 
-### Background art via CMS
+Implemented in `feat/mailerlite-mascot-favicon`. Full details in the [Newsletter subscription](#newsletter-subscription) section above. Short summary: the newsletter form posts to an Astro API route compiled as a Netlify Function; the handler calls MailerLite v3 with the subscriber's name + email + group; double opt-in is configured at the MailerLite account level. No CMS involvement — behavior is in `subscribe.ts` and Netlify env vars.
 
-Client wants to upload a background image (or set a solid color) via the CMS. Likely shape: a new `siteSettings` collection or entry under `pageContent` with `backgroundImage` / `backgroundColor` / `backgroundMode` fields. `BaseLayout.astro` reads the entry and injects the value into `body { background: ... }`.
+### ✅ CMS-driven mascot peek — Complete
 
-Open design questions: per-page or global, image-vs-color toggle, readability overlay, mobile/desktop variants. Worth a client conversation before building.
+Implemented in `feat/mailerlite-mascot-favicon`. Full details in the [Peek mascot](#peek-mascot) section above. Short summary: a single `peekSettings` JSON file holds config for all 12 pages; pages pass `peekKey` to `<BaseLayout>` which reads the entry and forwards the right asset/side/bottom values to `<PeekMascot>`. Assets follow the `peek_{variant}_{side}.png` naming convention in `public/images/`. Per-page tuning lives entirely in the CMS under **Page Content → Peek Mascot**.
 
-When this lands, the new image field needs a `max_file_size` of its own — probably larger than the 4MB event cap since it's full-bleed, but still aggressively constrained. Add a row to the upload guardrails table above.
+### ✅ DTB Neighbors — Complete (issue #85)
 
-### CMS-driven Mascot Peek assignment
-
-Library curation stays developer-side (the Peek assets are version-controlled to maintain visual consistency), but per-page assignment moves to the CMS. Each `pageContent` entry gets a `peekVariant` (select widget enumerating the library) and `peekSide` (left | right | none). Vertical position is a stretch goal.
-
-This affects `pageContent` collection structure significantly. The shared field group pattern doesn't exist in Decap; the simplest path is duplicating the peek fields onto each `pageContent` file entry, accepting the verbosity.
-
-### MailerLite migration
-
-Newsletter is currently wired to Mailchimp. The migration to MailerLite is planned but not started. Note that the newsletter form itself isn't a CMS-edited piece — it's hardcoded in `src/pages/newsletter.astro`. What changes is the API endpoint and credentials, not the form.
-
----
+The `neighbors` content collection and `/partners` route were implemented in `feat/dtb-neighbors` (issue #85). Each partner is a markdown file in `src/content/neighbors/`; the route is `/partners`; the `NavKey` is `"partners"`. See the Collections overview table for the collection entry and the components docs for the `partners` route entry.
 
 ## Gotchas worth knowing
 
 These have bitten us before:
 
 - **Empty-string dates.** Decap's datetime widget can save `endDate: ""` when the client clears the field instead of omitting it. Astro's `z.coerce.date().optional()` accepts undefined but rejects empty strings. The schema uses a `z.preprocess` to coerce empty strings to undefined. Don't remove that preprocessor when refactoring schemas.
-- **Duplicate-id warnings.** Astro's glob-loader occasionally double-registers a content file on build, producing a `Duplicate id "..."` warning. Doesn't affect output. Resolution that's worked historically: delete and recreate the offending content file in the CMS. May disappear with the Astro 6 upgrade.
+- **Duplicate-id warnings.** Astro's glob-loader occasionally double-registers a content file on build, producing a `Duplicate id "..."` warning. Doesn't affect output. Resolution that's worked historically: delete and recreate the offending content file in the CMS.
 - **`config.yml` syntax is YAML, not JSON.** Inline-flow `{ ... }` mixed with block style is legal and the existing config uses both. When adding nested fields (like `media_library.config.max_file_size`), expand to block style — inline flow gets unreadable fast.
 - **Client-saved relations use slugs, not IDs.** The `parentEvent` field on subevents stores the parent's slug as a string. If you rename a slug, every subevent that references it breaks. Treat slugs as effectively permanent once content is live.
