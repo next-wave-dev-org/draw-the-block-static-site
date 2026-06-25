@@ -133,6 +133,12 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
                                         </div>
                                     </section>
                             ))}
+
+                            {/* Bottom sentinel — becomes visible only at the true
+                                page bottom. Lets the rail highlight the last
+                                (oldest) month, which can't otherwise scroll high
+                                enough to reach the primary observer's trigger band. */}
+                            <div id="archiveBottomSentinel" aria-hidden="true"></div>
                         </main>
 
                     </div>{/* /.archivePage__layout */}
@@ -363,8 +369,10 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
          *    Uses scrollIntoView for a smooth jump rather than a raw hash swap.
          *
          * 2. Desktop rail: IntersectionObserver highlights the currently-visible
-         *    month link. Fires on astro:page-load so it survives ClientRouter
-         *    navigations.
+         *    month link. The last section gets a special case: when the user has
+         *    scrolled to the bottom of the page it may not be able to reach the
+         *    observer's trigger zone (nothing below it to scroll against), so a
+         *    scroll listener forces it active at that point.
          */
         function initArchive() {
             // ── Mobile dropdown ──────────────────────────────────────
@@ -405,6 +413,25 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
             // When ≥1 month section is in view, highlight the topmost one.
             const visible = new Set<string>();
 
+            // True while the user is at the very bottom of the page. The last
+            // (oldest) month can't always scroll high enough to reach the primary
+            // observer's trigger band, so a bottom sentinel pins it active here.
+            // While pinned, the primary observer must not override the selection.
+            let atBottom = false;
+
+            const lastKey = sections[sections.length - 1].getAttribute("data-month-section");
+
+            // Pick the first visible month (DOM order = newest-first) from the
+            // current `visible` set and make it active.
+            function applyPrimary() {
+                let topKey: string | null = null;
+                sections.forEach((s) => {
+                    const k = s.getAttribute("data-month-section")!;
+                    if (visible.has(k) && topKey === null) topKey = k;
+                });
+                if (topKey) setActive(topKey);
+            }
+
             const observer = new IntersectionObserver(
                 (entries) => {
                     entries.forEach((entry) => {
@@ -417,19 +444,45 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
                         }
                     });
 
-                    // Pick the first visible month (DOM order = newest-first).
-                    let topKey: string | null = null;
-                    sections.forEach((s) => {
-                        const k = s.getAttribute("data-month-section")!;
-                        if (visible.has(k) && topKey === null) topKey = k;
-                    });
-
-                    setActive(topKey);
+                    if (!atBottom) applyPrimary();
                 },
                 { rootMargin: "0px 0px -60% 0px", threshold: 0 }
             );
 
             sections.forEach((s) => observer.observe(s));
+
+            // ── Bottom sentinel ──────────────────────────────────────
+            // A 1px marker after the last month. It only intersects the viewport
+            // at the true page bottom, so it can't fire early while the user is
+            // still on an earlier month. When visible, pin the last month active.
+            const sentinel = document.getElementById("archiveBottomSentinel");
+            if (sentinel && lastKey) {
+                const bottomObserver = new IntersectionObserver(
+                    ([entry]) => {
+                        if (entry.isIntersecting) {
+                            atBottom = true;
+                            setActive(lastKey);
+                        } else {
+                            atBottom = false;
+                            applyPrimary(); // hand control back to the primary observer
+                        }
+                    },
+                    { threshold: 0 }
+                );
+                bottomObserver.observe(sentinel);
+
+                document.addEventListener(
+                    "astro:before-swap",
+                    () => bottomObserver.disconnect(),
+                    { once: true }
+                );
+            }
+
+            document.addEventListener(
+                "astro:before-swap",
+                () => observer.disconnect(),
+                { once: true }
+            );
         }
 
         document.addEventListener("astro:page-load", initArchive);
