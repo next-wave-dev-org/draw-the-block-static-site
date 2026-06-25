@@ -1,7 +1,8 @@
 ---
-name: "On the Block"
-tagline: "Placeholder tagline — update via CMS."
+name: On the Block
+tagline: "Our partner in creative endeavors "
+url: https://www.ontheblockseattle.org/
+image: /uploads/on-the-block-transparentbkg-logo.png
 displayOrder: 1
 ---
-
-Placeholder description — update via CMS.
+On The Block is a creative conglomerate
