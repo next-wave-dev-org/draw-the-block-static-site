@@ -2,7 +2,7 @@
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Kicker from "../components/Kicker.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import { Image } from "astro:assets";
 
 const allNeighbors = await getCollection("neighbors");
@@ -31,7 +31,7 @@ const neighbors = allNeighbors.sort((a, b) => {
 
         <div class="neighbors-list">
             {neighbors.map(async (neighbor) => {
-                const { Content } = await neighbor.render();
+                const { Content } = await render(neighbor);
                 const Tag = neighbor.data.url ? "a" : "article";
                 const linkProps = neighbor.data.url
                     ? { href: neighbor.data.url, target: "_blank", rel: "noopener noreferrer" }

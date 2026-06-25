@@ -3,7 +3,7 @@
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Kicker from "../components/Kicker.astro";
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection, render, type CollectionEntry } from "astro:content";
 
 type FaqEntry = CollectionEntry<"faq">;
 
@@ -15,7 +15,7 @@ const sortedFaqs = faqs
 
 const renderedFaqs = await Promise.all(
     sortedFaqs.map(async (item: FaqEntry) => {
-        const { Content } = await item.render();
+        const { Content } = await render(item);
         return { item, Content };
     })
 );

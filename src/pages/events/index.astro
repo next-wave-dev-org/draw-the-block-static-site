@@ -52,7 +52,7 @@ const hasMore      = pastAll.length > PAST_PREVIEW;
             {upcoming.map((event: EventEntry, index: number, arr: EventEntry[]) => (
                 <>
                   <EventCard
-                      href={`/events/${event.slug}`}
+                      href={`/events/${event.id}`}
                       title={event.data.title}
                       image={event.data.image}
                       description={event.data.description}
@@ -82,7 +82,7 @@ const hasMore      = pastAll.length > PAST_PREVIEW;
               {past.map((event: EventEntry, index: number, arr: EventEntry[]) => (
                   <>
                     <EventCard
-                        href={`/events/${event.slug}`}
+                        href={`/events/${event.id}`}
                         title={event.data.title}
                         image={event.data.image}
                         description={event.data.description}

@@ -38,12 +38,11 @@ function isUpcoming(event: typeof allEvents[number]): boolean {
 /**
  * Build a map of event slug → full event entry for quick lookup.
  */
-const eventBySlug = new Map(allEvents.map((e) => [e.slug, e]));
+const eventById = new Map(allEvents.map((e) => [e.id, e]));
 
 /**
  * Get a vendor's event slugs as a clean string[]. Vendor.data.events is
- * a list of references; each reference has a .slug or just IS a slug
- * depending on how Astro resolves it. Normalize to slug strings.
+ * a list of reference objects; normalize to id strings.
  */
 function vendorEventSlugs(vendor: typeof allVendors[number]): string[] {
   const refs = vendor.data.events ?? [];
@@ -67,7 +66,7 @@ const eventSections: EventSection[] = [];
 
 for (const event of upcomingEvents) {
   const vendorsForThisEvent = allVendors
-      .filter((v) => vendorEventSlugs(v).includes(event.slug))
+      .filter((v) => vendorEventSlugs(v).includes(event.id))
       .sort((a, b) => a.data.name.localeCompare(b.data.name));
 
   if (vendorsForThisEvent.length > 0) {
@@ -90,7 +89,7 @@ const pastCollaborators = allVendors
       if (slugs.length === 0) return false; // No events at all → hide entirely
 
       const events = slugs
-          .map((s) => eventBySlug.get(s))
+          .map((s) => eventById.get(s))
           .filter((e): e is typeof allEvents[number] => Boolean(e));
 
       if (events.length === 0) return false; // All slugs were broken refs
@@ -117,7 +116,7 @@ const totalPages = Math.max(1, Math.ceil(pastCollaborators.length / PAGE_SIZE));
     {eventSections.length > 0 ? (
         eventSections.map(({ event, vendors }) => (
             <section class="vendorSection">
-              <a class="vendorSection__heading" href={`/events/${event.slug}`}>
+              <a class="vendorSection__heading" href={`/events/${event.id}`}>
                 <Kicker label={event.data.title.toUpperCase()} format="plain" />
               </a>
 
