@@ -133,6 +133,9 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
                                         </div>
                                     </section>
                             ))}
+
+                            {/* Bottom sentinel — lets the rail pin the last month once the page bottom is reached. */}
+                            <div id="archiveBottomSentinel" aria-hidden="true"></div>
                         </main>
 
                     </div>{/* /.archivePage__layout */}
@@ -357,14 +360,9 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
 
     <script>
         /**
-         * Archive page — two behaviours:
-         *
-         * 1. Mobile select: navigate to the chosen month anchor on change.
-         *    Uses scrollIntoView for a smooth jump rather than a raw hash swap.
-         *
-         * 2. Desktop rail: IntersectionObserver highlights the currently-visible
-         *    month link. Fires on astro:page-load so it survives ClientRouter
-         *    navigations.
+         * Archive page: mobile select jumps to a month anchor; desktop rail
+         * highlights the in-view month via IntersectionObserver, with a bottom
+         * sentinel to pin the last month (which can't reach the trigger band).
          */
         function initArchive() {
             // ── Mobile dropdown ──────────────────────────────────────
@@ -402,8 +400,23 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
                 activeKey = key;
             }
 
-            // When ≥1 month section is in view, highlight the topmost one.
             const visible = new Set<string>();
+
+            // While true (user at page bottom), the sentinel pins the last month
+            // and the primary observer must not override it.
+            let atBottom = false;
+
+            const lastKey = sections[sections.length - 1].getAttribute("data-month-section");
+
+            // Make the first visible month (DOM order = newest-first) active.
+            function applyPrimary() {
+                let topKey: string | null = null;
+                sections.forEach((s) => {
+                    const k = s.getAttribute("data-month-section")!;
+                    if (visible.has(k) && topKey === null) topKey = k;
+                });
+                if (topKey) setActive(topKey);
+            }
 
             const observer = new IntersectionObserver(
                 (entries) => {
@@ -417,19 +430,43 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
                         }
                     });
 
-                    // Pick the first visible month (DOM order = newest-first).
-                    let topKey: string | null = null;
-                    sections.forEach((s) => {
-                        const k = s.getAttribute("data-month-section")!;
-                        if (visible.has(k) && topKey === null) topKey = k;
-                    });
-
-                    setActive(topKey);
+                    if (!atBottom) applyPrimary();
                 },
                 { rootMargin: "0px 0px -60% 0px", threshold: 0 }
             );
 
             sections.forEach((s) => observer.observe(s));
+
+            // Bottom sentinel — only intersects at the true page bottom, so it
+            // pins the last month without firing early on an earlier month.
+            const sentinel = document.getElementById("archiveBottomSentinel");
+            if (sentinel && lastKey) {
+                const bottomObserver = new IntersectionObserver(
+                    ([entry]) => {
+                        if (entry.isIntersecting) {
+                            atBottom = true;
+                            setActive(lastKey);
+                        } else {
+                            atBottom = false;
+                            applyPrimary(); // hand control back to the primary observer
+                        }
+                    },
+                    { threshold: 0 }
+                );
+                bottomObserver.observe(sentinel);
+
+                document.addEventListener(
+                    "astro:before-swap",
+                    () => bottomObserver.disconnect(),
+                    { once: true }
+                );
+            }
+
+            document.addEventListener(
+                "astro:before-swap",
+                () => observer.disconnect(),
+                { once: true }
+            );
         }
 
         document.addEventListener("astro:page-load", initArchive);

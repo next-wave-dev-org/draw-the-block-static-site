@@ -129,6 +129,15 @@ const effectiveFormat: KickerFormat = ja ? format : "plain";
         padding-inline: 0.15em;
     }
 
+    /* Drop the outer padding so the brackets sit flush with the container; removing both edges keeps centered kickers symmetric. */
+    .kicker__bracket:first-child {
+        padding-left: 0;
+    }
+
+    .kicker__bracket:last-child {
+        padding-right: 0;
+    }
+
     .kicker--stacked,
     .kicker--stacked-bracket {
         display: flex;

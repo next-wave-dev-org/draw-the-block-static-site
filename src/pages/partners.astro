@@ -58,7 +58,7 @@ const neighbors = allNeighbors.sort((a, b) => {
                             </div>
 
                             <div class="neighbor-row__body">
-                                <h2 class="neighbor-name">[ {neighbor.data.name} ]</h2>
+                                <h2 class="neighbor-name"><span class="neighbor-name__bracket">[</span> {neighbor.data.name} <span class="neighbor-name__bracket">]</span></h2>
 
                                 {neighbor.data.tagline && (
                                         <p class="neighbor-tagline">{neighbor.data.tagline}</p>
@@ -198,6 +198,28 @@ const neighbors = allNeighbors.sort((a, b) => {
         letter-spacing: var(--ls-display);
         margin: 0 0 var(--space-2);
         text-transform: uppercase;
+        /* inline-flex + align-items center vertically centers the brackets, matching the kicker. */
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* Mirror Kicker.astro's .kicker__bracket so the brackets read as the site-wide format. */
+    .neighbor-name__bracket {
+        font-size: 1.15em;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 6px;
+        padding-inline: 0.15em;
+    }
+
+    .neighbor-name__bracket:first-child {
+        padding-left: 0;
+    }
+
+    .neighbor-name__bracket:last-child {
+        padding-right: 0;
     }
 
     .neighbor-tagline {
