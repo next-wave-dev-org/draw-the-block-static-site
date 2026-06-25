@@ -20,7 +20,7 @@ Wraps every page. Owns the site chrome — logo, primary nav, marquee band, cont
 | `current` | `NavKey` | `undefined`        | Which nav item is the active page. Drives bracket-travel + marquee scope.  |
 | `peekKey` | `PeekKey` | `undefined`       | Identifies which entry in the `peekSettings` JSON to read for this page's mascot config. If unset, no mascot renders. |
 
-`NavKey` is a union: `"home" | "about" | "events" | "vendors" | "partners" | "shop" | "support" | "faq" | "newsletter"`. Add new keys here when you add a new top-level route.
+`NavKey` is a union: `"home" | "about" | "events" | "vendors" | "partners" | "neighbors" | "shop" | "support" | "faq" | "newsletter"`. Add new keys here when you add a new top-level route.
 
 `PeekKey` is the set of page identifiers used to look up peek mascot config in `src/content/peekSettings/peek-settings.json`. See the PeekMascot section below for the current list of supported keys and how the lookup works.
 

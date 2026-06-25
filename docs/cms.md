@@ -52,7 +52,6 @@ The shape of the content model (see `config.yml` for fields):
 | `pageContent`   | file       | Per-page content blocks: tagline, mission, quote.   |
 | `settings`      | file       | Site-wide settings: social links, vendor app, marquee. |
 | `peekSettings`  | file       | Single entry (`peek-settings.json`) — per-page peek mascot config for all 11+ pages. CMS entry lives under Page Content → Peek Mascot. |
-| `neighbors`     | folder     | DTB Neighbors / Partners. One markdown file per partner. |
 
 Singletons (sponsor, donate) use `create: false` and a fixed slug so the client can edit but not duplicate them. File collections (`pageContent`, `settings`) are explicit lists rather than folders because their content is small and structurally fixed.
 
@@ -176,7 +175,17 @@ When adding a new page that needs peek support: add a key to the `peekSettings` 
 
 ## Future CMS work
 
-These are planned but not yet built.
+### ✅ Newsletter / MailerLite integration — Complete
+
+Implemented in `feat/mailerlite-mascot-favicon`. Full details in the [Newsletter subscription](#newsletter-subscription) section above. Short summary: the newsletter form posts to an Astro API route compiled as a Netlify Function; the handler calls MailerLite v3 with the subscriber's name + email + group; double opt-in is configured at the MailerLite account level. No CMS involvement — behavior is in `subscribe.ts` and Netlify env vars.
+
+### ✅ CMS-driven mascot peek — Complete
+
+Implemented in `feat/mailerlite-mascot-favicon`. Full details in the [Peek mascot](#peek-mascot) section above. Short summary: a single `peekSettings` JSON file holds config for all 12 pages; pages pass `peekKey` to `<BaseLayout>` which reads the entry and forwards the right asset/side/bottom values to `<PeekMascot>`. Assets follow the `peek_{variant}_{side}.png` naming convention in `public/images/`. Per-page tuning lives entirely in the CMS under **Page Content → Peek Mascot**.
+
+### ✅ DTB Neighbors — Complete (issue #85)
+
+The `neighbors` content collection and `/partners` route were implemented in `feat/dtb-neighbors` (issue #85). Each partner is a markdown file in `src/content/neighbors/`; the route is `/partners`; the `NavKey` is `"partners"`. See the Collections overview table for the collection entry and the components docs for the `partners` route entry.
 
 ## Gotchas worth knowing
 
