@@ -102,9 +102,7 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
 
         .support__section {
             width: 100%;
-            /* Match the 412px content width (Ko-fi card / sponsor poster) so the
-               section has no leftover slack. Left-aligned content would otherwise
-               push all the slack to the right edge, making the page lopsided. */
+            /* Match the 412px content width so left-aligned content has no slack to push right, keeping the page balanced. */
             max-width: 412px;
             margin: 0 auto;
             padding-bottom: var(--space-6);
@@ -134,8 +132,7 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
         /* ─── Donate / Ko-fi ─── */
         .support__kofi {
             display: flex;
-            /* Left-align the widget so it lines up with the lede text above it
-               and mirrors the left-aligned sponsor poster in the other section. */
+            /* Left-align the widget to match the lede text and sponsor poster. */
             justify-content: flex-start;
             width: 100%;
         }
@@ -214,9 +211,7 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
             }
 
             .support__section {
-                /* Fixed 412px columns (don't grow past their content) so the
-                   pair centers symmetrically — equal gap on the left of donate
-                   and the right of sponsor. */
+                /* Fixed 412px columns so the pair centers symmetrically. */
                 flex: 0 1 412px;
                 max-width: 412px;
                 margin: 0;

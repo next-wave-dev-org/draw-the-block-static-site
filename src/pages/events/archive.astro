@@ -134,10 +134,7 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
                                     </section>
                             ))}
 
-                            {/* Bottom sentinel — becomes visible only at the true
-                                page bottom. Lets the rail highlight the last
-                                (oldest) month, which can't otherwise scroll high
-                                enough to reach the primary observer's trigger band. */}
+                            {/* Bottom sentinel — lets the rail pin the last month once the page bottom is reached. */}
                             <div id="archiveBottomSentinel" aria-hidden="true"></div>
                         </main>
 
@@ -363,16 +360,9 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
 
     <script>
         /**
-         * Archive page — two behaviours:
-         *
-         * 1. Mobile select: navigate to the chosen month anchor on change.
-         *    Uses scrollIntoView for a smooth jump rather than a raw hash swap.
-         *
-         * 2. Desktop rail: IntersectionObserver highlights the currently-visible
-         *    month link. The last section gets a special case: when the user has
-         *    scrolled to the bottom of the page it may not be able to reach the
-         *    observer's trigger zone (nothing below it to scroll against), so a
-         *    scroll listener forces it active at that point.
+         * Archive page: mobile select jumps to a month anchor; desktop rail
+         * highlights the in-view month via IntersectionObserver, with a bottom
+         * sentinel to pin the last month (which can't reach the trigger band).
          */
         function initArchive() {
             // ── Mobile dropdown ──────────────────────────────────────
@@ -410,19 +400,15 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
                 activeKey = key;
             }
 
-            // When ≥1 month section is in view, highlight the topmost one.
             const visible = new Set<string>();
 
-            // True while the user is at the very bottom of the page. The last
-            // (oldest) month can't always scroll high enough to reach the primary
-            // observer's trigger band, so a bottom sentinel pins it active here.
-            // While pinned, the primary observer must not override the selection.
+            // While true (user at page bottom), the sentinel pins the last month
+            // and the primary observer must not override it.
             let atBottom = false;
 
             const lastKey = sections[sections.length - 1].getAttribute("data-month-section");
 
-            // Pick the first visible month (DOM order = newest-first) from the
-            // current `visible` set and make it active.
+            // Make the first visible month (DOM order = newest-first) active.
             function applyPrimary() {
                 let topKey: string | null = null;
                 sections.forEach((s) => {
@@ -451,10 +437,8 @@ const groups: MonthGroup[] = Array.from(groupMap.entries()).map(([key, evts]) =>
 
             sections.forEach((s) => observer.observe(s));
 
-            // ── Bottom sentinel ──────────────────────────────────────
-            // A 1px marker after the last month. It only intersects the viewport
-            // at the true page bottom, so it can't fire early while the user is
-            // still on an earlier month. When visible, pin the last month active.
+            // Bottom sentinel — only intersects at the true page bottom, so it
+            // pins the last month without firing early on an earlier month.
             const sentinel = document.getElementById("archiveBottomSentinel");
             if (sentinel && lastKey) {
                 const bottomObserver = new IntersectionObserver(
