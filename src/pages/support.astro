@@ -102,7 +102,10 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
 
         .support__section {
             width: 100%;
-            max-width: 520px;
+            /* Match the 412px content width (Ko-fi card / sponsor poster) so the
+               section has no leftover slack. Left-aligned content would otherwise
+               push all the slack to the right edge, making the page lopsided. */
+            max-width: 412px;
             margin: 0 auto;
             padding-bottom: var(--space-6);
         }
@@ -131,19 +134,20 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
         /* ─── Donate / Ko-fi ─── */
         .support__kofi {
             display: flex;
-            justify-content: center;
+            /* Left-align the widget so it lines up with the lede text above it
+               and mirrors the left-aligned sponsor poster in the other section. */
+            justify-content: flex-start;
             width: 100%;
         }
 
         .support__kofiCard {
-            /* Change width from 100% to max-content or a specific width */
             width: 100%;
-            max-width: 400px; /* Ko-fi widgets usually hover around 360px-400px */
+            /* Match the sponsor poster width so the two sections align edge-to-edge. */
+            max-width: 412px;
             background: #ffffff;
             border-radius: 12px;
             padding: 6px;
-            /* Center the card if the section is wider than 400px */
-            margin: 0 auto;
+            margin: 0;
             box-sizing: border-box;
         }
 
@@ -161,19 +165,6 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
         @media (max-width: 420px) {
             .support__kofiFrame {
                 height: 670px;
-            }
-        }
-
-        /* Target the shift at high resolutions */
-        @media (min-width: 1441px) {
-            .support__kofi {
-                justify-content: flex-start;
-            }
-
-            .support__kofiCard {
-                /* Ensure it doesn't auto-center via margins */
-                margin-left: 0;
-                margin-right: auto;
             }
         }
 
@@ -223,8 +214,11 @@ const kofiEmbedSrc = buildKofiEmbed(donate?.kofiUrl);
             }
 
             .support__section {
-                flex: 1 1 0;
-                max-width: 480px;
+                /* Fixed 412px columns (don't grow past their content) so the
+                   pair centers symmetrically — equal gap on the left of donate
+                   and the right of sponsor. */
+                flex: 0 1 412px;
+                max-width: 412px;
                 margin: 0;
             }
 

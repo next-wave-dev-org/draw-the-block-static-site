@@ -129,6 +129,18 @@ const effectiveFormat: KickerFormat = ja ? format : "plain";
         padding-inline: 0.15em;
     }
 
+    /* Drop the outer padding on the edge brackets so the kicker sits flush
+       with its container — otherwise the opening "[" is inset ~0.15em and the
+       kicker fails to line up with left-aligned content (lede text, images)
+       below it. Removing both edges keeps centered kickers symmetric. */
+    .kicker__bracket:first-child {
+        padding-left: 0;
+    }
+
+    .kicker__bracket:last-child {
+        padding-right: 0;
+    }
+
     .kicker--stacked,
     .kicker--stacked-bracket {
         display: flex;
