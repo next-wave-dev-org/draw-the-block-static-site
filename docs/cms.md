@@ -49,7 +49,7 @@ The shape of the content model (see `config.yml` for fields):
 | `faq`           | folder     | FAQ entries, manually ordered.                      |
 | `sponsor`       | folder     | Singleton: sponsor page content.                    |
 | `donate`        | folder     | Singleton: donate page content.                     |
-| `pageContent`   | file       | Per-page content blocks: tagline, mission, quote.   |
+| `pageContent`   | file       | Per-page content blocks: tagline, mission, quote, background (color/image), logo backdrop. |
 | `settings`      | file       | Site-wide settings: social links, vendor app, marquee. |
 | `peekSettings`  | file       | Single entry (`peek-settings.json`) — per-page peek mascot config for all 11+ pages. CMS entry lives under Page Content → Peek Mascot. |
 
@@ -130,7 +130,7 @@ Every CMS save commits to `main`. Netlify watches `main` and auto-rebuilds on ev
 4. Build runs `npm run build` → Astro processes content collections → outputs to `dist/`.
 5. Netlify deploys `dist/`. Site updates in 1–3 minutes after Save.
 
-**Build minutes matter.** Free Netlify tier is 300 minutes/month. Each build runs ~15 minutes. That's ~20 saves/month before the ceiling. A chatty editing session can burn through the budget fast. See REMAINING-WORK.md for the watchlist note and escalation options.
+**Build minutes matter.** Free Netlify tier is 300 minutes/month. Each build runs ~15 minutes. That's ~20 saves/month before the ceiling. A chatty editing session can burn through the budget fast.
 
 ---
 
@@ -192,6 +192,6 @@ The `neighbors` content collection and `/partners` route were implemented in `fe
 These have bitten us before:
 
 - **Empty-string dates.** Decap's datetime widget can save `endDate: ""` when the client clears the field instead of omitting it. Astro's `z.coerce.date().optional()` accepts undefined but rejects empty strings. The schema uses a `z.preprocess` to coerce empty strings to undefined. Don't remove that preprocessor when refactoring schemas.
-- **Duplicate-id warnings.** Astro's glob-loader occasionally double-registers a content file on build, producing a `Duplicate id "..."` warning. Doesn't affect output. Resolution that's worked historically: delete and recreate the offending content file in the CMS. May disappear with the Astro 6 upgrade.
+- **Duplicate-id warnings.** Astro's glob-loader occasionally double-registers a content file on build, producing a `Duplicate id "..."` warning. Doesn't affect output. Resolution that's worked historically: delete and recreate the offending content file in the CMS.
 - **`config.yml` syntax is YAML, not JSON.** Inline-flow `{ ... }` mixed with block style is legal and the existing config uses both. When adding nested fields (like `media_library.config.max_file_size`), expand to block style — inline flow gets unreadable fast.
 - **Client-saved relations use slugs, not IDs.** The `parentEvent` field on subevents stores the parent's slug as a string. If you rename a slug, every subevent that references it breaks. Treat slugs as effectively permanent once content is live.

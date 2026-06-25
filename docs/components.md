@@ -78,7 +78,7 @@ Fallback if the entry doesn't exist: `#287feb` (the original brand blue). The ba
 
 ### Logo backdrop
 
-`BaseLayout` reads `src/content/pageContent/logoBackdrop.json` at build time and conditionally renders a `.logo-backdrop` div behind the header logo.
+`BaseLayout` reads `src/content/pageContent/logo-backdrop.json` at build time and conditionally renders a `.logo-backdrop` div behind the header logo.
 
 Two modes, controlled by the `backdropMode` field:
 
