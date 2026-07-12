@@ -5,4 +5,6 @@ twitterUrl: https://linktr.ee/lilyofthesea.studio?utm_source=ig&utm_medium=socia
 image: /uploads/lily_of_the_sea_mascot.png
 events:
   - draw-the-block-portrait-party
+  - art-market
+  - art-market-day-2
 ---
