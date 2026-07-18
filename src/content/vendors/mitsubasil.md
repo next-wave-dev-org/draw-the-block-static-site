@@ -4,4 +4,7 @@ websiteUrl: https://linktr.ee/m1tsubasil?utm_source=ig&utm_medium=social&utm_con
 instagramUrl: https://www.instagram.com/mitsubasil?igshid=YmMyMTA2M2Y%3D
 twitterUrl: https://x.com/m1tsubasil?t=Lgs20hBnmg42_NO3uNK6qg&s=09
 image: /uploads/mit.jpg
+events:
+  - draw-the-block-on-the-block
+  - draw-the-block-on-the-block-1
 ---
