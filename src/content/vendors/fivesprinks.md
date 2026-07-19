@@ -5,4 +5,5 @@ instagramUrl: https://www.instagram.com/fivesprinks/
 image: /uploads/fivesprinksmari.png
 events:
   - draw-the-block-portrait-party
+  - draw-the-block-on-the-block-day-3
 ---
