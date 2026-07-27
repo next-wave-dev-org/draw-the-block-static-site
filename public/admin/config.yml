@@ -198,7 +198,7 @@ collections:
             hint: "Used when Background Mode is set to 'Image'. Recommended: 2000–3000px wide, 2–3MB. Max 6MB. The image covers the full screen behind the content column — visible only on wider screens."
 
       - file: "src/content/pageContent/logo-backdrop.json"
-        label: "Logo Backdrop"
+        label: "Header Banner"
         name: "logoBackdrop"
         fields:
           - label: "Backdrop Mode"
@@ -217,6 +217,38 @@ collections:
               config:
                 max_file_size: 6291456
             hint: "Used when Backdrop Mode is set to 'Image'. The image appears behind the logo across the full page width. Recommended: 2000–3000px wide, under 2MB. Max 6MB."
+          - label: "Backdrop Vertical Position"
+            name: "backdropVerticalPosition"
+            widget: "number"
+            value_type: "int"
+            min: 0
+            max: 100
+            default: 50
+            hint: "0 = top of the photo, 50 = centered, 100 = bottom. Use this to move the photo up or down within the banner strip if the crop doesn't land right — see the preview below."
+          - label: "Logo Image"
+            name: "logoImage"
+            widget: "image"
+            required: false
+            media_library:
+              config:
+                max_file_size: 2097152
+            hint: "Leave blank to use the default Draw The Block logo. Max 2MB — transparent PNG recommended."
+          - label: "Logo Size"
+            name: "logoSizePercent"
+            widget: "number"
+            value_type: "int"
+            min: 0
+            max: 100
+            default: 75
+            hint: "0-100, as a % of the banner's own height. 75 is the current default."
+          - label: "Logo Horizontal Position"
+            name: "logoPositionPercent"
+            widget: "number"
+            value_type: "int"
+            min: 0
+            max: 100
+            default: 50
+            hint: "0 = flush left, 50 = centered, 100 = flush right."
 
       - file: "src/content/pageContent/tagline.json"
         label: "Tagline"
