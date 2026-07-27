@@ -236,15 +236,48 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
 <style>
   .logo-area {
     position: relative;
+    /* Bottom-only reveal — left/right/top go back to a full bleed now
+       that the vignette fade (below) does the "lifted" work on its own
+       on those sides. One shared value — tune here to adjust it. */
+    --logo-inset: 4px;
     /* Bleed to the full width of .site-strip (counteract its horizontal padding) */
     width: calc(100% + var(--col-pad-mobile) * 2);
     margin-left: calc(var(--col-pad-mobile) * -1);
     margin-right: calc(var(--col-pad-mobile) * -1);
+    /* Bleed upward too, counteracting .site-strip's own padding-top —
+       otherwise that padding (site-strip's background is solid black)
+       shows as a bar above the backdrop banner. --site-strip-pad-y is
+       set on .site-strip per breakpoint (base.css) so this stays in
+       sync automatically. */
+    margin-top: calc(var(--site-strip-pad-y, var(--space-4)) * -1);
+    /* Reveal below the banner, before the header/nav starts — this is
+       the one side that keeps a physical gap instead of relying on
+       the fade, so the banner doesn't run straight into the nav. */
+    margin-bottom: var(--logo-inset);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: var(--space-4);
-    padding-bottom: 5px;
+    /* No padding here (was --space-4 top / 5px bottom under the old
+       fixed-height design) — .strip-logo now sizes itself as a % of
+       .logo-area's own height (see below), so any padding here would
+       make that percentage resolve against a smaller content box than
+       the visible banner, throwing off the intended proportion. */
+
+    /* Fixed banner shape so the backdrop crop looks the same at every
+       breakpoint instead of getting squarer as the column narrows.
+       Value is empirical — eyeballed against the Ultrawide/Extrawide
+       sizes where the crop already looked right. Tune this one number
+       to re-tune the whole ladder. Applies at every breakpoint, mobile
+       included — .strip-logo shrinks to fit inside (see below) rather
+       than the banner flooring to fit a fixed-size logo. */
+    --logo-backdrop-ratio: 5.45;
+    aspect-ratio: var(--logo-backdrop-ratio);
+
+    /* Ambient lift: a plain black shadow would be invisible against
+       .site-strip's black background, so use a soft glow tinted with
+       the site's brand blue (--color-bg) instead — gives the banner
+       real depth/separation rather than reading as a flat rectangle. */
+    box-shadow: 0 12px 36px -8px color-mix(in srgb, var(--color-bg) 35%, transparent);
   }
 
   @media (min-width: 481px) {
@@ -290,11 +323,39 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   .logo-backdrop {
     position: absolute;
     inset: 0;
+    /* Inner vignette on the left/right/all-around only — the bottom
+       edge uses a hard linear-gradient fade to black instead (below),
+       so it's not doubled up with the blurred box-shadow version. */
+    box-shadow:
+        inset 70px 0 60px -30px rgba(0, 0, 0, 0.65),
+        inset -70px 0 60px -30px rgba(0, 0, 0, 0.65),
+        inset 0 0 90px rgba(0, 0, 0, 0.25);
+  }
+
+  .logo-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* Bottom fade to solid black (var(--color-strip)) instead of the
+       blurred vignette — the photo stays untouched through the top
+       75% and transitions to solid black over the last 25%, matching
+       the 75% the logo now occupies (see .strip-logo). */
+    background: linear-gradient(to bottom, transparent 75%, var(--color-strip) 100%);
   }
 
   .strip-logo {
-    width: 240px;
+    /* Shrinks to fit .logo-area's own (now un-floored, aspect-ratio-
+       driven) height on narrow screens instead of overflowing it —
+       240x180 is a ceiling, not a fixed size. .logo-area has a definite
+       height via aspect-ratio and (as of the change above) zero padding,
+       so this percentage resolves directly against the full visible
+       banner height. 75% is an explicit visual target, not a leftover
+       from the max-width cap. */
+    width: auto;
     height: auto;
+    max-width: 240px;
+    max-height: 75%;
     display: block;
     position: relative;
     z-index: 1;
