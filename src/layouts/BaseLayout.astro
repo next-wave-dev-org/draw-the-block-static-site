@@ -272,12 +272,6 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
        than the banner flooring to fit a fixed-size logo. */
     --logo-backdrop-ratio: 5.45;
     aspect-ratio: var(--logo-backdrop-ratio);
-
-    /* Ambient lift: a plain black shadow would be invisible against
-       .site-strip's black background, so use a soft glow tinted with
-       the site's brand blue (--color-bg) instead — gives the banner
-       real depth/separation rather than reading as a flat rectangle. */
-    box-shadow: 0 12px 36px -8px color-mix(in srgb, var(--color-bg) 35%, transparent);
   }
 
   @media (min-width: 481px) {
