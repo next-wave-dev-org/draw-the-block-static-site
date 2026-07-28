@@ -94,6 +94,11 @@ const classes = ["peek", `peek--${side}`, mirror ? "peek--mirrored" : null]
         --peek-offset-default-left: 15%;
         --peek-offset-default-right: 15%;
 
+        /* Fine-tune nudge: shifts both mascots toward/away from the
+           column edge by the same amount to correct a hairline visual
+           offset.*/
+        --peek-nudge: -0.7px;
+
         position: absolute;
         /* noinspection CssUnresolvedCustomProperty */
         bottom: var(--peek-bottom);
@@ -110,7 +115,7 @@ const classes = ["peek", `peek--${side}`, mirror ? "peek--mirrored" : null]
         /* Use the inline-set --peek-offset (from prop) if provided,
            otherwise fall back to the breakpoint-aware left default. */
         /* noinspection CssUnresolvedCustomProperty */
-        transform: translateX(var(--peek-offset, var(--peek-offset-default-left)));
+        transform: translateX(calc(var(--peek-offset, var(--peek-offset-default-left)) - var(--peek-nudge)));
     }
 
     .peek--right {
@@ -119,7 +124,7 @@ const classes = ["peek", `peek--${side}`, mirror ? "peek--mirrored" : null]
            band (negative X). No mirror — the right-drawn asset is
            already correctly oriented. */
         /* noinspection CssUnresolvedCustomProperty */
-        transform: translateX(calc(var(--peek-offset, var(--peek-offset-default-right)) * -1));
+        transform: translateX(calc((var(--peek-offset, var(--peek-offset-default-right)) - var(--peek-nudge)) * -1));
     }
 
     /* Optional flip — when `mirror` prop is true, scaleX(-1) is
@@ -127,12 +132,12 @@ const classes = ["peek", `peek--${side}`, mirror ? "peek--mirrored" : null]
        the wrong-side asset onto a side as a fallback. */
     .peek--left.peek--mirrored {
         /* noinspection CssUnresolvedCustomProperty */
-        transform: translateX(var(--peek-offset, var(--peek-offset-default-left))) scaleX(-1);
+        transform: translateX(calc(var(--peek-offset, var(--peek-offset-default-left)) - var(--peek-nudge))) scaleX(-1);
     }
 
     .peek--right.peek--mirrored {
         /* noinspection CssUnresolvedCustomProperty */
-        transform: translateX(calc(var(--peek-offset, var(--peek-offset-default-right)) * -1)) scaleX(-1);
+        transform: translateX(calc((var(--peek-offset, var(--peek-offset-default-right)) - var(--peek-nudge)) * -1)) scaleX(-1);
     }
 
     /*
