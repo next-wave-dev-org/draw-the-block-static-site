@@ -5,8 +5,6 @@ import "../styles/base.css";
 import { getCollection, getEntry } from "astro:content";
 import { ClientRouter } from 'astro:transitions';
 import Marquee from "../components/Marquee.astro";
-import { Image } from 'astro:assets';
-import logo from '../assets/images/logo.png';
 import PeekMascot, { type Props as PeekProps } from "../components/PeekMascot.astro";
 
 type NavKey = "home" | "about" | "events" | "vendors" | "partners" | "shop" | "support" | "faq" | "newsletter";
@@ -53,14 +51,28 @@ const bodyBackground =
         ? `url('${bgImage}') center center / cover no-repeat fixed`
         : bgColor;
 
-// Logo backdrop — CMS-controlled band behind the header logo.
+// Logo backdrop — CMS-controlled band behind the header logo, plus the
+// logo mark itself (image, size, horizontal position) — all one CMS
+// entry ("Header Banner") so the admin preview can show the composite.
 const backdropEntry = await getEntry("pageContent", "logo-backdrop");
 const backdropMode = backdropEntry?.data.backdropMode ?? "none";
 const backdropImage = backdropEntry?.data.backdropImage;
+const backdropVerticalPosition = backdropEntry?.data.backdropVerticalPosition ?? 50;
 const logoBackdropStyle =
     backdropMode === "image" && backdropImage
-        ? `background: url('${backdropImage}') center center / cover no-repeat;`
+        ? `background: url('${backdropImage}') center ${backdropVerticalPosition}% / cover no-repeat;`
         : "";
+
+const logoMode = backdropEntry?.data.logoMode ?? "default";
+const resolvedLogoSrc =
+    logoMode === "none"
+        ? null
+        : logoMode === "custom"
+            ? (backdropEntry?.data.logoImage || "/images/logo-default.png")
+            : "/images/logo-default.png";
+const logoSizePercent = backdropEntry?.data.logoSizePercent ?? 75;
+const logoPositionPercent = backdropEntry?.data.logoPositionPercent ?? 50;
+const logoStyle = `--logo-size-pct: ${logoSizePercent}%; --logo-position-pct: ${logoPositionPercent}%;`;
 
 
 type MarqueeScope = "home" | "about" | "events" | "vendors" | "partners" | "support" | "faq" | "global";
@@ -142,7 +154,9 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
     {logoBackdropStyle && (
       <div class="logo-backdrop" aria-hidden="true" style={logoBackdropStyle}></div>
     )}
-    <Image class="strip-logo" src={logo} alt="Draw The Block logo" transition:persist="site-logo" />
+    {resolvedLogoSrc && (
+      <img class="strip-logo" src={resolvedLogoSrc} alt="Draw The Block logo" transition:persist="site-logo" style={logoStyle} />
+    )}
   </div>
 
   <header class="strip-header" aria-label="Site header">
@@ -236,15 +250,40 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
 <style>
   .logo-area {
     position: relative;
+    /* Bottom-only reveal — left/right/top go back to a full bleed now
+       that the vignette fade (below) does the "lifted" work on its own
+       on those sides. One shared value — tune here to adjust it. */
+    --logo-inset: 4px;
     /* Bleed to the full width of .site-strip (counteract its horizontal padding) */
     width: calc(100% + var(--col-pad-mobile) * 2);
     margin-left: calc(var(--col-pad-mobile) * -1);
     margin-right: calc(var(--col-pad-mobile) * -1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-top: var(--space-4);
-    padding-bottom: 5px;
+    /* Bleed upward too, counteracting .site-strip's own padding-top —
+       otherwise that padding (site-strip's background is solid black)
+       shows as a bar above the backdrop banner. --site-strip-pad-y is
+       set on .site-strip per breakpoint (base.css) so this stays in
+       sync automatically. */
+    margin-top: calc(var(--site-strip-pad-y, var(--space-4)) * -1);
+    /* Reveal below the banner, before the header/nav starts — this is
+       the one side that keeps a physical gap instead of relying on
+       the fade, so the banner doesn't run straight into the nav. */
+    margin-bottom: var(--logo-inset);
+    /* .strip-logo is positioned absolutely now (CMS-driven size/place),
+       so no flex centering is needed here — .logo-backdrop is already
+       absolute + inset:0 regardless of the parent's display type. No
+       padding either: .strip-logo sizes itself as a % of .logo-area's
+       own height (see below), so any padding here would make that
+       percentage resolve against a smaller box than the visible banner. */
+
+    /* Fixed banner shape so the backdrop crop looks the same at every
+       breakpoint instead of getting squarer as the column narrows.
+       Value is empirical — eyeballed against the Ultrawide/Extrawide
+       sizes where the crop already looked right. Tune this one number
+       to re-tune the whole ladder. Applies at every breakpoint, mobile
+       included — .strip-logo shrinks to fit inside (see below) rather
+       than the banner flooring to fit a fixed-size logo. */
+    --logo-backdrop-ratio: 5.45;
+    aspect-ratio: var(--logo-backdrop-ratio);
   }
 
   @media (min-width: 481px) {
@@ -290,13 +329,51 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   .logo-backdrop {
     position: absolute;
     inset: 0;
+    /* Inner vignette on the left/right/all-around only — the bottom
+       edge uses a hard linear-gradient fade to black instead (below),
+       so it's not doubled up with the blurred box-shadow version. */
+    box-shadow:
+        inset 70px 0 60px -30px rgba(0, 0, 0, 0.65),
+        inset -70px 0 60px -30px rgba(0, 0, 0, 0.65),
+        inset 0 0 90px rgba(0, 0, 0, 0.25);
+  }
+
+  .logo-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* Bottom fade to solid black (var(--color-strip)) instead of the
+       blurred vignette — the photo stays untouched through the top
+       75% and transitions to solid black over the last 25%. Fixed —
+       this is a backdrop-photo treatment, independent of the (now
+       CMS-configurable) logo size below. */
+    background: linear-gradient(to bottom, transparent 75%, var(--color-strip) 100%);
   }
 
   .strip-logo {
-    width: 240px;
+    /* Size and horizontal position are CMS-driven (Header Banner entry
+       in pageContent) via --logo-size-pct / --logo-position-pct inline
+       vars — see BaseLayout frontmatter. .logo-area has a definite
+       height via aspect-ratio and zero padding, so max-height resolves
+       directly against the full visible banner height.
+
+       Horizontal placement uses the standard "left: X%; translateX(-X%)"
+       trick: at X=0 the logo's left edge sits at the banner's left edge,
+       at X=100 its right edge sits at the banner's right edge, and X=50
+       is true centering — interpolating smoothly in between. */
+    width: auto;
     height: auto;
+    max-width: 240px;
+    /* noinspection CssUnresolvedCustomProperty */
+    max-height: var(--logo-size-pct, 75%);
     display: block;
-    position: relative;
+    position: absolute;
+    top: 50%;
+    /* noinspection CssUnresolvedCustomProperty */
+    left: var(--logo-position-pct, 50%);
+    /* noinspection CssUnresolvedCustomProperty */
+    transform: translate(calc(var(--logo-position-pct, 50%) * -1), -50%);
     z-index: 1;
   }
 

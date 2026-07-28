@@ -1,15 +1,17 @@
 ---
-/* src/pages/admin.astro */
-export const prerender = true;
+/* src/pages/admin.astro
+ *
+ * Thin redirect to /admin/index.html (the real Decap CMS entry point,
+ * in public/). Exists only because Astro's dev server doesn't do
+ * directory-index resolution for public/ files the way production
+ * static hosting does — /admin/ 404s in dev without this, even though
+ * /admin/index.html works fine everywhere. `astro build` skips this
+ * file in favor of the public one, so it has no effect in production;
+ * this is purely a local-dev convenience for the documented
+ * `npm run dev` + `npx decap-server` workflow.
+ *
+ * Do not duplicate the CMS bootstrap (decap-cms.js + preview-templates.js)
+ * here — that lives solely in public/admin/index.html.
+ */
+return Astro.redirect("/admin/index.html", 302);
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Content Manager</title>
-  </head>
-  <body>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-  </body>
-</html>

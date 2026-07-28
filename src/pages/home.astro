@@ -85,18 +85,23 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
           <Kicker label="FEATURED EVENTS" />
 
           <div class="eventsList">
-            {featuredDisplay.map((event, index) => (
-                <EventCard
-                    href={`/events/${event.id}`}
-                    title={event.data.title}
-                    image={event.data.image}
-                    description={event.data.description}
-                    startDate={event.data.startDate}
-                    endDate={event.data.endDate}
-                    endTime={event.data.endTime}
-                    location={event.data.location}
-                    eager={index === 0}
-                />
+            {featuredDisplay.map((event, index, arr) => (
+                <>
+                  <EventCard
+                      href={`/events/${event.id}`}
+                      title={event.data.title}
+                      image={event.data.image}
+                      description={event.data.description}
+                      startDate={event.data.startDate}
+                      endDate={event.data.endDate}
+                      endTime={event.data.endTime}
+                      location={event.data.location}
+                      eager={index === 0}
+                  />
+                  {index + 1 < arr.length && (
+                      <hr class={`rowDivider${(index + 1) % 2 === 0 ? " rowDivider--rowEnd" : ""}`} />
+                  )}
+                </>
             ))}
           </div>
         </section>
@@ -199,6 +204,21 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
         grid-template-columns: 1fr 1fr;
         align-items: start;
       }
+      /* On the 2-column desktop grid, only keep dividers that fall at
+         the end of a row (after every 2nd card). Mid-row dividers would
+         appear between the two cards of the same row, which is wrong. */
+      .rowDivider:not(.rowDivider--rowEnd) {
+        display: none;
+      }
+    }
+
+    .rowDivider {
+      grid-column: 1 / -1;
+      width: 66%;
+      margin-inline: auto;
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.40);
+      margin-block: var(--space-2);
     }
 
     /* COUNTDOWN */

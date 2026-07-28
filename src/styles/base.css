@@ -62,7 +62,11 @@ a:hover {
     margin-inline: auto;
     min-height: 100vh;
     background: var(--color-strip);
-    padding: var(--space-4) var(--col-pad-mobile);
+    /* --site-strip-pad-y mirrors the vertical padding token so children
+       (e.g. .logo-area in BaseLayout) can bleed a negative-margin offset
+       to it without duplicating the breakpoint ladder themselves. */
+    --site-strip-pad-y: var(--space-4);
+    padding: var(--site-strip-pad-y) var(--col-pad-mobile);
     position: relative; /* needed for mascot peek */
 
     display: flex;
@@ -77,35 +81,40 @@ a:hover {
 @media (min-width: 481px) {
     .site-strip {
         max-width: var(--col-max-tablet);
-        padding: var(--space-5) var(--col-pad-tablet);
+        --site-strip-pad-y: var(--space-5);
+        padding: var(--site-strip-pad-y) var(--col-pad-tablet);
     }
 }
 
 @media (min-width: 769px) {
     .site-strip {
         max-width: var(--col-max-standard);
-        padding: var(--space-5) var(--col-pad-standard);
+        --site-strip-pad-y: var(--space-5);
+        padding: var(--site-strip-pad-y) var(--col-pad-standard);
     }
 }
 
 @media (min-width: 1025px) {
     .site-strip {
         max-width: var(--col-max-wide);
-        padding: var(--space-6) var(--col-pad-wide);
+        --site-strip-pad-y: var(--space-6);
+        padding: var(--site-strip-pad-y) var(--col-pad-wide);
     }
 }
 
 @media (min-width: 1441px) {
     .site-strip {
         max-width: var(--col-max-ultrawide);
-        padding: var(--space-6) var(--col-pad-ultrawide);
+        --site-strip-pad-y: var(--space-6);
+        padding: var(--site-strip-pad-y) var(--col-pad-ultrawide);
     }
 }
 
 @media (min-width: 1921px) {
     .site-strip {
         max-width: var(--col-max-extrawide);
-        padding: var(--space-7) var(--col-pad-extrawide);
+        --site-strip-pad-y: var(--space-7);
+        padding: var(--site-strip-pad-y) var(--col-pad-extrawide);
     }
 }
 
