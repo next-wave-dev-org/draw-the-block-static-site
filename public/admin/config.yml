@@ -225,14 +225,23 @@ collections:
             max: 100
             default: 50
             hint: "0 = top of the photo, 50 = centered, 100 = bottom. Use this to move the photo up or down within the banner strip if the crop doesn't land right — see the preview below."
-          - label: "Logo Image"
+          - label: "Logo Mode"
+            name: "logoMode"
+            widget: "select"
+            options:
+              - { label: "Default (Draw The Block logo)", value: "default" }
+              - { label: "No Logo", value: "none" }
+              - { label: "Custom", value: "custom" }
+            default: "default"
+            hint: "Choose 'No Logo' to hide the logo entirely, or 'Custom' to use the image uploaded below."
+          - label: "Logo Image (used when Logo Mode is 'Custom')"
             name: "logoImage"
             widget: "image"
             required: false
             media_library:
               config:
                 max_file_size: 2097152
-            hint: "Leave blank to use the default Draw The Block logo. Max 2MB — transparent PNG recommended."
+            hint: "Only used when Logo Mode above is set to 'Custom'. Max 2MB — transparent PNG recommended."
           - label: "Logo Size"
             name: "logoSizePercent"
             widget: "number"

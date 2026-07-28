@@ -168,8 +168,11 @@ const pageContent = defineCollection({
         // 0-100: passed straight through to background-position's Y
         // component (0 = top of photo, 50 = centered, 100 = bottom).
         backdropVerticalPosition: z.coerce.number().min(0).max(100).default(50),
-        // CMS-uploaded site logo. Falls back to /images/logo-default.png
-        // (see BaseLayout.astro) when unset.
+        // "default" = /images/logo-default.png, "none" = no logo
+        // rendered at all, "custom" = use logoImage below.
+        logoMode: z.enum(["default", "none", "custom"]).default("default"),
+        // CMS-uploaded site logo. Only used when logoMode is "custom" —
+        // falls back to /images/logo-default.png if left empty anyway.
         logoImage: z.string().optional(),
         // 0-100: % of the banner's own height (see .strip-logo in
         // BaseLayout.astro — the banner has a definite height via

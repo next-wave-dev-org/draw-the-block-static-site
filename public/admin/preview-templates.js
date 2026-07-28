@@ -35,6 +35,7 @@
           backdropVerticalPosition = 50;
         }
 
+        var logoMode = data.get('logoMode') || 'default';
         var logoImagePath = data.get('logoImage');
         var logoSizePercent = data.get('logoSizePercent');
         if (logoSizePercent === undefined || logoSizePercent === null || logoSizePercent === '') {
@@ -50,9 +51,12 @@
           backdropUrl = this.props.getAsset(backdropImagePath).toString();
         }
 
-        var logoUrl = logoImagePath
-          ? this.props.getAsset(logoImagePath).toString()
-          : '/images/logo-default.png';
+        var logoUrl = null;
+        if (logoMode === 'custom') {
+          logoUrl = logoImagePath ? this.props.getAsset(logoImagePath).toString() : '/images/logo-default.png';
+        } else if (logoMode === 'default') {
+          logoUrl = '/images/logo-default.png';
+        }
 
         var bannerStyle = {
           position: 'relative',
@@ -88,7 +92,7 @@
           ),
           h('div', { style: bannerStyle },
             h('div', { style: fadeStyle }),
-            h('img', { src: logoUrl, style: logoStyle })
+            logoUrl ? h('img', { src: logoUrl, style: logoStyle }) : null
           )
         );
       }

@@ -63,7 +63,13 @@ const logoBackdropStyle =
         ? `background: url('${backdropImage}') center ${backdropVerticalPosition}% / cover no-repeat;`
         : "";
 
-const resolvedLogoSrc = backdropEntry?.data.logoImage || "/images/logo-default.png";
+const logoMode = backdropEntry?.data.logoMode ?? "default";
+const resolvedLogoSrc =
+    logoMode === "none"
+        ? null
+        : logoMode === "custom"
+            ? (backdropEntry?.data.logoImage || "/images/logo-default.png")
+            : "/images/logo-default.png";
 const logoSizePercent = backdropEntry?.data.logoSizePercent ?? 75;
 const logoPositionPercent = backdropEntry?.data.logoPositionPercent ?? 50;
 const logoStyle = `--logo-size-pct: ${logoSizePercent}%; --logo-position-pct: ${logoPositionPercent}%;`;
@@ -148,7 +154,9 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
     {logoBackdropStyle && (
       <div class="logo-backdrop" aria-hidden="true" style={logoBackdropStyle}></div>
     )}
-    <img class="strip-logo" src={resolvedLogoSrc} alt="Draw The Block logo" transition:persist="site-logo" style={logoStyle} />
+    {resolvedLogoSrc && (
+      <img class="strip-logo" src={resolvedLogoSrc} alt="Draw The Block logo" transition:persist="site-logo" style={logoStyle} />
+    )}
   </div>
 
   <header class="strip-header" aria-label="Site header">

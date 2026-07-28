@@ -2,6 +2,7 @@
   "backdropMode": "image",
   "backdropImage": "/uploads/dtb.jpg",
   "backdropVerticalPosition": 35,
+  "logoMode": "none",
   "logoImage": "",
   "logoSizePercent": 75,
   "logoPositionPercent": 50
