@@ -1,6 +1,6 @@
 ---
 title: Draw The Block @ ThrowBacks Northwest
-featured: true
+featured: false
 startDate: 2026-07-26T12:00:00.000-07:00
 endTime: 6:00 PM
 location: 414 2nd ave S Seattle 98104
