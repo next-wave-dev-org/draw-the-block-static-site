@@ -7,4 +7,5 @@ image: /uploads/mit.jpg
 events:
   - draw-the-block-on-the-block
   - draw-the-block-on-the-block-1
+  - dtb-art-market-x-seattle-printers-guild
 ---
