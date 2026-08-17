@@ -5,4 +5,5 @@ instagramUrl: https://www.instagram.com/starrikoworks/
 image: /uploads/466fe0f0-c565-4998-b8d1-b48f235b8aac_l0_001-1_3_2026-10_38_01-am.jpg
 events:
   - art-market-day-1
+  - dtb-art-market-x-seattle-printers-guild
 ---
