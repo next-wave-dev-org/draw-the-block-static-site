@@ -8,4 +8,5 @@ events:
   - dtb-fellas-the-paper-pushers-print-shop-opening
   - dtb-pull-up-at-the-park
   - draw-the-block-on-the-block
+  - dtb-art-market-x-seattle-printers-guild
 ---
