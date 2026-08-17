@@ -5,4 +5,5 @@ instagramUrl: https://www.instagram.com/cookiestraw_/
 image: /uploads/b222847b-8368-481d-ad09-91c51330ca0a_l0_001-1_9_2026-9_14_49-am.jpg
 events:
   - art-market-day-1
+  - dtb-art-market-x-seattle-printers-guild
 ---
