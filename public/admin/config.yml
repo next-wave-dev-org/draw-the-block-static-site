@@ -7,6 +7,19 @@ media_folder: "public/uploads"
 public_folder: "/uploads"
 
 collections:
+  - name: "shopSync"
+    label: "Update Shop"
+    files:
+      - label: "Update Shop"
+        name: "trigger"
+        file: "src/content/shopSync/shop-sync.json"
+        description: "Shop products come from Shopify. Changes made there (new products, price or stock updates) don't appear on the live site until it rebuilds. Click the button below any time after updating Shopify — the site updates automatically in about 1–2 minutes. You do NOT need to click Save or Publish for this to work."
+        fields:
+          - label: "Update Shop Now"
+            name: "trigger"
+            widget: "deployTrigger"
+            required: false
+
   - name: "events"
     label: "Events"
     folder: "src/content/events"
