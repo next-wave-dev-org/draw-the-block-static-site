@@ -121,6 +121,10 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   { key: "support", href: "/support", label: "SUPPORT" },
 ];
 
+// Mobile header (<769px): a persistent CTA button next to the hamburger,
+// same navItems list, same order — drives to Events, the org's core action.
+const mobileCtaItem = navItems.find((i) => i.key === "events")!;
+
 
 
 ---
@@ -182,6 +186,58 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
     </nav>
 
   </header>
+
+  {/* MOBILE HEADER — replaces .strip-header below the mobile breakpoint
+      (see media queries in <style>). Sticky compact bar: small logo mark,
+      one persistent CTA, hamburger opening a drawer with the full navItems
+      list. Experimental — see BaseLayout comment block above for the
+      "3-4 key links + CTA + drawer" pattern this implements. */}
+  <header class="mobileHeader" aria-label="Site header">
+    <a href="/home" class="mobileHeader__logo" aria-label="Draw The Block — Home">DTB</a>
+
+    <div class="mobileHeader__actions">
+      <a
+          href={mobileCtaItem.href}
+          class="mobileHeader__cta"
+          data-bt-active={current === mobileCtaItem.key ? "" : undefined}
+      >
+        {mobileCtaItem.label}
+      </a>
+      <button
+          type="button"
+          class="mobileHeader__menuBtn"
+          aria-label="Open menu"
+          aria-expanded="false"
+          aria-controls="mobileDrawer"
+          data-mobile-menu-toggle
+      >
+        <span class="mobileHeader__menuIcon" aria-hidden="true"></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobileDrawer__scrim" data-mobile-scrim aria-hidden="true"></div>
+
+  <nav id="mobileDrawer" class="mobileDrawer" aria-label="Mobile navigation" data-mobile-drawer inert>
+    <button
+        type="button"
+        class="mobileDrawer__close"
+        aria-label="Close menu"
+        data-mobile-menu-close
+    >
+      &times;
+    </button>
+
+    {navItems.map((item) => (
+        <a
+            href={item.href}
+            class="mobileDrawer__link"
+            data-bt-active={current === item.key ? "" : undefined}
+        >
+          {item.label}
+        </a>
+    ))}
+  </nav>
 
   <section class="strip-content">
     <slot />
@@ -388,6 +444,176 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  /* ═════════════════════════════════════════════════════════════
+   * MOBILE HEADER + DRAWER (<769px)
+   *
+   * Replaces .strip-header below the breakpoint. .strip-header keeps
+   * the bracket-travel nav untouched at ≥769px — this is a separate,
+   * parallel piece of markup, not a restyle of the same nav.
+   * ═════════════════════════════════════════════════════════════ */
+  .mobileHeader,
+  .mobileDrawer,
+  .mobileDrawer__scrim {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .strip-header {
+      display: none;
+    }
+
+    .mobileHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      width: calc(100% + var(--col-pad-mobile) * 2);
+      margin-left: calc(var(--col-pad-mobile) * -1);
+      margin-right: calc(var(--col-pad-mobile) * -1);
+      padding: 10px var(--col-pad-mobile);
+      background: #000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .mobileDrawer__scrim {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 45;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease-out;
+    }
+
+    .mobileDrawer {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100dvh;
+      width: min(78vw, 320px);
+      background: #000;
+      padding: var(--space-5) var(--space-4);
+      gap: var(--space-2);
+      z-index: 50;
+      transform: translateX(100%);
+      transition: transform 250ms cubic-bezier(0.5, 0, 0.2, 1);
+      box-shadow: -12px 0 32px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-mobile-open] .mobileDrawer__scrim {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    [data-mobile-open] .mobileDrawer {
+      transform: translateX(0);
+    }
+  }
+
+  .mobileHeader__logo {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    font-size: 18px;
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .mobileHeader__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .mobileHeader__cta {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 13px;
+    color: #000;
+    background: #FFD400;
+    text-decoration: none;
+    padding: 8px 14px;
+    line-height: 1;
+  }
+
+  .mobileHeader__menuBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    margin: -10px -8px -10px 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mobileHeader__menuIcon,
+  .mobileHeader__menuIcon::before,
+  .mobileHeader__menuIcon::after {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #fff;
+  }
+
+  .mobileHeader__menuIcon {
+    position: relative;
+  }
+
+  .mobileHeader__menuIcon::before,
+  .mobileHeader__menuIcon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+  }
+
+  .mobileHeader__menuIcon::before {
+    top: -7px;
+  }
+
+  .mobileHeader__menuIcon::after {
+    top: 7px;
+  }
+
+  .mobileDrawer__close {
+    align-self: flex-end;
+    width: 36px;
+    height: 36px;
+    line-height: 1;
+    font-size: 28px;
+    color: #fff;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-bottom: var(--space-3);
+  }
+
+  .mobileDrawer__link {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 20px;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .mobileDrawer__link[data-bt-active] {
+    color: #FFD400;
   }
 
   /* Top-bar ribbon — bleeds edge-to-edge like .logo-area, same breakpoint
@@ -731,6 +957,66 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
       if (s) s.cleanup();
     });
   });
+
+  /**
+   * Mobile drawer — open/close for the hamburger menu below 769px.
+   * Re-bound on astro:page-load like the bracket nav above; a ClientRouter
+   * navigation always lands with the drawer closed (fresh DOM state), so
+   * there's no explicit "close on navigate" to wire up.
+   */
+  let drawerCleanup: (() => void) | null = null;
+
+  function initMobileDrawer() {
+    drawerCleanup?.();
+
+    const toggleBtn = document.querySelector<HTMLElement>("[data-mobile-menu-toggle]");
+    const closeBtn = document.querySelector<HTMLElement>("[data-mobile-menu-close]");
+    const scrim = document.querySelector<HTMLElement>("[data-mobile-scrim]");
+    const drawer = document.querySelector<HTMLElement>("[data-mobile-drawer]");
+    if (!toggleBtn || !closeBtn || !scrim || !drawer) return;
+
+    const open = () => {
+      document.documentElement.setAttribute("data-mobile-open", "");
+      document.body.style.overflow = "hidden";
+      toggleBtn.setAttribute("aria-expanded", "true");
+      drawer.removeAttribute("inert");
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      document.documentElement.removeAttribute("data-mobile-open");
+      document.body.style.overflow = "";
+      toggleBtn.setAttribute("aria-expanded", "false");
+      drawer.setAttribute("inert", "");
+      toggleBtn.focus();
+    };
+
+    const onToggleClick = () => open();
+    const onCloseClick = () => close();
+    const onScrimClick = () => close();
+    const onKeydown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && document.documentElement.hasAttribute("data-mobile-open")) {
+        close();
+      }
+    };
+
+    toggleBtn.addEventListener("click", onToggleClick);
+    closeBtn.addEventListener("click", onCloseClick);
+    scrim.addEventListener("click", onScrimClick);
+    document.addEventListener("keydown", onKeydown);
+
+    drawerCleanup = () => {
+      toggleBtn.removeEventListener("click", onToggleClick);
+      closeBtn.removeEventListener("click", onCloseClick);
+      scrim.removeEventListener("click", onScrimClick);
+      document.removeEventListener("keydown", onKeydown);
+      document.documentElement.removeAttribute("data-mobile-open");
+      document.body.style.overflow = "";
+    };
+  }
+
+  document.addEventListener("astro:page-load", initMobileDrawer);
+  document.addEventListener("astro:before-swap", () => drawerCleanup?.());
 </script>
 </body>
 </html>
