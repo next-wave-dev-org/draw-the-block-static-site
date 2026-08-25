@@ -13,7 +13,7 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "Title", name: "title", widget: "string", hint: "Keep under 20 characters so the title fits on one line on event cards. Longer titles will be truncated with an ellipsis." }
+      - { label: "Title", name: "title", widget: "string", hint: "Under ~18 characters fits on one line at full size. Longer titles shrink automatically and may wrap to two lines." }
       - { label: "Show on Front Page", name: "featured", widget: "boolean", default: false }
       - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
       - { label: "End Time (same-day)", name: "endTime", widget: "string", required: false, hint: "Use for same-day end time. If event ends on a different day, use End Date/Time instead." }
@@ -45,7 +45,7 @@ collections:
         value_field: "{{slug}}"
         display_fields: ["title"]
       - { label: "Category", name: "category", widget: "select", options: ["liveShowcases", "gamesAndActivities", "contests", "popUps", "collaborations", "other"], default: "other" }
-      - { label: "Title", name: "title", widget: "string", hint: "Keep under 20 characters so the title fits on one line on event cards. Longer titles will be truncated with an ellipsis." }
+      - { label: "Title", name: "title", widget: "string", hint: "Under ~18 characters fits on one line at full size. Longer titles shrink automatically and may wrap to two lines." }
       - { label: "Start Date/Time", name: "startDate", widget: "datetime" }
       - { label: "End Time (same-day)", name: "endTime", widget: "string", required: false, hint: "Use for same-day end time. If event ends on a different day, use End Date/Time instead." }
       - { label: "End Date/Time (multi-day)", name: "endDate", widget: "datetime", required: false }
