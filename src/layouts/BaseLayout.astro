@@ -121,9 +121,13 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   { key: "support", href: "/support", label: "SUPPORT" },
 ];
 
-// Mobile header (<769px): a persistent CTA button next to the hamburger,
-// same navItems list, same order — drives to Events, the org's core action.
-const mobileCtaItem = navItems.find((i) => i.key === "events")!;
+// Mobile header (<769px): reuses the same bracket-travel nav as desktop
+// with a shorter list (Home, Events, Vendors, Shop), plus a hamburger
+// beside it opening a drawer with everything else (About, Partners,
+// Support).
+const mobilePrimaryKeys: NavKey[] = ["home", "events", "vendors", "shop"];
+const mobilePrimaryItems = navItems.filter((i) => mobilePrimaryKeys.includes(i.key));
+const mobileDrawerItems = navItems.filter((i) => !mobilePrimaryKeys.includes(i.key));
 
 
 
@@ -188,37 +192,42 @@ const mobileCtaItem = navItems.find((i) => i.key === "events")!;
   </header>
 
   {/* MOBILE HEADER — replaces .strip-header below the mobile breakpoint
-      (see media queries in <style>). Sticky compact bar: small logo mark,
-      one persistent CTA, hamburger opening a drawer with the full navItems
-      list. Experimental — see BaseLayout comment block above for the
-      "3-4 key links + CTA + drawer" pattern this implements. */}
+      (see media queries in <style>). No logo mark: the bracket-travel nav
+      (same component/JS as desktop's .strip-nav, just a shorter list) IS
+      the header, with a hamburger beside it opening a drawer for the rest.
+      Experimental — see BaseLayout comment block above for the pattern. */}
   <header class="mobileHeader" aria-label="Site header">
-    <a href="/home" class="mobileHeader__logo" aria-label="Draw The Block — Home">DTB</a>
+    <nav class="strip-nav mobileHeader__nav" aria-label="Primary navigation" data-bt-nav>
+      <span class="strip-nav__bracket strip-nav__bracket--left" aria-hidden="true" data-bt-left>[</span>
+      <span class="strip-nav__bracket strip-nav__bracket--right" aria-hidden="true" data-bt-right>]</span>
 
-    <div class="mobileHeader__actions">
-      <a
-          href={mobileCtaItem.href}
-          class="mobileHeader__cta"
-          data-bt-active={current === mobileCtaItem.key ? "" : undefined}
-      >
-        {mobileCtaItem.label}
-      </a>
-      <button
-          type="button"
-          class="mobileHeader__menuBtn"
-          aria-label="Open menu"
-          aria-expanded="false"
-          aria-controls="mobileDrawer"
-          data-mobile-menu-toggle
-      >
-        <span class="mobileHeader__menuIcon" aria-hidden="true"></span>
-      </button>
-    </div>
+      {mobilePrimaryItems.map((item) => (
+          <a
+              class="strip-nav__link"
+              href={item.href}
+              data-bt-link
+              data-bt-active={current === item.key ? "" : undefined}
+          >
+            {item.label}
+          </a>
+      ))}
+    </nav>
+
+    <button
+        type="button"
+        class="mobileHeader__menuBtn"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobileDrawer"
+        data-mobile-menu-toggle
+    >
+      <span class="mobileHeader__menuIcon" aria-hidden="true"></span>
+    </button>
   </header>
 
   <div class="mobileDrawer__scrim" data-mobile-scrim aria-hidden="true"></div>
 
-  <nav id="mobileDrawer" class="mobileDrawer" aria-label="Mobile navigation" data-mobile-drawer inert>
+  <nav id="mobileDrawer" class="mobileDrawer" aria-label="More navigation" data-mobile-drawer inert>
     <button
         type="button"
         class="mobileDrawer__close"
@@ -228,7 +237,7 @@ const mobileCtaItem = navItems.find((i) => i.key === "events")!;
       &times;
     </button>
 
-    {navItems.map((item) => (
+    {mobileDrawerItems.map((item) => (
         <a
             href={item.href}
             class="mobileDrawer__link"
@@ -467,8 +476,8 @@ const mobileCtaItem = navItems.find((i) => i.key === "events")!;
     .mobileHeader {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: var(--space-3);
+      justify-content: center;
+      gap: var(--space-2);
       width: calc(100% + var(--col-pad-mobile) * 2);
       margin-left: calc(var(--col-pad-mobile) * -1);
       margin-right: calc(var(--col-pad-mobile) * -1);
@@ -478,6 +487,13 @@ const mobileCtaItem = navItems.find((i) => i.key === "events")!;
       position: sticky;
       top: 0;
       z-index: 40;
+    }
+
+    /* The bracket-nav is the header — center it as a block, hamburger
+       sits directly beside it (not pinned to the far edge). */
+    .mobileHeader__nav {
+      flex: 0 1 auto;
+      min-width: 0;
     }
 
     .mobileDrawer__scrim {
@@ -518,34 +534,6 @@ const mobileCtaItem = navItems.find((i) => i.key === "events")!;
     }
   }
 
-  .mobileHeader__logo {
-    font-family: var(--font-display), sans-serif;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    font-size: 18px;
-    color: #fff;
-    text-decoration: none;
-  }
-
-  .mobileHeader__actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .mobileHeader__cta {
-    font-family: var(--font-display), sans-serif;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-size: 13px;
-    color: #000;
-    background: #FFD400;
-    text-decoration: none;
-    padding: 8px 14px;
-    line-height: 1;
-  }
-
   .mobileHeader__menuBtn {
     display: flex;
     align-items: center;
@@ -553,7 +541,8 @@ const mobileCtaItem = navItems.find((i) => i.key === "events")!;
     width: 44px;
     height: 44px;
     padding: 0;
-    margin: -10px -8px -10px 0;
+    margin: -10px 0;
+    flex-shrink: 0;
     background: transparent;
     border: none;
     cursor: pointer;
