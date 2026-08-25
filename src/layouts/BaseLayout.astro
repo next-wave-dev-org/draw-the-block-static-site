@@ -150,6 +150,10 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
 <body>
 <main class="site-strip" aria-label="Main content">
 
+  {activeMessages && (
+      <Marquee messages={activeMessages} speed={activeSpeed} />
+  )}
+
   <div class="logo-area">
     {logoBackdropStyle && (
       <div class="logo-backdrop" aria-hidden="true" style={logoBackdropStyle}></div>
@@ -178,10 +182,6 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
     </nav>
 
   </header>
-
-  {activeMessages && (
-      <Marquee messages={activeMessages} speed={activeSpeed} />
-  )}
 
   <section class="strip-content">
     <slot />
@@ -258,12 +258,13 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
     width: calc(100% + var(--col-pad-mobile) * 2);
     margin-left: calc(var(--col-pad-mobile) * -1);
     margin-right: calc(var(--col-pad-mobile) * -1);
-    /* Bleed upward too, counteracting .site-strip's own padding-top —
-       otherwise that padding (site-strip's background is solid black)
-       shows as a bar above the backdrop banner. --site-strip-pad-y is
-       set on .site-strip per breakpoint (base.css) so this stays in
-       sync automatically. */
-    margin-top: calc(var(--site-strip-pad-y, var(--space-4)) * -1);
+    /* No top bleed by default — when the marquee ribbon is present it's
+       the first child and cancels .site-strip's own top padding itself
+       (see ".site-strip > :global(.marquee):first-child" below), so
+       .logo-area just sits flush underneath it. The :first-child rule
+       below restores the bleed for pages with no marquee, where
+       .logo-area IS the first child again. */
+    margin-top: 0;
     /* Reveal below the banner, before the header/nav starts — this is
        the one side that keeps a physical gap instead of relying on
        the fade, so the banner doesn't run straight into the nav. */
@@ -284,6 +285,12 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
        than the banner flooring to fit a fixed-size logo. */
     --logo-backdrop-ratio: 5.45;
     aspect-ratio: var(--logo-backdrop-ratio);
+  }
+
+  /* Pages with no marquee: .logo-area is the first child again, so it
+     takes back the top-bleed job the marquee ribbon otherwise does. */
+  .logo-area:first-child {
+    margin-top: calc(var(--site-strip-pad-y, var(--space-4)) * -1);
   }
 
   @media (min-width: 481px) {
@@ -383,9 +390,59 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
     align-items: center;
   }
 
+  /* Top-bar ribbon — bleeds edge-to-edge like .logo-area, same breakpoint
+     ladder, so it reads as a strip across the full page rather than an
+     inset bar sitting inside .site-strip's own padding. */
   .site-strip > :global(.marquee) {
     align-self: stretch;
     position: relative;
+    width: calc(100% + var(--col-pad-mobile) * 2);
+    margin-left: calc(var(--col-pad-mobile) * -1);
+    margin-right: calc(var(--col-pad-mobile) * -1);
+  }
+
+  .site-strip > :global(.marquee):first-child {
+    margin-top: calc(var(--site-strip-pad-y, var(--space-4)) * -1);
+  }
+
+  @media (min-width: 481px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-tablet) * 2);
+      margin-left: calc(var(--col-pad-tablet) * -1);
+      margin-right: calc(var(--col-pad-tablet) * -1);
+    }
+  }
+
+  @media (min-width: 769px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-standard) * 2);
+      margin-left: calc(var(--col-pad-standard) * -1);
+      margin-right: calc(var(--col-pad-standard) * -1);
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-wide) * 2);
+      margin-left: calc(var(--col-pad-wide) * -1);
+      margin-right: calc(var(--col-pad-wide) * -1);
+    }
+  }
+
+  @media (min-width: 1441px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-ultrawide) * 2);
+      margin-left: calc(var(--col-pad-ultrawide) * -1);
+      margin-right: calc(var(--col-pad-ultrawide) * -1);
+    }
+  }
+
+  @media (min-width: 1921px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-extrawide) * 2);
+      margin-left: calc(var(--col-pad-extrawide) * -1);
+      margin-right: calc(var(--col-pad-extrawide) * -1);
+    }
   }
 
   /* ═════════════════════════════════════════════════════════════
