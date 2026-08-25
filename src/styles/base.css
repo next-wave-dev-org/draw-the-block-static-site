@@ -130,6 +130,7 @@ a:hover {
 /* Constrains prose to a comfortable reading width. */
 .prose {
     max-width: var(--text-max);
+    margin-inline: auto;
     text-align: center;
     font-size: var(--fs-body);
     line-height: var(--lh-body);
