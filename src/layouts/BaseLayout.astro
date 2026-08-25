@@ -496,6 +496,17 @@ const mobileDrawerItems = navItems.filter((i) => !mobilePrimaryKeys.includes(i.k
       min-width: 0;
     }
 
+    /* Same webfont-metrics correction as the footer's .bt-bracket
+       (--bt-y-nudge: 1px) — this instance renders at a slightly
+       different effective size than the desktop header's, which is
+       enough to visibly misalign the bracket glyph's cap-height. Plain
+       `top` rather than --bt-y-nudge (the mechanism the footer uses) —
+       equivalent here since nothing else sets `top` on this element,
+       and one less level of indirection. */
+    .mobileHeader__nav .strip-nav__bracket {
+      top: 1px;
+    }
+
     .mobileDrawer__scrim {
       display: block;
       position: fixed;
@@ -537,7 +548,15 @@ const mobileDrawerItems = navItems.filter((i) => !mobilePrimaryKeys.includes(i.k
   .mobileHeader__menuBtn {
     display: flex;
     align-items: center;
-    justify-content: center;
+    /* flex-end, not center: the 44px box is a tap-target, not the icon's
+       true width (22px) — centering the icon within it leaves ~11px of
+       invisible padding on the icon's outer (right) side, which visually
+       reads as the whole [nav, icon] pair sitting left of true center
+       even though the boxes themselves are centered correctly. Flush to
+       the box's own right edge instead — the button's own position/size
+       (the actual tap target) is unchanged, only where the icon glyph
+       sits inside it. */
+    justify-content: flex-end;
     width: 44px;
     height: 44px;
     padding: 0;
