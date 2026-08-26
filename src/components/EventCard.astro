@@ -204,4 +204,12 @@ if (endDate) {
         letter-spacing: 0.02em;
         opacity: 0.95;
     }
+
+    /* Description-to-date/time gap matches the event detail pages'
+       .eventDetails spacing (var(--space-5)). The flex `gap` on
+       .eventCard already contributes var(--space-2) between these two
+       paragraphs, so only the remainder is added here. */
+    .eventMeta + .eventMeta {
+        margin-top: calc(var(--space-5) - var(--space-2));
+    }
 </style>

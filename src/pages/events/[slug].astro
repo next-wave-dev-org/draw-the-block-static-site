@@ -5,7 +5,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import EventCard from "../../components/EventCard.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Kicker from "../../components/Kicker.astro";
-import { getCollection, render, type CollectionEntry } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 
 type EventEntry = CollectionEntry<"events">;
 type SubEventEntry = CollectionEntry<"subevents">;
@@ -19,7 +19,6 @@ export async function getStaticPaths() {
 }
 
 const { event } = Astro.props as { event: EventEntry };
-const { Content } = await render(event);
 
 const allSubs = (await getCollection("subevents")) as SubEventEntry[];
 
@@ -117,32 +116,30 @@ const formatDateTime = (d: Date) =>
         <h1 class="eventTitle">{event.data.title}</h1>
       </div>
 
-      {event.data.description && <p class="eventMeta">{event.data.description}</p>}
+      <div class="eventDetails">
+        {event.data.description && <p class="eventMeta">{event.data.description}</p>}
 
-      <p class="eventMeta">
-        <span>
-          {formatDateTime(event.data.startDate)}
-          {event.data.endDate
-              ? ` – ${formatDateTime(event.data.endDate)}`
-              : event.data.endTime
-                  ? ` – ${event.data.endTime}`
-                  : ""}
-          {event.data.location && <br />}
-          {event.data.location && <span>{event.data.location}</span>}
-        </span>
-      </p>
+        <p class="eventMeta">
+          <span>
+            {formatDateTime(event.data.startDate)}
+            {event.data.endDate
+                ? ` – ${formatDateTime(event.data.endDate)}`
+                : event.data.endTime
+                    ? ` – ${event.data.endTime}`
+                    : ""}
+            {event.data.location && <br />}
+            {event.data.location && <span>{event.data.location}</span>}
+          </span>
+        </p>
 
-      {event.data.eventUrl && (
-          <p class="eventMeta">
-            <a href={event.data.eventUrl} target="_blank" rel="noreferrer">
-              Event Link
-            </a>
-          </p>
-      )}
-
-      {subevents.length === 0 && <hr />}
-
-      <Content />
+        {event.data.eventUrl && (
+            <p class="eventMeta">
+              <a href={event.data.eventUrl} target="_blank" rel="noreferrer" class="rsvpLink">
+                [ RSVP ]
+              </a>
+            </p>
+        )}
+      </div>
 
       {subevents.length > 0 && <hr />}
     </section>
@@ -321,6 +318,19 @@ const formatDateTime = (d: Date) =>
       font-size: 14px;
       letter-spacing: 0.02em;
       opacity: 0.95;
+    }
+
+    /* Ample, deliberate spacing between the description, the date/time/
+       location group, and the RSVP link — the default .stack rhythm gets
+       cancelled out by .eventMeta's own margin: 0 (equal specificity,
+       later scoped rule wins), so this block owns the gap explicitly. */
+    .eventDetails > * + * {
+      margin-top: var(--space-5);
+    }
+
+    .rsvpLink {
+      color: var(--color-bg);
+      font-weight: 700;
     }
 
   </style>
