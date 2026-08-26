@@ -121,6 +121,14 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
   { key: "support", href: "/support", label: "SUPPORT" },
 ];
 
+// Mobile header (<769px): reuses the same bracket-travel nav as desktop
+// with a shorter list (Home, Events, Vendors, Shop), plus a hamburger
+// beside it opening a drawer with everything else (About, Partners,
+// Support).
+const mobilePrimaryKeys: NavKey[] = ["home", "events", "vendors", "shop"];
+const mobilePrimaryItems = navItems.filter((i) => mobilePrimaryKeys.includes(i.key));
+const mobileDrawerItems = navItems.filter((i) => !mobilePrimaryKeys.includes(i.key));
+
 
 
 ---
@@ -149,6 +157,10 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
 
 <body>
 <main class="site-strip" aria-label="Main content">
+
+  {activeMessages && (
+      <Marquee messages={activeMessages} speed={activeSpeed} />
+  )}
 
   <div class="logo-area">
     {logoBackdropStyle && (
@@ -179,9 +191,62 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
 
   </header>
 
-  {activeMessages && (
-      <Marquee messages={activeMessages} speed={activeSpeed} />
-  )}
+  {/* MOBILE HEADER — replaces .strip-header below the mobile breakpoint
+      (see media queries in <style>). No logo mark: the bracket-travel nav
+      (same component/JS as desktop's .strip-nav, just a shorter list) IS
+      the header, with a hamburger beside it opening a drawer for the rest.
+      Experimental — see BaseLayout comment block above for the pattern. */}
+  <header class="mobileHeader" aria-label="Site header">
+    <nav class="strip-nav mobileHeader__nav" aria-label="Primary navigation" data-bt-nav>
+      <span class="strip-nav__bracket strip-nav__bracket--left" aria-hidden="true" data-bt-left>[</span>
+      <span class="strip-nav__bracket strip-nav__bracket--right" aria-hidden="true" data-bt-right>]</span>
+
+      {mobilePrimaryItems.map((item) => (
+          <a
+              class="strip-nav__link"
+              href={item.href}
+              data-bt-link
+              data-bt-active={current === item.key ? "" : undefined}
+          >
+            {item.label}
+          </a>
+      ))}
+    </nav>
+
+    <button
+        type="button"
+        class="mobileHeader__menuBtn"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobileDrawer"
+        data-mobile-menu-toggle
+    >
+      <span class="mobileHeader__menuIcon" aria-hidden="true"></span>
+    </button>
+  </header>
+
+  <div class="mobileDrawer__scrim" data-mobile-scrim aria-hidden="true"></div>
+
+  <nav id="mobileDrawer" class="mobileDrawer" aria-label="More navigation" data-mobile-drawer inert>
+    <button
+        type="button"
+        class="mobileDrawer__close"
+        aria-label="Close menu"
+        data-mobile-menu-close
+    >
+      &times;
+    </button>
+
+    {mobileDrawerItems.map((item) => (
+        <a
+            href={item.href}
+            class="mobileDrawer__link"
+            data-bt-active={current === item.key ? "" : undefined}
+        >
+          {item.label}
+        </a>
+    ))}
+  </nav>
 
   <section class="strip-content">
     <slot />
@@ -258,12 +323,13 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
     width: calc(100% + var(--col-pad-mobile) * 2);
     margin-left: calc(var(--col-pad-mobile) * -1);
     margin-right: calc(var(--col-pad-mobile) * -1);
-    /* Bleed upward too, counteracting .site-strip's own padding-top —
-       otherwise that padding (site-strip's background is solid black)
-       shows as a bar above the backdrop banner. --site-strip-pad-y is
-       set on .site-strip per breakpoint (base.css) so this stays in
-       sync automatically. */
-    margin-top: calc(var(--site-strip-pad-y, var(--space-4)) * -1);
+    /* No top bleed by default — when the marquee ribbon is present it's
+       the first child and cancels .site-strip's own top padding itself
+       (see ".site-strip > :global(.marquee):first-child" below), so
+       .logo-area just sits flush underneath it. The :first-child rule
+       below restores the bleed for pages with no marquee, where
+       .logo-area IS the first child again. */
+    margin-top: 0;
     /* Reveal below the banner, before the header/nav starts — this is
        the one side that keeps a physical gap instead of relying on
        the fade, so the banner doesn't run straight into the nav. */
@@ -284,6 +350,12 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
        than the banner flooring to fit a fixed-size logo. */
     --logo-backdrop-ratio: 5.45;
     aspect-ratio: var(--logo-backdrop-ratio);
+  }
+
+  /* Pages with no marquee: .logo-area is the first child again, so it
+     takes back the top-bleed job the marquee ribbon otherwise does. */
+  .logo-area:first-child {
+    margin-top: calc(var(--site-strip-pad-y, var(--space-4)) * -1);
   }
 
   @media (min-width: 481px) {
@@ -383,9 +455,228 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
     align-items: center;
   }
 
+  /* ═════════════════════════════════════════════════════════════
+   * MOBILE HEADER + DRAWER (<769px)
+   *
+   * Replaces .strip-header below the breakpoint. .strip-header keeps
+   * the bracket-travel nav untouched at ≥769px — this is a separate,
+   * parallel piece of markup, not a restyle of the same nav.
+   * ═════════════════════════════════════════════════════════════ */
+  .mobileHeader,
+  .mobileDrawer,
+  .mobileDrawer__scrim {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .strip-header {
+      display: none;
+    }
+
+    .mobileHeader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      width: calc(100% + var(--col-pad-mobile) * 2);
+      margin-left: calc(var(--col-pad-mobile) * -1);
+      margin-right: calc(var(--col-pad-mobile) * -1);
+      padding: 10px var(--col-pad-mobile);
+      background: #000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    /* The bracket-nav is the header — center it as a block, hamburger
+       sits directly beside it (not pinned to the far edge). */
+    .mobileHeader__nav {
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+
+    /* Same webfont-metrics correction as the footer's .bt-bracket
+       (--bt-y-nudge: 1px) — this instance renders at a slightly
+       different effective size than the desktop header's, which is
+       enough to visibly misalign the bracket glyph's cap-height. Plain
+       `top` rather than --bt-y-nudge (the mechanism the footer uses) —
+       equivalent here since nothing else sets `top` on this element,
+       and one less level of indirection. */
+    .mobileHeader__nav .strip-nav__bracket {
+      top: 1px;
+    }
+
+    .mobileDrawer__scrim {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 45;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease-out;
+    }
+
+    .mobileDrawer {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100dvh;
+      width: min(78vw, 320px);
+      background: #000;
+      padding: var(--space-5) var(--space-4);
+      gap: var(--space-2);
+      z-index: 50;
+      transform: translateX(100%);
+      transition: transform 250ms cubic-bezier(0.5, 0, 0.2, 1);
+      box-shadow: -12px 0 32px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-mobile-open] .mobileDrawer__scrim {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    [data-mobile-open] .mobileDrawer {
+      transform: translateX(0);
+    }
+  }
+
+  .mobileHeader__menuBtn {
+    display: flex;
+    align-items: center;
+    /* flex-end, not center: the 44px box is a tap-target, not the icon's
+       true width (22px) — centering the icon within it leaves ~11px of
+       invisible padding on the icon's outer (right) side, which visually
+       reads as the whole [nav, icon] pair sitting left of true center
+       even though the boxes themselves are centered correctly. Flush to
+       the box's own right edge instead — the button's own position/size
+       (the actual tap target) is unchanged, only where the icon glyph
+       sits inside it. */
+    justify-content: flex-end;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    margin: -10px 0;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mobileHeader__menuIcon,
+  .mobileHeader__menuIcon::before,
+  .mobileHeader__menuIcon::after {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #fff;
+  }
+
+  .mobileHeader__menuIcon {
+    position: relative;
+  }
+
+  .mobileHeader__menuIcon::before,
+  .mobileHeader__menuIcon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+  }
+
+  .mobileHeader__menuIcon::before {
+    top: -7px;
+  }
+
+  .mobileHeader__menuIcon::after {
+    top: 7px;
+  }
+
+  .mobileDrawer__close {
+    align-self: flex-end;
+    width: 36px;
+    height: 36px;
+    line-height: 1;
+    font-size: 28px;
+    color: #fff;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-bottom: var(--space-3);
+  }
+
+  .mobileDrawer__link {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 20px;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .mobileDrawer__link[data-bt-active] {
+    color: #FFD400;
+  }
+
+  /* Top-bar ribbon — bleeds edge-to-edge like .logo-area, same breakpoint
+     ladder, so it reads as a strip across the full page rather than an
+     inset bar sitting inside .site-strip's own padding. */
   .site-strip > :global(.marquee) {
     align-self: stretch;
     position: relative;
+    width: calc(100% + var(--col-pad-mobile) * 2);
+    margin-left: calc(var(--col-pad-mobile) * -1);
+    margin-right: calc(var(--col-pad-mobile) * -1);
+  }
+
+  .site-strip > :global(.marquee):first-child {
+    margin-top: calc(var(--site-strip-pad-y, var(--space-4)) * -1);
+  }
+
+  @media (min-width: 481px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-tablet) * 2);
+      margin-left: calc(var(--col-pad-tablet) * -1);
+      margin-right: calc(var(--col-pad-tablet) * -1);
+    }
+  }
+
+  @media (min-width: 769px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-standard) * 2);
+      margin-left: calc(var(--col-pad-standard) * -1);
+      margin-right: calc(var(--col-pad-standard) * -1);
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-wide) * 2);
+      margin-left: calc(var(--col-pad-wide) * -1);
+      margin-right: calc(var(--col-pad-wide) * -1);
+    }
+  }
+
+  @media (min-width: 1441px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-ultrawide) * 2);
+      margin-left: calc(var(--col-pad-ultrawide) * -1);
+      margin-right: calc(var(--col-pad-ultrawide) * -1);
+    }
+  }
+
+  @media (min-width: 1921px) {
+    .site-strip > :global(.marquee) {
+      width: calc(100% + var(--col-pad-extrawide) * 2);
+      margin-left: calc(var(--col-pad-extrawide) * -1);
+      margin-right: calc(var(--col-pad-extrawide) * -1);
+    }
   }
 
   /* ═════════════════════════════════════════════════════════════
@@ -674,6 +965,66 @@ const navItems: Array<{ key: NavKey; href: string; label: string }> = [
       if (s) s.cleanup();
     });
   });
+
+  /**
+   * Mobile drawer — open/close for the hamburger menu below 769px.
+   * Re-bound on astro:page-load like the bracket nav above; a ClientRouter
+   * navigation always lands with the drawer closed (fresh DOM state), so
+   * there's no explicit "close on navigate" to wire up.
+   */
+  let drawerCleanup: (() => void) | null = null;
+
+  function initMobileDrawer() {
+    drawerCleanup?.();
+
+    const toggleBtn = document.querySelector<HTMLElement>("[data-mobile-menu-toggle]");
+    const closeBtn = document.querySelector<HTMLElement>("[data-mobile-menu-close]");
+    const scrim = document.querySelector<HTMLElement>("[data-mobile-scrim]");
+    const drawer = document.querySelector<HTMLElement>("[data-mobile-drawer]");
+    if (!toggleBtn || !closeBtn || !scrim || !drawer) return;
+
+    const open = () => {
+      document.documentElement.setAttribute("data-mobile-open", "");
+      document.body.style.overflow = "hidden";
+      toggleBtn.setAttribute("aria-expanded", "true");
+      drawer.removeAttribute("inert");
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      document.documentElement.removeAttribute("data-mobile-open");
+      document.body.style.overflow = "";
+      toggleBtn.setAttribute("aria-expanded", "false");
+      drawer.setAttribute("inert", "");
+      toggleBtn.focus();
+    };
+
+    const onToggleClick = () => open();
+    const onCloseClick = () => close();
+    const onScrimClick = () => close();
+    const onKeydown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && document.documentElement.hasAttribute("data-mobile-open")) {
+        close();
+      }
+    };
+
+    toggleBtn.addEventListener("click", onToggleClick);
+    closeBtn.addEventListener("click", onCloseClick);
+    scrim.addEventListener("click", onScrimClick);
+    document.addEventListener("keydown", onKeydown);
+
+    drawerCleanup = () => {
+      toggleBtn.removeEventListener("click", onToggleClick);
+      closeBtn.removeEventListener("click", onCloseClick);
+      scrim.removeEventListener("click", onScrimClick);
+      document.removeEventListener("keydown", onKeydown);
+      document.documentElement.removeAttribute("data-mobile-open");
+      document.body.style.overflow = "";
+    };
+  }
+
+  document.addEventListener("astro:page-load", initMobileDrawer);
+  document.addEventListener("astro:before-swap", () => drawerCleanup?.());
 </script>
 </body>
 </html>

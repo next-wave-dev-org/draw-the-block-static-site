@@ -31,6 +31,21 @@ const {
     eager = false,
 } = Astro.props;
 
+/**
+ * Title size tier, computed from character count at build time (no client
+ * JS, no layout shift). Cards render at different widths depending on
+ * context (single-featured, 2-col grid, events index list) — sized off
+ * the card's own container width (cqw), not the viewport, so this scales
+ * correctly wherever the card ends up.
+ */
+function titleSizeTier(t: string): "sm" | "md" | "lg" {
+    const len = t.length;
+    if (len <= 18) return "sm";
+    if (len <= 32) return "md";
+    return "lg";
+}
+const titleTier = titleSizeTier(title);
+
 const formatDateTime = (d: Date) =>
     d.toLocaleString(undefined, {
         year: "numeric",
@@ -64,7 +79,7 @@ if (endDate) {
         )}
 
         <div class="eventPoster">
-            <h2 class="eventTitle">{title}</h2>
+            <h2 class:list={["eventTitle", `eventTitle--${titleTier}`]}>{title}</h2>
         </div>
     </a>
 
@@ -140,19 +155,47 @@ if (endDate) {
         max-width: 100%;
         min-width: 0;
         box-sizing: border-box;
+        /* Lets .eventTitle size itself off this card's own width (cqw)
+           rather than the viewport — the same card renders full-width,
+           in a 2-col grid, and in the events list, all at once. */
+        container-type: inline-size;
     }
 
     .eventTitle {
         margin: 0;
-        font-size: 22px;
         font-weight: 800;
         text-transform: uppercase;
         line-height: 1.15;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    /* Short titles (the CMS-recommended length): full size, single line. */
+    .eventTitle--sm {
+        font-size: 22px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 100%;
-        min-width: 0;
+    }
+
+    /* Longer titles: shrink to still fit on one line. */
+    .eventTitle--md {
+        font-size: clamp(15px, 6.5cqw, 19px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Very long titles: shrink further and allow wrapping to two lines
+       (rather than truncating a title down to near-illegibility). Anything
+       that still overflows two lines at this size gets an ellipsis. */
+    .eventTitle--lg {
+        font-size: clamp(13px, 5.5cqw, 16px);
+        white-space: normal;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
     .eventMeta {
@@ -160,5 +203,13 @@ if (endDate) {
         font-size: 14px;
         letter-spacing: 0.02em;
         opacity: 0.95;
+    }
+
+    /* Description-to-date/time gap matches the event detail pages'
+       .eventDetails spacing (var(--space-5)). The flex `gap` on
+       .eventCard already contributes var(--space-2) between these two
+       paragraphs, so only the remainder is added here. */
+    .eventMeta + .eventMeta {
+        margin-top: calc(var(--space-5) - var(--space-2));
     }
 </style>

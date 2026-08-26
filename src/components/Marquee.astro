@@ -66,15 +66,25 @@ const SEPARATOR = "◉";
         overflow: hidden;
         background: #000;
         color: #FFD400; /* Yellow — matches the DTB logo */
-        border-top: 1px solid rgba(255, 212, 0, 0.25);
         border-bottom: 1px solid rgba(255, 212, 0, 0.25);
-        padding: 10px 0;
+        padding: 6px 0;
         font-family: var(--font-display), system-ui, sans-serif;
         font-weight: var(--fw-display, 700);
-        font-size: 13px;
-        letter-spacing: 0.14em;
+        font-size: 12px;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
         user-select: none;
+    }
+
+    /* Thin utility-ribbon scale on narrow screens — this is the size
+       that was "a little large" as a mid-page banner; as a top-bar
+       strip it should read as a slim accent, not a second header. */
+    @media (max-width: 480px) {
+        .marquee {
+            padding: 4px 0;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+        }
     }
 
     .marquee__track {
