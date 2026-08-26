@@ -1,0 +1,27 @@
+name: Enforce main merge source
+
+# main only accepts PRs from develop or an urgent hotfix/* branch — everything
+# else should land on develop first. This does NOT affect direct pushes (e.g.
+# Decap CMS's git-gateway, which pushes content commits straight to main with
+# no PR), since required-status-check rules only gate PR merges, not pushes.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  check-source-branch:
+    name: Require develop or hotfix/* into main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify PR source branch
+        run: |
+          HEAD_REF="${{ github.head_ref }}"
+          echo "Head branch: $HEAD_REF"
+          if [ "$HEAD_REF" = "develop" ] || [[ "$HEAD_REF" == hotfix/* ]]; then
+            echo "OK: '$HEAD_REF' is an allowed source branch for main."
+            exit 0
+          else
+            echo "::error::Pull requests into 'main' are only allowed from 'develop' or a 'hotfix/*' branch. This PR's source branch is '$HEAD_REF'. Merge into 'develop' first, or rename this to a 'hotfix/*' branch for an urgent production fix."
+            exit 1
+          fi

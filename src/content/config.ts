@@ -229,6 +229,21 @@ const peekSettings = defineCollection({
     }),
 });
 
+/**
+ * Shop Sync — CMS-only utility entry, not read by any page.
+ *
+ * Backs the "Update Shop" button in Decap (see public/admin/widgets.js).
+ * Products come from Shopify at build time (src/lib/shopify.ts); this
+ * entry exists solely so that collection has a JSON file for Decap to
+ * open. The `trigger` field is never meaningfully written to.
+ */
+const shopSync = defineCollection({
+    type: "data",
+    schema: z.object({
+        trigger: z.string().optional(),
+    }),
+});
+
 export const collections = {
     events,
     subevents,
@@ -243,4 +258,5 @@ export const collections = {
     marqueeSettings,
     pageContent,
     peekSettings,
+    shopSync,
 };

@@ -3,9 +3,11 @@ export const prerender = true;
 import "../styles/global.css";
 import "../styles/tokens.css";
 import "../styles/base.css";
+import { ClientRouter } from 'astro:transitions';
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<ClientRouter/>
 
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" is:inline></script>
 <script is:inline>

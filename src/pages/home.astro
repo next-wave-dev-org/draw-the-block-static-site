@@ -14,20 +14,35 @@ type EventEntry = CollectionEntry<"events">;
 const events = (await getCollection("events")) as EventEntry[];
 const now = new Date();
 
-// All featured events, sorted.
+// Keep a featured event on the home page for a day after it ends, so it
+// doesn't vanish the instant it's over.
+const RELEVANCE_GRACE_MS = 24 * 60 * 60 * 1000;
+
+function isUpcoming(e: EventEntry): boolean {
+    const relevanceEnd = e.data.endDate ?? e.data.startDate;
+    return relevanceEnd.getTime() >= now.getTime();
+}
+
+// Featured events still worth showing: upcoming, or ended less than 24h ago.
+// Upcoming events sort soonest-first; recently-ended events sort most-recently-ended first.
 const featuredAll = events
     .filter((e) => e.data.featured)
-    .slice()
-    .sort((a, b) => a.data.startDate.getTime() - b.data.startDate.getTime());
+    .filter((e) => now.getTime() - (e.data.endDate ?? e.data.startDate).getTime() < RELEVANCE_GRACE_MS)
+    .sort((a, b) => {
+        const aUpcoming = isUpcoming(a);
+        const bUpcoming = isUpcoming(b);
+        if (aUpcoming !== bUpcoming) return aUpcoming ? -1 : 1;
+        if (aUpcoming) return a.data.startDate.getTime() - b.data.startDate.getTime();
+        const aEnd = (a.data.endDate ?? a.data.startDate).getTime();
+        const bEnd = (b.data.endDate ?? b.data.startDate).getTime();
+        return bEnd - aEnd;
+    });
 
 // Cap display at 2.
 const featuredDisplay = featuredAll.slice(0, 2);
 
-// Countdown targets earliest upcoming featured (from all featured, not just the first 2).
-const countdownEvent =
-    featuredAll.find((e) =>
-        e.data.endDate ? e.data.endDate >= now : e.data.startDate >= now
-    ) ?? null;
+// Countdown targets the earliest upcoming featured event (already sorted first).
+const countdownEvent = featuredAll.find(isUpcoming) ?? null;
 
 const targetIso = countdownEvent ? countdownEvent.data.startDate.toISOString() : null;
 
@@ -107,20 +122,20 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
         </section>
     )}
 
-    {/* COUNTDOWN */}
-    <section class="home__countdown" aria-label="Countdown to featured event">
-      {targetIso ? (
-          <>
-            <Kicker label="COUNTDOWN" />
-            <Countdown targetIso={targetIso} />
-          </>
-      ) : (
-          <div class="eventNone">
-            <Kicker label="NO UPCOMING FEATURED EVENTS" />
-            <p class="prose">Check back soon!</p>
-          </div>
-      )}
-    </section>
+    {featuredDisplay.length === 0 && (
+        <section class="featuredEmpty">
+          <Kicker label="FEATURED EVENTS" />
+          <p class="prose">Check back soon!</p>
+        </section>
+    )}
+
+    {/* COUNTDOWN — only rendered when there's an upcoming event to count down to. */}
+    {targetIso && (
+        <section class="home__countdown" aria-label="Countdown to featured event">
+          <Kicker label="COUNTDOWN" />
+          <Countdown targetIso={targetIso} />
+        </section>
+    )}
 
     {/* MASCOT + TYPE COMPOSITION */}
     <section class="home__art" aria-label="Draw The Block">
@@ -177,6 +192,15 @@ const taglineText = taglineEntry?.data?.taglineText?.trim() || null;
 
     /* SINGLE FEATURED */
     .featuredSingle {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      align-items: center;
+    }
+
+    /* FEATURED EMPTY — no featured event is currently upcoming or recent */
+    .featuredEmpty {
       width: 100%;
       display: flex;
       flex-direction: column;
