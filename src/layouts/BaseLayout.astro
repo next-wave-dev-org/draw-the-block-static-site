@@ -51,6 +51,25 @@ const bodyBackground =
         ? `url('${bgImage}') center center / cover no-repeat fixed`
         : bgColor;
 
+// Route a CMS-uploaded image through the Netlify Image CDN. CMS paths are
+// build-time strings, so <Image /> can't touch them — this does the resize
+// and format negotiation at the edge instead. Only rewrites local
+// `/uploads/...` paths; external URLs pass through untouched. No `fm` param,
+// so Netlify content-negotiates webp/avif off the Accept header and the
+// on-disk file/extension never changes.
+const netlifyImage = (src: string | undefined, opts: { w?: number; q?: number } = {}) => {
+    if (!src || !src.startsWith("/uploads/")) return src ?? "";
+    // `astro dev` has no Netlify runtime, so `/.netlify/images` would 404 and
+    // the banner would vanish in local dev — serve the raw upload there.
+    // (`astro preview` still hits this path unresolved; verify item 1 on a
+    // Netlify deploy preview, not `npm run preview`.)
+    if (import.meta.env.DEV) return src;
+    const params = new URLSearchParams({ url: src });
+    if (opts.w) params.set("w", String(opts.w));
+    if (opts.q) params.set("q", String(opts.q));
+    return `/.netlify/images?${params.toString()}`;
+};
+
 // Logo backdrop — CMS-controlled band behind the header logo, plus the
 // logo mark itself (image, size, horizontal position) — all one CMS
 // entry ("Header Banner") so the admin preview can show the composite.
@@ -60,7 +79,7 @@ const backdropImage = backdropEntry?.data.backdropImage;
 const backdropVerticalPosition = backdropEntry?.data.backdropVerticalPosition ?? 50;
 const logoBackdropStyle =
     backdropMode === "image" && backdropImage
-        ? `background: url('${backdropImage}') center ${backdropVerticalPosition}% / cover no-repeat;`
+        ? `background: url('${netlifyImage(backdropImage, { w: 1920, q: 70 })}') center ${backdropVerticalPosition}% / cover no-repeat;`
         : "";
 
 const logoMode = backdropEntry?.data.logoMode ?? "default";
