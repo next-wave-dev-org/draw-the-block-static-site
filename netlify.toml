@@ -2,12 +2,26 @@
   command = "npm run build"
   publish = "dist"
 
-# Default headers for every page. Cache headers for static assets are
-# handled by Astro/Netlify automatically; this section is for global
-# security headers.
+# Default headers for every page. Content-hashed build assets (/_astro/*) get
+# long immutable caching from Astro/Netlify automatically; this section is for
+# global security headers.
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# CMS-uploaded media. Unlike /_astro/* these filenames aren't content-hashed,
+# so Netlify's default is max-age=0/must-revalidate — a conditional round trip
+# on every repeat view of every page (the header banner, card images, etc.).
+# These change rarely, and a swap is normally a fresh upload under a new name
+# (the old URL just stops being referenced), so a week of browser caching is
+# safe. The /.netlify/images transform inherits this Cache-Control from the
+# source, so this covers the CDN-optimized variants too. A same-filename
+# replacement is the rare case: it reaches existing visitors within a week
+# (or immediately on hard refresh / a Netlify cache purge).
+[[headers]]
+  for = "/uploads/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
