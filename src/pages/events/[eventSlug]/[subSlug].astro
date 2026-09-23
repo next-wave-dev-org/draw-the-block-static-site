@@ -35,6 +35,7 @@ const { subevent, parent } = Astro.props as {
 
 const formatDateTime = (d: Date) =>
     d.toLocaleString(undefined, {
+      timeZone: "America/Los_Angeles",
       year: "numeric",
       month: "numeric",
       day: "numeric",
