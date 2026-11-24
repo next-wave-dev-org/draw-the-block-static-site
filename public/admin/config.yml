@@ -39,8 +39,8 @@ collections:
         required: false
         media_library:
           config:
-            max_file_size: 4194304
-        hint: "Recommended: 1500–2500px wide, under 2MB. Max 4MB — larger files will be rejected at upload."
+            max_file_size: 2621440
+        hint: "Recommended: 1500–2500px wide, under 2MB. Max 2.5MB — larger files will be rejected at upload."
       - { label: "Event Link", name: "eventUrl", widget: "string", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
@@ -70,8 +70,8 @@ collections:
         required: false
         media_library:
           config:
-            max_file_size: 4194304
-        hint: "Recommended: 1500–2500px wide, under 2MB. Max 4MB — larger files will be rejected at upload."
+            max_file_size: 2621440
+        hint: "Recommended: 1500–2500px wide, under 2MB. Max 2.5MB — larger files will be rejected at upload."
       - { label: "Link", name: "eventUrl", widget: "string", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
@@ -90,8 +90,8 @@ collections:
         widget: "image"
         media_library:
           config:
-            max_file_size: 1048576
-        hint: "Portrait, 3:4 ratio, min 300x400px. Recommended: 600–1000px, under 500KB. Max 1MB — larger files will be rejected at upload."
+            max_file_size: 768000
+        hint: "Portrait, 3:4 ratio, min 300x400px. Recommended: 600–1000px, under 500KB. Max 750KB — larger files will be rejected at upload."
       - { label: "Display Order", name: "displayOrder", widget: "number", value_type: "int", min: 0 }
       - { label: "Website", name: "website", widget: "string", required: false }
 
@@ -168,8 +168,8 @@ collections:
         required: false
         media_library:
           config:
-            max_file_size: 4194304
-        hint: "Recommended: 1500–2500px wide, under 2MB. Max 4MB — larger files will be rejected at upload."
+            max_file_size: 2621440
+        hint: "Recommended: 1500–2500px wide, under 2MB. Max 2.5MB — larger files will be rejected at upload."
       - { label: "Intro / Description", name: "description", widget: "text", required: false, hint: "Short paragraph shown above the Stripe button on the Support page." }
 
   - name: "donate"
@@ -207,8 +207,8 @@ collections:
             required: false
             media_library:
               config:
-                max_file_size: 6291456
-            hint: "Used when Background Mode is set to 'Image'. Recommended: 2000–3000px wide, 2–3MB. Max 6MB. The image covers the full screen behind the content column — visible only on wider screens."
+                max_file_size: 3145728
+            hint: "Used when Background Mode is set to 'Image'. Recommended: 2000–3000px wide, 2–3MB. Max 3MB. The image covers the full screen behind the content column — visible only on wider screens."
 
       - file: "src/content/pageContent/logo-backdrop.json"
         label: "Header Banner"
@@ -228,8 +228,8 @@ collections:
             required: false
             media_library:
               config:
-                max_file_size: 6291456
-            hint: "Used when Backdrop Mode is set to 'Image'. The image appears behind the logo across the full page width. Recommended: 2000–3000px wide, under 2MB. Max 6MB."
+                max_file_size: 1572864
+            hint: "Used when Backdrop Mode is set to 'Image'. The image appears behind the logo across the full page width — it's a short strip, not full-screen. Recommended: 1600–2200px wide, under 1MB. Max 1.5MB — larger files will be rejected at upload."
           - label: "Backdrop Vertical Position"
             name: "backdropVerticalPosition"
             widget: "number"
@@ -253,8 +253,8 @@ collections:
             required: false
             media_library:
               config:
-                max_file_size: 2097152
-            hint: "Only used when Logo Mode above is set to 'Custom'. Max 2MB — transparent PNG recommended."
+                max_file_size: 1048576
+            hint: "Only used when Logo Mode above is set to 'Custom'. Max 1MB — transparent PNG recommended."
           - label: "Logo Size"
             name: "logoSizePercent"
             widget: "number"
@@ -282,8 +282,8 @@ collections:
             required: false
             media_library:
               config:
-                max_file_size: 2097152
-            hint: "Recommended: 1500–2000px wide, under 1MB. Max 2MB — larger files will be rejected at upload."
+                max_file_size: 1572864
+            hint: "Recommended: 1500–2000px wide, under 1MB. Max 1.5MB — larger files will be rejected at upload."
           - { label: "Tagline Text (fallback)", name: "taglineText", widget: "string", required: false, hint: "..." }
 
       - file: "src/content/pageContent/mission.json"
