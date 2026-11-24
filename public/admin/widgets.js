@@ -14,6 +14,33 @@
 // because decap-cms.js doesn't guarantee those globals exist the instant
 // its own <script> tag finishes executing.
 (function () {
+  // The logged-in user's Netlify Identity JWT. This admin page doesn't load the
+  // Identity widget (so window.netlifyIdentity is normally undefined) — Decap's
+  // built-in login (gotrue-js) persists the session in localStorage instead, and
+  // refreshes the token whenever the CMS loads or saves anything. Prefer the
+  // widget if it's ever added.
+  function getIdentityToken() {
+    var widgetUser = window.netlifyIdentity && window.netlifyIdentity.currentUser
+      ? window.netlifyIdentity.currentUser()
+      : null;
+    if (widgetUser) return widgetUser.jwt();
+
+    try {
+      var saved = JSON.parse(window.localStorage.getItem('gotrue.user') || 'null');
+      var token = saved && saved.token;
+      if (token && token.access_token) {
+        // expires_at is ms since epoch; treat <1 min left as expired (same margin gotrue-js uses).
+        if (token.expires_at && token.expires_at - 60000 < Date.now()) {
+          return Promise.reject(new Error('login expired — reload the CMS and try again'));
+        }
+        return Promise.resolve(token.access_token);
+      }
+    } catch (e) {
+      /* fall through */
+    }
+    return Promise.reject(new Error('not logged in — please log in again'));
+  }
+
   function registerDeployTriggerWidget() {
     if (
       typeof createClass !== 'function' ||
@@ -34,14 +61,8 @@
         var self = this;
         self.setState({ status: 'loading', message: '' });
 
-        // The endpoint only accepts logged-in CMS users: send the Netlify Identity
-        // JWT. user.jwt() returns a fresh token (refreshing it if it has expired).
-        var user = window.netlifyIdentity && window.netlifyIdentity.currentUser
-          ? window.netlifyIdentity.currentUser()
-          : null;
-        var tokenPromise = user
-          ? user.jwt()
-          : Promise.reject(new Error('not logged in — please log in again'));
+        // The endpoint only accepts logged-in CMS users: send their Netlify Identity JWT.
+        var tokenPromise = getIdentityToken();
 
         tokenPromise
           .then(function (token) {
