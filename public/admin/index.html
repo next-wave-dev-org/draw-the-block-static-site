@@ -6,8 +6,14 @@
     <title>Content Manager</title>
 </head>
 <body>
-<!-- Decap CMS -->
-<script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+<!-- Decap CMS — pinned to an exact version with an SRI hash so a compromised or
+     buggy upstream release can't silently run in the (Git Gateway-authenticated) admin.
+     To upgrade: bump the version, then recompute the hash:
+     curl -sL https://unpkg.com/decap-cms@<ver>/dist/decap-cms.js | openssl dgst -sha384 -binary | openssl base64 -A -->
+<script
+    src="https://unpkg.com/decap-cms@3.18.0/dist/decap-cms.js"
+    integrity="sha384-Vu0vdYOBhK+2KywHCtNZ9sCqpzkwx358AT6pCSg8om/clLoDzpWYF41jrtEk/WMM"
+    crossorigin="anonymous"></script>
 <script src="/admin/preview-templates.js"></script>
 <script src="/admin/widgets.js"></script>
 </body>

@@ -11,6 +11,7 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
 # CMS-uploaded media. Unlike /_astro/* these filenames aren't content-hashed,
 # so Netlify's default is max-age=0/must-revalidate — a conditional round trip

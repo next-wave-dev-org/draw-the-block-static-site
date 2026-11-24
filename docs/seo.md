@@ -66,3 +66,12 @@ SHOPIFY_USE_MOCKS=true npm run build
 # dist/sitemap-0.xml, dist/robots.txt
 npx netlify-cli@latest serve --offline   # production-like serve at :8888
 ```
+
+> **Warning:** `netlify serve` injects your local `.env` (Shopify + **MailerLite** keys) even with `--offline`.
+> Form endpoints (`/api/subscribe`) hit the **real** services, and `/api/trigger-deploy` would
+> trigger a **real** build. Don't POST to them while testing — or run with an empty env.
+>
+> Also: the local server resizes images but doesn't convert to webp, and it ignores the
+> `/uploads/*` `Cache-Control` rule from `netlify.toml`. Verify those on the deployed site with
+> `curl -I https://drawtheblock.org/uploads/dtb.jpg` and
+> `curl -H "Accept: image/webp" -I "https://drawtheblock.org/.netlify/images?url=%2Fuploads%2Fdtb.jpg&w=1920&q=70"`.
