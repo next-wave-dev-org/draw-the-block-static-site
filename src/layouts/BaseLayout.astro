@@ -6,6 +6,16 @@ import { getCollection, getEntry } from "astro:content";
 import { ClientRouter } from 'astro:transitions';
 import Marquee from "../components/Marquee.astro";
 import PeekMascot, { type Props as PeekProps } from "../components/PeekMascot.astro";
+import {
+  SITE_NAME,
+  DEFAULT_OG_IMAGE,
+  canonicalUrl,
+  absoluteUrl,
+  cleanDescription,
+  organizationJsonLd,
+  websiteJsonLd,
+  serializeJsonLd,
+} from "../lib/seo";
 
 type NavKey = "home" | "about" | "events" | "vendors" | "partners" | "shop" | "support" | "faq" | "newsletter";
 
@@ -14,13 +24,33 @@ const {
   current,
   peekKey,
   description,
+  image,
+  noindex = false,
+  jsonLd,
 } = Astro.props as {
   title?: string;
   current?: NavKey;
   /** CMS peek key — one of the keys in src/content/peekSettings/peek-settings.json */
   peekKey?: string;
   description?: string;
+  /** Share-card image (site-relative or absolute). Defaults to the DTB logo card. */
+  image?: string;
+  /** Adds <meta name="robots" content="noindex">. Don't also Disallow it in robots.txt. */
+  noindex?: boolean;
+  /** Extra schema.org JSON-LD object(s) for this page (e.g. an Event). */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 };
+
+// SEO — canonical is always the trailing-slash form (Netlify 301s /home → /home/).
+const site = Astro.site ?? new URL("https://drawtheblock.org");
+const canonical = canonicalUrl(Astro.url.pathname, site);
+const metaDescription = cleanDescription(description);
+const ogImage = absoluteUrl(image, site) ?? absoluteUrl(DEFAULT_OG_IMAGE, site);
+const isHome = Astro.url.pathname.replace(/\/$/, "") === "/home";
+const structuredData = [
+  ...(isHome ? [organizationJsonLd(site), websiteJsonLd(site)] : []),
+  ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []),
+];
 
 const socialSettings = await getEntry("settings", "social");
 const { discordUrl, instagramUrl } = socialSettings?.data || {};
@@ -46,9 +76,30 @@ const backgroundEntry = await getEntry("pageContent", "background");
 const bgMode = backgroundEntry?.data.backgroundMode ?? "color";
 const bgColor = backgroundEntry?.data.backgroundColor ?? "#287feb";
 const bgImage = backgroundEntry?.data.backgroundImage;
+// Route a CMS-uploaded image through the Netlify Image CDN. CMS paths are
+// build-time strings, so <Image /> can't touch them — this does the resize
+// and format negotiation at the edge instead. Only rewrites local
+// `/uploads/...` paths; external URLs pass through untouched. No `fm` param,
+// so Netlify content-negotiates webp/avif off the Accept header and the
+// on-disk file/extension never changes.
+const netlifyImage = (src: string | undefined, opts: { w?: number; q?: number } = {}) => {
+    if (!src || !src.startsWith("/uploads/")) return src ?? "";
+    // `astro dev` has no Netlify runtime, so `/.netlify/images` would 404 and
+    // the banner would vanish in local dev — serve the raw upload there.
+    // (`astro preview` still hits this path unresolved; verify item 1 on a
+    // Netlify deploy preview, not `npm run preview`.)
+    if (import.meta.env.DEV) return src;
+    const params = new URLSearchParams({ url: src });
+    if (opts.w) params.set("w", String(opts.w));
+    if (opts.q) params.set("q", String(opts.q));
+    return `/.netlify/images?${params.toString()}`;
+};
+
+// Full-screen `cover` + `fixed` backdrop: w=2560 so 1440p screens aren't
+// upscaled from a smaller variant (the CDN never upsizes past the source).
 const bodyBackground =
     bgMode === "image" && bgImage
-        ? `url('${bgImage}') center center / cover no-repeat fixed`
+        ? `url('${netlifyImage(bgImage, { w: 2560, q: 70 })}') center center / cover no-repeat fixed`
         : bgColor;
 
 // Logo backdrop — CMS-controlled band behind the header logo, plus the
@@ -60,7 +111,7 @@ const backdropImage = backdropEntry?.data.backdropImage;
 const backdropVerticalPosition = backdropEntry?.data.backdropVerticalPosition ?? 50;
 const logoBackdropStyle =
     backdropMode === "image" && backdropImage
-        ? `background: url('${backdropImage}') center ${backdropVerticalPosition}% / cover no-repeat;`
+        ? `background: url('${netlifyImage(backdropImage, { w: 1920, q: 70 })}') center ${backdropVerticalPosition}% / cover no-repeat;`
         : "";
 
 const logoMode = backdropEntry?.data.logoMode ?? "default";
@@ -151,6 +202,20 @@ const mobileDrawerItems = navItems.filter((i) => !mobilePrimaryKeys.includes(i.k
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
   <title>{title}</title>
+  <meta name="description" content={metaDescription} />
+  <link rel="canonical" href={canonical} />
+  {noindex && <meta name="robots" content="noindex" />}
+  <meta property="og:site_name" content={SITE_NAME} />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={ogImage} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={metaDescription} />
+  <meta name="twitter:image" content={ogImage} />
+  {structuredData.map((d) => <script type="application/ld+json" set:html={serializeJsonLd(d)} />)}
   <style define:vars={{ bodyBackground }}>body { background: var(--bodyBackground); }</style>
   <ClientRouter/>
 </head>

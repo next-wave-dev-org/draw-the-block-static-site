@@ -5,7 +5,8 @@
 // show up live. This widget renders a single button that POSTs to
 // /api/trigger-deploy (an Astro server endpoint that holds the actual
 // Netlify build hook URL server-side — the hook URL never reaches this
-// public admin JS). The click is a pure fetch; it does not touch the
+// public admin JS). The request carries the logged-in user's Netlify
+// Identity JWT; the endpoint rejects anything without a valid one. The click is a pure fetch; it does not touch the
 // entry's saved value, so the client never needs to hit Save/Publish.
 //
 // Uses Decap's global `h`/`createClass` helpers, same convention as
@@ -13,6 +14,36 @@
 // because decap-cms.js doesn't guarantee those globals exist the instant
 // its own <script> tag finishes executing.
 (function () {
+  // The logged-in user's Netlify Identity JWT. This admin page doesn't load the
+  // Identity widget (so window.netlifyIdentity is normally undefined) — Decap's
+  // built-in login (gotrue-js) persists the session in localStorage instead, and
+  // refreshes the token whenever the CMS loads or saves anything. We deliberately do
+  // NOT refresh it here: rewriting Decap's stored session could log the editor out
+  // mid-edit. A timed-out click only shows a message; it never touches the session.
+  // Prefer the
+  // widget if it's ever added.
+  function getIdentityToken() {
+    var widgetUser = window.netlifyIdentity && window.netlifyIdentity.currentUser
+      ? window.netlifyIdentity.currentUser()
+      : null;
+    if (widgetUser) return widgetUser.jwt();
+
+    try {
+      var saved = JSON.parse(window.localStorage.getItem('gotrue.user') || 'null');
+      var token = saved && saved.token;
+      if (token && token.access_token) {
+        // expires_at is ms since epoch; treat <1 min left as expired (same margin gotrue-js uses).
+        if (token.expires_at && token.expires_at - 60000 < Date.now()) {
+          return Promise.reject(new Error('login timed out — save any open changes first, then reload the CMS and try again'));
+        }
+        return Promise.resolve(token.access_token);
+      }
+    } catch (e) {
+      /* fall through */
+    }
+    return Promise.reject(new Error('not logged in — please log in again'));
+  }
+
   function registerDeployTriggerWidget() {
     if (
       typeof createClass !== 'function' ||
@@ -33,7 +64,16 @@
         var self = this;
         self.setState({ status: 'loading', message: '' });
 
-        fetch('/api/trigger-deploy', { method: 'POST' })
+        // The endpoint only accepts logged-in CMS users: send their Netlify Identity JWT.
+        var tokenPromise = getIdentityToken();
+
+        tokenPromise
+          .then(function (token) {
+            return fetch('/api/trigger-deploy', {
+              method: 'POST',
+              headers: { Authorization: 'Bearer ' + token },
+            });
+          })
           .then(function (res) {
             return res.json().catch(function () {
               return {};

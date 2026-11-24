@@ -4,9 +4,28 @@ import "../styles/global.css";
 import "../styles/tokens.css";
 import "../styles/base.css";
 import { ClientRouter } from 'astro:transitions';
+import { SITE_NAME, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, canonicalUrl, absoluteUrl, organizationJsonLd, websiteJsonLd, serializeJsonLd } from '../lib/seo';
+const title = "DRAW THE BLOCK — Seattle Anime & Manga Art Market";
+const canonical = canonicalUrl("/", Astro.site!);
+const ogImage = absoluteUrl(DEFAULT_OG_IMAGE, Astro.site!);
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title}</title>
+<meta name="description" content={DEFAULT_DESCRIPTION} />
+<link rel="canonical" href={canonical} />
+<meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:type" content="website" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={DEFAULT_DESCRIPTION} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={DEFAULT_DESCRIPTION} />
+<meta name="twitter:image" content={ogImage} />
+<script type="application/ld+json" set:html={serializeJsonLd(organizationJsonLd(Astro.site!))} />
+<script type="application/ld+json" set:html={serializeJsonLd(websiteJsonLd(Astro.site!))} />
 <ClientRouter/>
 
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" is:inline></script>
