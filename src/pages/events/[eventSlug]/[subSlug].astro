@@ -5,6 +5,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../../components/Breadcrumb.astro";
 import Kicker from "../../../components/Kicker.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
+import { canonicalUrl, eventJsonLd } from "../../../lib/seo";
 
 type EventEntry = CollectionEntry<"events">;
 type SubEventEntry = CollectionEntry<"subevents">;
@@ -42,6 +43,11 @@ const formatDateTime = (d: Date) =>
       hour: "numeric",
       minute: "2-digit",
     });
+const eventLd = eventJsonLd(
+    subevent.data,
+    canonicalUrl(Astro.url.pathname, Astro.site!),
+    Astro.site!,
+);
 ---
 
 <BaseLayout
@@ -49,6 +55,8 @@ const formatDateTime = (d: Date) =>
     current="events"
     peekKey="eventsSubevent"
     description={subevent.data.description}
+    image={subevent.data.image}
+    jsonLd={eventLd}
 >
   <main class="events stack">
     <Breadcrumb items={[
