@@ -44,3 +44,25 @@
 3. **Tighten CMS upload guardrails in `public/admin/config.yml`** — the logo-backdrop image field currently caps at 6MB, which is exactly what let a 2.85MB `dtb.jpg` through. Lower ceilings site-wide so this doesn't recur.
 
 4. ~~**additional ask from client** swappable home mascot~~ — **Dropped 11/23/2026**, out of scope.
+
+
+## Security pass — 11/23/2026 (branch `security-update-2026-11`)
+
+Previous pass: July 2026 (`security-update`, already in `main`).
+
+- **Done:** `npm audit fix` (no `--force`): 39 vulns (4 critical, 25 high) → 14 (0 critical, 4 high).
+  astro 7.1.4→7.4.13, @astrojs/netlify 8.1.2→8.2.14, decap-server 3.9.1→3.11.6, plus transitive
+  bumps (vite, devalue, simple-git, proxy-addr, body-parser, etc.). Built + compared every page's
+  HTML against a pre-update baseline under `netlify serve`: identical.
+- **Done:** Decap CMS script in `public/admin/index.html` pinned to `decap-cms@3.18.0` with an SRI
+  hash (was `^3.0.0` floating from unpkg; the pinned file is byte-identical to what `^3.0.0` served).
+- **Done:** `Permissions-Policy` header (camera/mic/geolocation off; `payment` deliberately left on — the Support page embeds Ko-fi) in `netlify.toml`.
+- **Open — `/api/trigger-deploy` is unauthenticated.** Any `POST` triggers a Netlify build, so a
+  script can burn build minutes/credits. Fix = require a valid Netlify Identity token (CMS widget
+  sends `netlifyIdentity.currentUser().jwt()`; endpoint verifies against `/.netlify/identity/user`).
+  Needs testing against the real Identity login, so not done blind.
+- **Open (accepted):** remaining 14 advisories — `decap-server`/`@decap/cli` (`@hapi/joi`, `zod`):
+  local-only dev proxy, never deployed, no non-beta fix exists. `@astrojs/netlify` build-time chain
+  (glob/minimatch/archiver, moderate): only "fix" npm offers is a downgrade to v6.
+- **Open:** no Content-Security-Policy (would need `Report-Only` first — Decap, Identity widget,
+  unpkg, Shopify). Netlify Identity/Git Gateway is deprecated by Netlify — plan a migration eventually.
