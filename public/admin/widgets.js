@@ -17,7 +17,10 @@
   // The logged-in user's Netlify Identity JWT. This admin page doesn't load the
   // Identity widget (so window.netlifyIdentity is normally undefined) — Decap's
   // built-in login (gotrue-js) persists the session in localStorage instead, and
-  // refreshes the token whenever the CMS loads or saves anything. Prefer the
+  // refreshes the token whenever the CMS loads or saves anything. We deliberately do
+  // NOT refresh it here: rewriting Decap's stored session could log the editor out
+  // mid-edit. A timed-out click only shows a message; it never touches the session.
+  // Prefer the
   // widget if it's ever added.
   function getIdentityToken() {
     var widgetUser = window.netlifyIdentity && window.netlifyIdentity.currentUser
@@ -31,7 +34,7 @@
       if (token && token.access_token) {
         // expires_at is ms since epoch; treat <1 min left as expired (same margin gotrue-js uses).
         if (token.expires_at && token.expires_at - 60000 < Date.now()) {
-          return Promise.reject(new Error('login expired — reload the CMS and try again'));
+          return Promise.reject(new Error('login timed out — save any open changes first, then reload the CMS and try again'));
         }
         return Promise.resolve(token.access_token);
       }
