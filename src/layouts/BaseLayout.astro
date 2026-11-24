@@ -46,11 +46,6 @@ const backgroundEntry = await getEntry("pageContent", "background");
 const bgMode = backgroundEntry?.data.backgroundMode ?? "color";
 const bgColor = backgroundEntry?.data.backgroundColor ?? "#287feb";
 const bgImage = backgroundEntry?.data.backgroundImage;
-const bodyBackground =
-    bgMode === "image" && bgImage
-        ? `url('${bgImage}') center center / cover no-repeat fixed`
-        : bgColor;
-
 // Route a CMS-uploaded image through the Netlify Image CDN. CMS paths are
 // build-time strings, so <Image /> can't touch them — this does the resize
 // and format negotiation at the edge instead. Only rewrites local
@@ -69,6 +64,13 @@ const netlifyImage = (src: string | undefined, opts: { w?: number; q?: number } 
     if (opts.q) params.set("q", String(opts.q));
     return `/.netlify/images?${params.toString()}`;
 };
+
+// Full-screen `cover` + `fixed` backdrop: w=2560 so 1440p screens aren't
+// upscaled from a smaller variant (the CDN never upsizes past the source).
+const bodyBackground =
+    bgMode === "image" && bgImage
+        ? `url('${netlifyImage(bgImage, { w: 2560, q: 70 })}') center center / cover no-repeat fixed`
+        : bgColor;
 
 // Logo backdrop — CMS-controlled band behind the header logo, plus the
 // logo mark itself (image, size, horizontal position) — all one CMS

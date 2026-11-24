@@ -32,13 +32,15 @@
 >   `develop`; Netlify Deploy Previews are likely scoped to PRs against `main`).
 >   A Cloudflare Pages preview *did* build from an external repo integration —
 >   ignore it, this project has no Cloudflare config and `/.netlify/*` 404s there.
-> - **Follow-up still open (not in this branch):** the site background image
->   (`untitled_design_-_2026-06-23…png`, ~945KB, `background.json`) is a
->   full-screen `fixed` image on every page — bigger real cost than `dtb.jpg`,
->   just under the 1MB batch threshold. Same `netlifyImage()` helper, one line.
+> - **Background image (added 11/23/2026):** `bodyBackground` now goes through
+>   `netlifyImage()` at w=2560, q=70 (source is 3840x2160, no alpha channel).
+>   Verified against production transform: 968KB PNG -> 164KB webp (-83%); clients
+>   without webp get a 704KB PNG. Full-screen `fixed` image on every page.
+> - **Not yet done:** Lighthouse before/after (needs a production-like local run
+>   or deploy preview). Compare `main` vs this branch.
 
 1. **Swap `dtb.jpg` to the Netlify Image CDN and take a real baseline** — it's the header banner backdrop (`BaseLayout.astro`, `.logo-backdrop`), loads on every page, and is built from a CMS string already, so `/.netlify/images?url=...` drops in with no other code changes. Capture a `npm run build && npm run preview` Lighthouse run before/after — the two `astro dev` reports currently in the repo root are dev-server-inflated and not valid baselines.
 2. **Bulk-recompress the ~29 other images over 1MB in `public/uploads`** — same format/extension only (JPEG→JPEG, PNG→PNG, ~q80, cap max dimension ~2000px). All are confirmed actively referenced in content, not orphaned. Do not convert to WebP — that changes the extension and means rewriting every content path, which is a separate migration.
 3. **Tighten CMS upload guardrails in `public/admin/config.yml`** — the logo-backdrop image field currently caps at 6MB, which is exactly what let a 2.85MB `dtb.jpg` through. Lower ceilings site-wide so this doesn't recur.
 
-4. **additional ask from client** Client asked for mascot image on home to be available to be swapped with uploaded images. We should add another CMS upload section, but we need to make sure the image size is static to preseve the current aestetic and not allow an awkward home page. We can include a preview of the home page, that would be ideal.
+4. ~~**additional ask from client** swappable home mascot~~ — **Dropped 11/23/2026**, out of scope.
