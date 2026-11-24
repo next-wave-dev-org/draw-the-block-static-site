@@ -57,10 +57,11 @@ Previous pass: July 2026 (`security-update`, already in `main`).
 - **Done:** Decap CMS script in `public/admin/index.html` pinned to `decap-cms@3.18.0` with an SRI
   hash (was `^3.0.0` floating from unpkg; the pinned file is byte-identical to what `^3.0.0` served).
 - **Done:** `Permissions-Policy` header (camera/mic/geolocation off; `payment` deliberately left on — the Support page embeds Ko-fi) in `netlify.toml`.
-- **Open — `/api/trigger-deploy` is unauthenticated.** Any `POST` triggers a Netlify build, so a
-  script can burn build minutes/credits. Fix = require a valid Netlify Identity token (CMS widget
-  sends `netlifyIdentity.currentUser().jwt()`; endpoint verifies against `/.netlify/identity/user`).
-  Needs testing against the real Identity login, so not done blind.
+- **Done (branch `trigger-deploy-auth`):** `/api/trigger-deploy` now requires a valid Netlify Identity
+  JWT (`Authorization: Bearer`), confirmed against `/.netlify/identity/user`; fails closed. The CMS
+  "Update Shop" button sends the logged-in user's token. **After deploy, click the button once while
+  logged in to the live CMS** (a 401/503 message means the check failed — revert or fix). The Shop
+  button is the only thing this affects.
 - **Open (accepted):** remaining 14 advisories — `decap-server`/`@decap/cli` (`@hapi/joi`, `zod`):
   local-only dev proxy, never deployed, no non-beta fix exists. `@astrojs/netlify` build-time chain
   (glob/minimatch/archiver, moderate): only "fix" npm offers is a downgrade to v6.

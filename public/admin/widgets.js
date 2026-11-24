@@ -5,7 +5,8 @@
 // show up live. This widget renders a single button that POSTs to
 // /api/trigger-deploy (an Astro server endpoint that holds the actual
 // Netlify build hook URL server-side — the hook URL never reaches this
-// public admin JS). The click is a pure fetch; it does not touch the
+// public admin JS). The request carries the logged-in user's Netlify
+// Identity JWT; the endpoint rejects anything without a valid one. The click is a pure fetch; it does not touch the
 // entry's saved value, so the client never needs to hit Save/Publish.
 //
 // Uses Decap's global `h`/`createClass` helpers, same convention as
@@ -33,7 +34,22 @@
         var self = this;
         self.setState({ status: 'loading', message: '' });
 
-        fetch('/api/trigger-deploy', { method: 'POST' })
+        // The endpoint only accepts logged-in CMS users: send the Netlify Identity
+        // JWT. user.jwt() returns a fresh token (refreshing it if it has expired).
+        var user = window.netlifyIdentity && window.netlifyIdentity.currentUser
+          ? window.netlifyIdentity.currentUser()
+          : null;
+        var tokenPromise = user
+          ? user.jwt()
+          : Promise.reject(new Error('not logged in — please log in again'));
+
+        tokenPromise
+          .then(function (token) {
+            return fetch('/api/trigger-deploy', {
+              method: 'POST',
+              headers: { Authorization: 'Bearer ' + token },
+            });
+          })
           .then(function (res) {
             return res.json().catch(function () {
               return {};
